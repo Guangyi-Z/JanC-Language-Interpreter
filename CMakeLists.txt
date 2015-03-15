@@ -15,10 +15,10 @@ set(LIB_ROOT ./lib)
 ################
 # Intergration #
 ################
+include_directories(./src)
 add_subdirectory(src)
 add_executable(run src/main.cpp)
-# include_directories(./src)
-# target_link_libraries(run)
+target_link_libraries(run lexer)
 
 ####################
 # Setup googletest #
@@ -39,3 +39,4 @@ endfunction()
 # Options related to test cases.
 # option(test_example "an example." ON)
 add_subdirectory(test/test_example)
+add_subdirectory(test/test_lexer)

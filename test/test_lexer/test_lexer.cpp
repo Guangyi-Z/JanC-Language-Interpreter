@@ -1,0 +1,87 @@
+#include "gtest/gtest.h"
+#include "lexer/token.h"
+
+TEST(test_lexer, number) {
+    Lexer lexer("./test.txt");
+
+    EXPECT_EQ(TOK_INT, lexer.GetNextToken());
+    EXPECT_EQ(TOK_INT, lexer.GetNextToken());
+    EXPECT_EQ(TOK_INT, lexer.GetNextToken());
+    EXPECT_EQ(TOK_DOUBLE, lexer.GetNextToken());
+    EXPECT_EQ(TOK_INT, lexer.GetNextToken());
+    EXPECT_EQ(TOK_INT, lexer.GetNextToken());
+    EXPECT_EQ(TOK_INT, lexer.GetNextToken());
+    EXPECT_EQ(TOK_INT, lexer.GetNextToken());
+    EXPECT_EQ(TOK_INT, lexer.GetNextToken());
+    EXPECT_EQ(TOK_INT, lexer.GetNextToken());
+    EXPECT_EQ(TOK_DOUBLE, lexer.GetNextToken());
+    EXPECT_EQ(TOK_DOUBLE, lexer.GetNextToken());
+    EXPECT_EQ(TOK_DOUBLE, lexer.GetNextToken());
+    EXPECT_EQ(TOK_INT, lexer.GetNextToken());
+    EXPECT_EQ(TOK_DOUBLE, lexer.GetNextToken());
+    EXPECT_EQ(TOK_DOUBLE, lexer.GetNextToken());
+    EXPECT_EQ(TOK_INT, lexer.GetNextToken());
+    EXPECT_EQ(TOK_INT, lexer.GetNextToken());
+    EXPECT_EQ(TOK_INT, lexer.GetNextToken());
+    EXPECT_EQ(TOK_DOUBLE, lexer.GetNextToken());
+    EXPECT_EQ(TOK_DOUBLE, lexer.GetNextToken());
+}
+
+TEST(test_lexer, id) {
+    Lexer lexer("./test2.txt");
+
+    EXPECT_EQ(TOK_INT, lexer.GetNextToken());
+    EXPECT_EQ(TOK_INT, lexer.GetNextToken());
+    EXPECT_EQ(TOK_INT, lexer.GetNextToken());
+    EXPECT_EQ(TOK_DOUBLE, lexer.GetNextToken());
+    EXPECT_EQ(TOK_INT, lexer.GetNextToken());
+    EXPECT_EQ(TOK_INT, lexer.GetNextToken());
+    EXPECT_EQ(TOK_INT, lexer.GetNextToken());
+    EXPECT_EQ(TOK_INT, lexer.GetNextToken());
+    EXPECT_EQ(TOK_ID, lexer.GetNextToken());
+    EXPECT_EQ(TOK_ID, lexer.GetNextToken());
+    EXPECT_EQ(TOK_ID, lexer.GetNextToken());
+    EXPECT_EQ(TOK_INT, lexer.GetNextToken());
+    EXPECT_EQ(TOK_ID, lexer.GetNextToken());
+    EXPECT_EQ(TOK_ID, lexer.GetNextToken());
+    EXPECT_EQ(TOK_BOOL, lexer.GetNextToken());
+    EXPECT_EQ(TOK_INT, lexer.GetNextToken());
+    EXPECT_EQ(TOK_DOUBLE, lexer.GetNextToken());
+    EXPECT_EQ(TOK_DOUBLE, lexer.GetNextToken());
+    EXPECT_EQ(TOK_DOUBLE, lexer.GetNextToken());
+    EXPECT_EQ(TOK_WHILE, lexer.GetNextToken());
+    EXPECT_EQ(TOK_INT, lexer.GetNextToken());
+    EXPECT_EQ(TOK_DOUBLE, lexer.GetNextToken());
+    EXPECT_EQ(TOK_VAR, lexer.GetNextToken());
+    EXPECT_EQ(TOK_DOUBLE, lexer.GetNextToken());
+    EXPECT_EQ(TOK_VAR, lexer.GetNextToken());
+    EXPECT_EQ(TOK_INT, lexer.GetNextToken());
+    EXPECT_EQ(TOK_ID, lexer.GetNextToken());
+    EXPECT_EQ(TOK_INT, lexer.GetNextToken());
+    EXPECT_EQ(TOK_ID, lexer.GetNextToken());
+    EXPECT_EQ(TOK_INT, lexer.GetNextToken());
+    EXPECT_EQ(TOK_DOUBLE, lexer.GetNextToken());
+    EXPECT_EQ(TOK_DOUBLE, lexer.GetNextToken());
+}
+
+TEST(test_lexer, delimeter) {
+    Lexer lexer("./test3.txt");
+
+    EXPECT_EQ(TOK_COMMA, lexer.GetNextToken());
+    EXPECT_EQ(TOK_SEMI, lexer.GetNextToken());
+    EXPECT_EQ(TOK_BRACE_LEFT, lexer.GetNextToken());
+    EXPECT_EQ(TOK_BRACE_RIGHT, lexer.GetNextToken());
+    EXPECT_EQ(TOK_PAREN_LEFT, lexer.GetNextToken());
+    EXPECT_EQ(TOK_PAREN_RIGHT, lexer.GetNextToken());
+    EXPECT_EQ(TOK_CURLY_BRACE_LEFT, lexer.GetNextToken());
+    EXPECT_EQ(TOK_CURLY_BRACE_RIGHT, lexer.GetNextToken());
+}
+
+TEST(test_lexer, str) {
+    Lexer lexer("./test4.txt");
+
+    EXPECT_EQ(TOK_STRING, lexer.GetNextToken());
+    EXPECT_EQ(TOK_STRING, lexer.GetNextToken());
+    EXPECT_EQ(TOK_STRING, lexer.GetNextToken());
+    EXPECT_EQ(TOK_STRING, lexer.GetNextToken());
+}
