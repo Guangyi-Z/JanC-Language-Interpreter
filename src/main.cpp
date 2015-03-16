@@ -24,4 +24,18 @@ int main() {
     s[1] = '\0';
     cout << s << endl;
 
+    cout << endl;
+
+    switch (1) {
+        case 1:
+            // int a = 1;
+            break;
+        case 2:
+            {
+                int b = 2;
+            }
+            break;
+        default:
+            break;
+    }
 }

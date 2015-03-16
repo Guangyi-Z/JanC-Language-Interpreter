@@ -1,3 +1,6 @@
+#ifndef TOKEN_H
+    #define TOKEN_H
+
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -5,6 +8,7 @@
 #include <cstring>
 #include <cctype>
 #include <unordered_map>
+#include "op.h"
 
 enum TOKEN {
     /* value */
@@ -34,6 +38,7 @@ enum TOKEN {
     TOK_CURLY_BRACE_RIGHT,
     TOK_SEMI,
     TOK_COMMA,
+    TOK_OP,
 
     /* helper token */
     TOK_NUMBER_OF_TOKENS,
@@ -42,6 +47,7 @@ enum TOKEN {
     TOK_END
 };
 
+/* mapping reserved key words to TOK_ */
 const std::pair<std::string, TOKEN> Key_Words[] = {
     {"if", TOK_IF},
     {"else", TOK_ELSE},
@@ -73,6 +79,7 @@ public:
     ~Lexer();
     TOKEN GetNextToken();
     std::string GetCurLexem();
+    OP GetCurOP();
 private:
     bool Eat(char c);
     void Eat();
@@ -83,4 +90,6 @@ private:
     static const int MAX_LEXEM = 1024;
     char lexem_buf[MAX_LEXEM];
     std::unordered_map<std::string, TOKEN> mkey;
+    OPEntry ope;
 };
+#endif

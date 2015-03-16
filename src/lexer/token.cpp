@@ -14,13 +14,19 @@ Lexer::~Lexer() {
     in.close();
 }
 
+OP Lexer::GetCurOP() {
+    return ope.op;
+}
+
 TOKEN Lexer::GetNextToken() {
     lexem_buf[0] = '\0';
     while(cur != EOF && isspace(cur)) cur = in.get();
     if (cur == EOF) return TOK_END;
 
     TOKEN t = TOK_START;
+    int op_table_index = 0;
     int ibuf = 0;
+
     while(true) {
         if (cur == EOF) goto done;
 
@@ -41,6 +47,17 @@ TOKEN Lexer::GetNextToken() {
                 t = TOK_STRING;
                 cur = in.get();
                 continue;
+            }
+            else if (strchr(OP_Char_Set, cur)) {
+                t = TOK_OP;
+                for (OPEntry e : OP_Action_Table[op_table_index]) {
+                    if (e.c == OPEntry::EMPTY_OP) break;
+                    if (cur == e.c) {
+                        ope = e;
+                        break;
+                    }
+                }
+                op_table_index++;
             }
             else ;
             break;
@@ -74,9 +91,32 @@ TOKEN Lexer::GetNextToken() {
                 cur = in.get();
                 continue;
             }
-            else if (cur == '"')
+            else if (cur == '"') {
+                cur = in.get(); // eat the ending '"'
                 goto done;
+            }
             else ;
+            break;
+        case TOK_OP:
+            {
+                bool is_match = false;
+                for (int ind : ope.nxt) {
+                    OPEntry e = OP_Action_Table[op_table_index][ind];
+                    if (e.c == OPEntry::EMPTY_OP) break;
+                    if (cur == e.c) {
+                        ope = e;
+                        is_match = true;
+                        cur = in.get(); // don't forget to eat the op char
+                        break;
+                    }
+                }
+                if (ope.op != OP_NONE && (ope.nxt.empty() || !is_match))
+                    goto done;
+                else if (!ope.nxt.empty() && is_match)
+                    op_table_index++;
+                else
+                    goto bad_syntax;
+            }
             break;
         default:
             break;
