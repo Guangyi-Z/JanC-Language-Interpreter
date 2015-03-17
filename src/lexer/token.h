@@ -19,31 +19,31 @@ enum TOKEN {
     TOK_STRING,
 
     /* flow control */
-    TOK_IF,
+    TOK_IF, // 5th
     TOK_ELSE,
     TOK_VAR,
     TOK_FUNC,
     TOK_WHILE,
-    TOK_BREAK,
+    TOK_BREAK, // 10th
     TOK_CONTINUE,
     TOK_FOR,
     TOK_RETURN,
 
     /* punctuation */
     TOK_PAREN_LEFT,
-    TOK_PAREN_RIGHT,
+    TOK_PAREN_RIGHT, // 15th
     TOK_BRACE_LEFT,
     TOK_BRACE_RIGHT,
     TOK_CURLY_BRACE_LEFT,
     TOK_CURLY_BRACE_RIGHT,
-    TOK_SEMI,
+    TOK_SEMI, // 20th
     TOK_COMMA,
     TOK_OP,
 
     /* helper token */
     TOK_NUMBER_OF_TOKENS,
     TOK_BAD_TOKEN,
-    TOK_START,
+    TOK_START, // 25th
     TOK_END
 };
 
@@ -75,9 +75,12 @@ const std::string Delim = ",;()[]{}";
 
 class Lexer {
 public:
+    Lexer();
     Lexer(std::string path_to_file);
     ~Lexer();
+    void Load(std::string path_to_file);
     TOKEN GetNextToken();
+    TOKEN GetCurToken();
     std::string GetCurLexem();
     OP GetCurOP();
 private:
@@ -91,5 +94,6 @@ private:
     char lexem_buf[MAX_LEXEM];
     std::unordered_map<std::string, TOKEN> mkey;
     OPEntry ope;
+    TOKEN t = TOK_BAD_TOKEN;
 };
 #endif

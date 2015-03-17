@@ -18,7 +18,7 @@ set(LIB_ROOT ./lib)
 include_directories(./src)
 add_subdirectory(src)
 add_executable(run src/main.cpp)
-target_link_libraries(run lexer)
+target_link_libraries(run lexer parser)
 
 ####################
 # Setup googletest #
@@ -38,5 +38,6 @@ endfunction()
 ##############
 # Options related to test cases.
 # option(test_example "an example." ON)
-add_subdirectory(test/test_example)
+# add_subdirectory(test/test_example)
 add_subdirectory(test/test_lexer)
+add_subdirectory(test/test_parser)

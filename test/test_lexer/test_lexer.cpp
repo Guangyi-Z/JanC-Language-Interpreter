@@ -2,7 +2,7 @@
 #include "lexer/token.h"
 
 TEST(test_lexer, number) {
-    Lexer lexer("./test.txt");
+    Lexer lexer("./lexer_test1.txt");
 
     EXPECT_EQ(TOK_INT, lexer.GetNextToken());
     EXPECT_EQ(TOK_INT, lexer.GetNextToken());
@@ -28,7 +28,7 @@ TEST(test_lexer, number) {
 }
 
 TEST(test_lexer, id) {
-    Lexer lexer("./test2.txt");
+    Lexer lexer("./lexer_test2.txt");
 
     EXPECT_EQ(TOK_INT, lexer.GetNextToken());
     EXPECT_EQ(TOK_INT, lexer.GetNextToken());
@@ -65,7 +65,7 @@ TEST(test_lexer, id) {
 }
 
 TEST(test_lexer, delimeter) {
-    Lexer lexer("./test3.txt");
+    Lexer lexer("./lexer_test3.txt");
 
     EXPECT_EQ(TOK_COMMA, lexer.GetNextToken());
     EXPECT_EQ(TOK_SEMI, lexer.GetNextToken());
@@ -78,7 +78,7 @@ TEST(test_lexer, delimeter) {
 }
 
 TEST(test_lexer, str) {
-    Lexer lexer("./test4.txt");
+    Lexer lexer("./lexer_test4.txt");
 
     EXPECT_EQ(TOK_STRING, lexer.GetNextToken());
     EXPECT_EQ(TOK_STRING, lexer.GetNextToken());
@@ -87,7 +87,7 @@ TEST(test_lexer, str) {
 }
 
 TEST(test_lexer, operation) {
-    Lexer lexer("./test5.txt");
+    Lexer lexer("./lexer_test5.txt");
 
     EXPECT_EQ(TOK_OP, lexer.GetNextToken());
     EXPECT_EQ(OP_SUB, lexer.GetCurOP());

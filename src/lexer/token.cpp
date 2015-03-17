@@ -1,29 +1,40 @@
 #include "token.h"
 using namespace std;
 
-Lexer::Lexer(string path_to_file) {
-    in.open(path_to_file);
-    cur = in.get();
-
+Lexer::Lexer() {
     for (auto p : Key_Words) {
         mkey.insert(p);
     }
+}
+
+Lexer::Lexer(string path_to_file) : Lexer() {
+    in.open(path_to_file);
+    cur = in.get();
 }
 
 Lexer::~Lexer() {
     in.close();
 }
 
+void Lexer::Load(std::string path_to_file) {
+    in.open(path_to_file);
+    cur = in.get();
+}
+
 OP Lexer::GetCurOP() {
     return ope.op;
+}
+
+TOKEN Lexer::GetCurToken() {
+    return t;
 }
 
 TOKEN Lexer::GetNextToken() {
     lexem_buf[0] = '\0';
     while(cur != EOF && isspace(cur)) cur = in.get();
-    if (cur == EOF) return TOK_END;
+    if (cur == EOF) return t = TOK_END;
 
-    TOKEN t = TOK_START;
+    t = TOK_START;
     int op_table_index = 0;
     int ibuf = 0;
 
@@ -130,9 +141,10 @@ done:
     return t;
 key_word:
     lexem_buf[ibuf] = '\0';
-    if (mkey.find(lexem_buf) != mkey.end())
-        return mkey[lexem_buf];
-    else return t;
+    if (mkey.find(lexem_buf) != mkey.end()) {
+        t = mkey[lexem_buf];
+    }
+    return t;
 bad_syntax:
     cout << "bad syntax in state " << t << " : " << (char)cur << endl;
     return TOK_BAD_TOKEN;

@@ -28,8 +28,12 @@ enum OP {
     OP_NONE
 };
 
-const char OP_Char_Set[] = "+-*/%=!><";
+const char OP_Char_Set[] = "+-*/%=&|!><";
 
+/*
+ * Action Table for the lexer of operations
+ */
+/* Action Table Entry */
 class OPEntry {
 public:
     static const char EMPTY_OP = '\0';
@@ -38,6 +42,7 @@ public:
     OP op;
     std::vector<int> nxt;
 };
+/* Action Table */
 const OPEntry OP_Action_Table[2][OP_NUMBER_OF_OP] = {
     {
         OPEntry('+' , OP_ADD    , {6}) ,
