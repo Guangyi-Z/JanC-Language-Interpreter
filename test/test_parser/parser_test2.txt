@@ -1,0 +1,13 @@
+func MyHostAPIFunc ();
+var GlobalX;
+var GlobalY;
+func MyFunc(X, Y)
+{
+    var U;
+    var V;
+}
+func _Main()
+{
+    var LocalX;
+    var LocalY;
+}

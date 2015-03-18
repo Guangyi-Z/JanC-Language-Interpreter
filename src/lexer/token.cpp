@@ -75,7 +75,9 @@ TOKEN Lexer::GetNextToken() {
         case TOK_ID:
             if (isdigit(cur) || isalpha(cur) || cur == '_')
                 ;
-            else if (isspace(cur) || Delim.find(cur) != string::npos)
+            else if (isspace(cur) ||
+                    Delim.find(cur) != string::npos ||
+                    strchr(OP_Char_Set, cur))
                 goto key_word;
             else goto bad_syntax;
             break;
@@ -84,14 +86,18 @@ TOKEN Lexer::GetNextToken() {
                 t = TOK_DOUBLE;
             else if (isdigit(cur))
                 ;
-            else if (isspace(cur) || Delim.find(cur) != string::npos)
+            else if (isspace(cur) ||
+                    Delim.find(cur) != string::npos ||
+                    strchr(OP_Char_Set, cur))
                 goto done;
             else goto bad_syntax;
             break;
         case TOK_DOUBLE:
             if (isdigit(cur))
                 ;
-            else if (isspace(cur) || Delim.find(cur) != string::npos)
+            else if (isspace(cur) ||
+                    Delim.find(cur) != string::npos ||
+                    strchr(OP_Char_Set, cur))
                 goto done;
             else goto bad_syntax;
             break;
@@ -117,11 +123,15 @@ TOKEN Lexer::GetNextToken() {
                     if (cur == e.c) {
                         ope = e;
                         is_match = true;
-                        cur = in.get(); // don't forget to eat the op char
                         break;
                     }
                 }
-                if (ope.op != OP_NONE && (ope.nxt.empty() || !is_match))
+                if (is_match && ope.op != OP_NONE && ope.nxt.empty()) {
+                    lexem_buf[ibuf++] = cur;
+                    cur = in.get(); // don't forget to eat the op char
+                    goto done;
+                }
+                else if (ope.op != OP_NONE && !is_match)
                     goto done;
                 else if (!ope.nxt.empty() && is_match)
                     op_table_index++;
@@ -146,6 +156,7 @@ key_word:
     }
     return t;
 bad_syntax:
+    lexem_buf[ibuf] = '\0';
     cout << "bad syntax in state " << t << " : " << (char)cur << endl;
     return TOK_BAD_TOKEN;
 }

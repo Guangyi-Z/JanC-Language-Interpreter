@@ -1,18 +1,23 @@
 #ifndef PARSER_H
 #define PARSER_H
 
+#include <map>
 #include "lexer/token.h"
+#include "exp.h"
 
 class AST_Block;
 class AST_Statement;
 class AST_Var;
 class AST_Func;
+class AST_Expression;
+class AST_ExpressionOperand;
 
 enum ST {
     ST_EMPTY,
     ST_BLOCK,
     ST_VAR,
-    ST_FUNC
+    ST_FUNC,
+    ST_EXP
 };
 
 class AST_Statement {
@@ -52,6 +57,57 @@ public:
     std::vector<AST_Var*> paras;
 };
 
+enum EXP_T {
+    EXP_INT,
+    EXP_DOUBLE,
+    EXP_EXP
+};
+
+class AST_ExpressionOperand {
+public:
+    AST_ExpressionOperand() {}
+
+    void SetOperand(EXP_T _type, int iv) {
+        type = _type;
+        val.iv = iv;
+    }
+    void SetOperand(EXP_T _type, double dv) {
+        type = _type;
+        val.dv = dv;
+    }
+    void SetOperand(EXP_T _type, AST_Expression* ev) {
+        type = _type;
+        val.ev = ev;
+    }
+
+    EXP_T type;
+    union v {
+        int iv;
+        double dv;
+        AST_Expression *ev;
+    } val;
+};
+
+class AST_Expression : public AST_Statement {
+public:
+    AST_Expression() : AST_Statement(ST_EXP, NULL), op(OP_NONE) {}
+    AST_Expression(AST_ExpressionOperand _o1)
+        : AST_Statement(ST_EXP, NULL),
+          o1(_o1),
+          op(OP_NONE),
+          is_leaf(true){}
+    AST_Expression(AST_ExpressionOperand _o1, OP _op, AST_ExpressionOperand _o2)
+        : AST_Statement(ST_EXP, NULL),
+          o1(_o1),
+          o2(_o2),
+          op(_op),
+          is_leaf(false){}
+
+    AST_ExpressionOperand o1, o2;
+    OP op;
+    bool is_leaf;
+};
+
 class Parser {
 public:
     Parser(){};
@@ -62,6 +118,9 @@ public:
     void Load(std::string path_to_file) {
         lexer.Load(path_to_file);
         lexer.GetNextToken();
+        for (auto op : OP_Precedence) {
+            mOP.insert(op);
+        }
     }
     void Parse();
     AST_Statement* ParseStatement();
@@ -69,9 +128,15 @@ public:
     AST_Var* ParseVar();
     AST_Func* ParseFunc();
 
+    AST_Expression* ParseExpression();
+    OP GetNextOP();
+    AST_ExpressionOperand GetNextOperand();
+    AST_Expression* ParseExpressionHelper(AST_ExpressionOperand o1, OP op);
+
 private:
     bool EatToken(TOKEN t);
 
+    std::map<OP, int> mOP;
     Lexer lexer;
 };
 

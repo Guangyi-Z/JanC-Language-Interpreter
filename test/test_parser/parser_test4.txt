@@ -1,0 +1,1 @@
+-X + Y / (2 * MyVar - MyArray [2+4/Z]) + 17;

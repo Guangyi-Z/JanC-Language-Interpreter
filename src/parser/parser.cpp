@@ -9,6 +9,78 @@ bool Parser::EatToken(TOKEN t) {
     return true;
 }
 
+AST_ExpressionOperand Parser::GetNextOperand() {
+    TOKEN t = lexer.GetCurToken();
+    AST_ExpressionOperand o;
+    switch (t) {
+        case TOK_PAREN_LEFT:
+            EatToken(TOK_PAREN_LEFT);
+            o.SetOperand(EXP_EXP, ParseExpression());
+            // TOK_PAREN_RIGHT is ate by GetNextOP()
+            break;
+        case TOK_INT:
+            o.SetOperand(EXP_INT, std::stoi(lexer.GetCurLexem()));
+            EatToken(t);
+            break;
+        case TOK_DOUBLE:
+            o.SetOperand(EXP_DOUBLE, std::stod(lexer.GetCurLexem()));
+            EatToken(t);
+            break;
+        case TOK_ID:
+            /* todo */
+            break;
+        default:
+            std::cout << "Error: ParseExpression switch default" << std::endl;
+            exit(0);
+    }
+    return o;
+}
+
+OP Parser::GetNextOP() {
+    OP op;
+    TOKEN t = lexer.GetCurToken();
+    if (t != TOK_OP || mOP.find(lexer.GetCurOP()) == mOP.end()) {
+        if (t == TOK_PAREN_RIGHT)
+            EatToken(TOK_PAREN_RIGHT);
+        if (t == TOK_SEMI)
+            EatToken(TOK_SEMI); // expression ends with semi
+        return OP_NONE;
+    }
+    else {
+        op = lexer.GetCurOP();
+        EatToken(t);
+    }
+    return op;
+}
+
+AST_Expression* Parser::ParseExpressionHelper(AST_ExpressionOperand o1, OP op) {
+    AST_ExpressionOperand o2 = GetNextOperand();
+    OP op_nxt = GetNextOP();
+    if (op_nxt == OP_NONE)
+        return new AST_Expression(o1, op, o2);
+    int prio_op = mOP[op],
+        prio_op_nxt = mOP[op_nxt];
+    if (prio_op >= prio_op_nxt) {
+        AST_ExpressionOperand o1_new;
+        o1_new.SetOperand(EXP_EXP, new AST_Expression(o1, op, o2));
+        return ParseExpressionHelper(o1_new, op_nxt);
+    }
+    else {
+        AST_ExpressionOperand o2_new;
+        o2_new.SetOperand(EXP_EXP, ParseExpressionHelper(o2, op_nxt));
+        return new AST_Expression(o1, op, o2_new);
+    }
+}
+
+AST_Expression* Parser::ParseExpression() {
+    AST_ExpressionOperand o1 = GetNextOperand();
+    OP op = GetNextOP();
+    if (op == OP_NONE)
+        return new AST_Expression(o1);
+    else
+        return ParseExpressionHelper(o1, op);
+}
+
 AST_Var* Parser::ParseVar() {
     EatToken(TOK_VAR);
     AST_Var *var = new AST_Var(ST_VAR, lexer.GetCurLexem());
@@ -63,8 +135,18 @@ AST_Statement* Parser::ParseStatement() {
         EatToken(TOK_SEMI);
         return new AST_Statement(ST_EMPTY, NULL);
     }
-    else
+    else if (t == TOK_CURLY_BRACE_LEFT)
         return new AST_Statement(ST_BLOCK, ParseBlock());
+    else if(t == TOK_INT ||
+            t == TOK_DOUBLE ||
+            t == TOK_ID ||
+            t == TOK_PAREN_LEFT) {  // expression
+        return ParseExpression();
+    }
+    else {
+        std::cout << "Error: ParseStatement with TOK- " << t << std::endl;
+        exit(0);
+    }
 }
 
 AST_Block* Parser::ParseBlock() {
