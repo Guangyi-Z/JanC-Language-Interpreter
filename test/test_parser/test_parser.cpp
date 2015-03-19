@@ -5,6 +5,7 @@
 using std::cout;
 using std::endl;
 using std::stringstream;
+using std::string;
 
 /*
  * Helper methods for Empty Statement
@@ -139,6 +140,29 @@ void PrintASTExp(AST_Expression *exp);
 void PrintASTExpOperand(AST_ExpressionOperand o);
 
 void PrintASTExpOperand(AST_ExpressionOperand o) {
+    if (!o.prefix.empty() || !o.suffix.empty()) {
+        cout << "(";
+        for (OP op : o.prefix) {
+            switch(op) {
+                case OP_ADD:
+                    cout << "+";
+                    break;
+                case OP_SUB:
+                    cout << "-";
+                    break;
+                case OP_INC:
+                    cout << "++";
+                    break;
+                case OP_DEC:
+                    cout << "--";
+                    break;
+                case OP_NOT:
+                    cout << "!";
+                    break;
+                default: ;
+            }
+        }
+    }
     switch(o.type) {
         case EXP_INT:
             cout << o.val.iv;
@@ -153,6 +177,20 @@ void PrintASTExpOperand(AST_ExpressionOperand o) {
             break;
         default:
             break;
+    }
+    if (!o.prefix.empty() || !o.suffix.empty()) {
+        for (OP op : o.suffix) {
+            switch(op) {
+                case OP_INC:
+                    cout << "++";
+                    break;
+                case OP_DEC:
+                    cout << "--";
+                    break;
+                default: ;
+            }
+        }
+        cout << ")";
     }
 }
 void PrintASTExp(AST_Expression *exp) {
@@ -243,3 +281,37 @@ TEST(test_parser, simple_expression) {
     EXPECT_EQ(511, o.val.iv);
 }
 
+
+TEST(test_parser, expression_with_unary_op) {
+    Parser parser("../test/test_parser/parser_test5.txt");
+
+    AST_Statement *st;
+    AST_ExpressionOperand o;
+    string s("(-7)+8\n"
+            "5+(-6)\n"
+            "(-3)+(+4)\n"
+            "(++1----)-(-2++)\n");
+    stringstream ss;
+    auto buf_bak = cout.rdbuf();
+    cout.rdbuf(ss.rdbuf());
+
+    // -7+8;
+    st = parser.ParseStatement();
+    PrintASTExp((AST_Expression*) st);
+    cout << endl;
+    // 5+-6;
+    st = parser.ParseStatement();
+    PrintASTExp((AST_Expression*) st);
+    cout << endl;
+    // -3++4;
+    st = parser.ParseStatement();
+    PrintASTExp((AST_Expression*) st);
+    cout << endl;
+    // ++1------2++;
+    st = parser.ParseStatement();
+    PrintASTExp((AST_Expression*) st);
+    cout << endl;
+
+    cout.rdbuf(buf_bak);
+    EXPECT_EQ(s, ss.str());
+}

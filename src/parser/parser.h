@@ -79,6 +79,12 @@ public:
         type = _type;
         val.ev = ev;
     }
+    void AddPrefixOP(OP op) {
+        prefix.push_back(op);
+    }
+    void AddSuffixOP(OP op) {
+        suffix.push_back(op);
+    }
 
     EXP_T type;
     union v {
@@ -86,6 +92,7 @@ public:
         double dv;
         AST_Expression *ev;
     } val;
+    std::vector<OP> prefix, suffix;
 };
 
 class AST_Expression : public AST_Statement {
@@ -138,6 +145,7 @@ private:
 
     std::map<OP, int> mOP;
     Lexer lexer;
+    OpProperty pp;
 };
 
 

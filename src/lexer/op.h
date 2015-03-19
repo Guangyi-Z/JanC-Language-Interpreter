@@ -1,6 +1,8 @@
 #ifndef OP_H
     #define OP_H
 #include <vector>
+#include <unordered_set>
+#include <set>
 
 enum OP {
     /* arithmetical */
@@ -70,5 +72,53 @@ const OPEntry OP_Action_Table[2][OP_NUMBER_OF_OP] = {
         OPEntry('-' , OP_DEC , {})      // --
     }
 };
+
+class OpProperty {
+public:
+    OpProperty() {}
+    bool IsPrefixOP(OP op) {
+        return Prefix_OP_Set.find(op) != Prefix_OP_Set.end();
+    }
+    bool IsSuffixOP(OP op) {
+        return Suffix_OP_Set.find(op) != Suffix_OP_Set.end();
+    }
+    bool IsBinaryOP(OP op) {
+        return Binary_OP_Set.find(op) != Binary_OP_Set.end();
+    }
+
+private:
+    const std::set<OP> Prefix_OP_Set = {
+        OP_ADD,
+        OP_SUB,
+        OP_INC,
+        OP_DEC,
+        OP_NOT
+    };
+    const std::set<OP> Suffix_OP_Set = {
+        OP_INC,
+        OP_DEC
+    };
+    const std::set<OP> Binary_OP_Set = {
+        OP_ADD,    // +
+        OP_SUB,    // -
+        OP_MUL,    // *
+        OP_DIV,    // /
+        OP_MOD,    // %
+        OP_ASSIGN, // =
+
+        /* logical */
+        OP_AND, // &&
+        OP_OR,  // ||
+
+        /* relational */
+        OP_EQ,     // ==
+        OP_NOT_EQ, // !=
+        OP_GT,     // >
+        OP_LT,     // <
+        OP_GT_EQ,  // >=
+        OP_LT_EQ,  // <=
+    };
+};
+
 
 #endif

@@ -9,7 +9,7 @@ Lexer::Lexer() {
 
 Lexer::Lexer(string path_to_file) : Lexer() {
     in.open(path_to_file);
-    cur = in.get();
+    cur = Next();
 }
 
 Lexer::~Lexer() {
@@ -18,7 +18,7 @@ Lexer::~Lexer() {
 
 void Lexer::Load(std::string path_to_file) {
     in.open(path_to_file);
-    cur = in.get();
+    cur = Next();
 }
 
 OP Lexer::GetCurOP() {
@@ -31,7 +31,7 @@ TOKEN Lexer::GetCurToken() {
 
 TOKEN Lexer::GetNextToken() {
     lexem_buf[0] = '\0';
-    while(cur != EOF && isspace(cur)) cur = in.get();
+    while(cur != EOF && isspace(cur)) cur = Next();
     if (cur == EOF) return t = TOK_END;
 
     t = TOK_START;
@@ -51,12 +51,12 @@ TOKEN Lexer::GetNextToken() {
                 t = TOK_ID;
             else if (Delim.find(cur) != string::npos) {
                 lexem_buf[ibuf++] = cur;
-                cur = in.get();
+                cur = Next();
                 goto key_word;
             }
             else if (cur == '"') {
                 t = TOK_STRING;
-                cur = in.get();
+                cur = Next();
                 continue;
             }
             else if (strchr(OP_Char_Set, cur)) {
@@ -103,13 +103,13 @@ TOKEN Lexer::GetNextToken() {
             break;
         case TOK_STRING:
             if (cur == '\\') { // For escape characters
-                cur = in.get();
+                cur = Next();
                 lexem_buf[ibuf++] = cur;
-                cur = in.get();
+                cur = Next();
                 continue;
             }
             else if (cur == '"') {
-                cur = in.get(); // eat the ending '"'
+                cur = Next(); // eat the ending '"'
                 goto done;
             }
             else ;
@@ -128,7 +128,7 @@ TOKEN Lexer::GetNextToken() {
                 }
                 if (is_match && ope.op != OP_NONE && ope.nxt.empty()) {
                     lexem_buf[ibuf++] = cur;
-                    cur = in.get(); // don't forget to eat the op char
+                    cur = Next(); // don't forget to eat the op char
                     goto done;
                 }
                 else if (ope.op != OP_NONE && !is_match)
@@ -143,7 +143,7 @@ TOKEN Lexer::GetNextToken() {
             break;
         }
         lexem_buf[ibuf++] = cur;
-        cur = in.get();
+        cur = Next();
     }
 
 done:
@@ -173,19 +173,69 @@ TOKEN Lexer::NextNum() {
         if (cur == '.')
             t = TOK_DOUBLE;
         lexem_buf[ibuf++] = cur;
-        cur = in.get();
+        cur = Next();
     }
 
     return t;
 }
 
+TOKEN Lexer::LookaheadOneToken() {
+    is_looking_ahead = true;
+    char cur_bak = cur;
+    string lexem_bak(lexem_buf);
+    OPEntry ope_bak = ope;
+    TOKEN t = GetNextToken();
+
+    is_looking_ahead = false;
+    cur = cur_bak;
+    int ib = 0;
+    for (char _c : lexem_bak)
+        lexem_buf[ib++] = _c;
+    lexem_buf[ib] = '\0';
+    ope = ope_bak;
+    while(!qin2.empty()) {
+        qin.push_front(qin2.back());
+        qin2.pop_back();
+    }
+    return t;
+}
+
+/*
+ * put back the current token,
+ * and add a space before the last char of lexem_buf
+ */
+void Lexer::RewindOneToken() {
+    int len = strlen(lexem_buf);
+    qin.push_front(cur);
+    qin.push_front(lexem_buf[len-1]);
+    qin.push_front(' ');
+    for (int i = len-2; i>0; i--)
+        qin.push_front(lexem_buf[i]);
+    cur = lexem_buf[0];
+}
+
 bool Lexer::Eat(char c) {
     if (c == cur)
-        cur = in.get();
+        cur = Next();
 
     return false;
 }
 
 void Lexer::Eat() {
-    cur = in.get();
+    cur = Next();
+}
+
+char Lexer::Next() {
+    char c;
+    if (qin.empty())
+        c = in.get();
+    else {
+        c = qin.front();
+        qin.pop_front();
+    }
+    // in LookaheadOneToken()
+    if (is_looking_ahead) {
+        qin2.push_back(c);
+    }
+    return c;
 }

@@ -39,5 +39,10 @@ int main() {
             break;
     }
 
+    int oa = 1;
+    cout << oa+++1 << endl;
+    oa = - --oa;
+    cout << oa << endl;
+
     // unordered_map
 }

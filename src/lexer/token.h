@@ -8,6 +8,7 @@
 #include <cstring>
 #include <cctype>
 #include <unordered_map>
+#include <deque>
 #include "op.h"
 
 enum TOKEN {
@@ -81,11 +82,14 @@ public:
     void Load(std::string path_to_file);
     TOKEN GetNextToken();
     TOKEN GetCurToken();
+    TOKEN LookaheadOneToken();
+    void RewindOneToken();
     std::string GetCurLexem();
     OP GetCurOP();
 private:
     bool Eat(char c);
     void Eat();
+    char Next();
     TOKEN NextNum();
 
     std::ifstream in;
@@ -95,5 +99,10 @@ private:
     std::unordered_map<std::string, TOKEN> mkey;
     OPEntry ope;
     TOKEN t = TOK_BAD_TOKEN;
+    // for Rewindonetoken()
+    std::deque<char> qin;
+    // for Lookaheadonetoken()
+    bool is_looking_ahead = false;
+    std::deque<char> qin2;
 };
 #endif

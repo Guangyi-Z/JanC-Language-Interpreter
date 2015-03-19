@@ -143,3 +143,68 @@ TEST(test_lexer, operation) {
     EXPECT_EQ(TOK_PAREN_RIGHT, lexer.GetNextToken());
     EXPECT_EQ(TOK_SEMI, lexer.GetNextToken());
 }
+
+TEST(test_lexer, putback) {
+    Lexer lexer("../test/test_lexer/lexer_test6.txt");
+
+    // a+++1;
+    EXPECT_EQ(TOK_ID, lexer.GetNextToken());
+    EXPECT_EQ(TOK_OP, lexer.GetNextToken());
+    EXPECT_EQ("++", lexer.GetCurLexem());
+    EXPECT_EQ(TOK_OP, lexer.GetNextToken());
+    EXPECT_EQ("+", lexer.GetCurLexem());
+    EXPECT_EQ(TOK_INT, lexer.GetNextToken());
+    EXPECT_EQ(TOK_SEMI, lexer.GetNextToken());
+
+    // a---1;
+    EXPECT_EQ(TOK_ID, lexer.GetNextToken());
+    EXPECT_EQ(TOK_OP, lexer.GetNextToken());
+    EXPECT_EQ("--", lexer.GetCurLexem());
+    EXPECT_EQ(TOK_OP, lexer.GetNextToken());
+    EXPECT_EQ("-", lexer.GetCurLexem());
+    EXPECT_EQ(TOK_INT, lexer.GetNextToken());
+    EXPECT_EQ(TOK_SEMI, lexer.GetNextToken());
+
+    // a++1;
+    EXPECT_EQ(TOK_ID, lexer.GetNextToken());
+    EXPECT_EQ(TOK_OP, lexer.GetNextToken());
+    EXPECT_EQ("++", lexer.GetCurLexem());
+    lexer.RewindOneToken();
+    EXPECT_EQ(TOK_OP, lexer.GetNextToken());
+    EXPECT_EQ("+", lexer.GetCurLexem());
+    EXPECT_EQ(TOK_OP, lexer.GetNextToken());
+    EXPECT_EQ("+", lexer.GetCurLexem());
+    EXPECT_EQ(TOK_INT, lexer.GetNextToken());
+    EXPECT_EQ(TOK_SEMI, lexer.GetNextToken());
+
+    // a--1;
+    EXPECT_EQ(TOK_ID, lexer.GetNextToken());
+    EXPECT_EQ(TOK_OP, lexer.GetNextToken());
+    EXPECT_EQ("--", lexer.GetCurLexem());
+    lexer.RewindOneToken();
+    EXPECT_EQ(TOK_OP, lexer.GetNextToken());
+    EXPECT_EQ("-", lexer.GetCurLexem());
+    EXPECT_EQ(TOK_OP, lexer.GetNextToken());
+    EXPECT_EQ("-", lexer.GetCurLexem());
+    EXPECT_EQ(TOK_INT, lexer.GetNextToken());
+    EXPECT_EQ(TOK_SEMI, lexer.GetNextToken());
+}
+
+TEST(test_lexer, lookahead) {
+    Lexer lexer("../test/test_lexer/lexer_test7.txt");
+
+    EXPECT_EQ(TOK_OP, lexer.GetNextToken());
+    EXPECT_EQ("++", lexer.GetCurLexem());
+    EXPECT_EQ(TOK_OP, lexer.LookaheadOneToken());
+    EXPECT_EQ(TOK_OP, lexer.GetCurToken());
+    EXPECT_EQ("++", lexer.GetCurLexem());
+    lexer.RewindOneToken();
+    EXPECT_EQ(TOK_OP, lexer.GetNextToken());
+    EXPECT_EQ("+", lexer.GetCurLexem());
+    EXPECT_EQ(TOK_OP, lexer.GetNextToken());
+    EXPECT_EQ("+", lexer.GetCurLexem());
+    EXPECT_EQ(TOK_OP, lexer.GetNextToken());
+    EXPECT_EQ("-", lexer.GetCurLexem());
+    EXPECT_EQ(TOK_ID, lexer.GetNextToken());
+    EXPECT_EQ("a", lexer.GetCurLexem());
+}

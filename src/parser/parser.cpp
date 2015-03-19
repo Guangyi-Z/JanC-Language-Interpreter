@@ -1,4 +1,6 @@
 #include "parser.h"
+using std::cout;
+using std::endl;
 
 bool Parser::EatToken(TOKEN t) {
     if (t != lexer.GetCurToken()) {
@@ -12,6 +14,18 @@ bool Parser::EatToken(TOKEN t) {
 AST_ExpressionOperand Parser::GetNextOperand() {
     TOKEN t = lexer.GetCurToken();
     AST_ExpressionOperand o;
+    // get prefix operators
+    while (t == TOK_OP) {
+        OP op = lexer.GetCurOP();
+        if (pp.IsPrefixOP(op))
+            o.AddPrefixOP(op);
+        else {
+            std::cout << "Error in GetNextOperand: prefix OP " << op << std::endl;
+            exit(0);
+        }
+        t = lexer.GetNextToken();
+    }
+    // get operand entity
     switch (t) {
         case TOK_PAREN_LEFT:
             EatToken(TOK_PAREN_LEFT);
@@ -30,8 +44,29 @@ AST_ExpressionOperand Parser::GetNextOperand() {
             /* todo */
             break;
         default:
-            std::cout << "Error: ParseExpression switch default" << std::endl;
+            std::cout << "Error: ParseExpression switch default- " << t << std::endl;
             exit(0);
+    }
+    // get suffix operators
+    t = lexer.GetCurToken();
+    while (t == TOK_OP) {
+        OP op = lexer.GetCurOP();
+        if (!pp.IsSuffixOP(op))
+            break;
+        TOKEN t_nxt = lexer.LookaheadOneToken();
+        if (t_nxt == TOK_OP ||
+                t_nxt == TOK_SEMI ||
+                t_nxt == TOK_PAREN_RIGHT ||
+                t_nxt == TOK_COMMA ||
+                t_nxt == TOK_CURLY_BRACE_RIGHT) {
+            o.AddSuffixOP(op);
+        }
+        else {
+            lexer.RewindOneToken();
+            lexer.GetNextToken();
+            break;
+        }
+        t = lexer.GetNextToken();
     }
     return o;
 }
@@ -140,7 +175,8 @@ AST_Statement* Parser::ParseStatement() {
     else if(t == TOK_INT ||
             t == TOK_DOUBLE ||
             t == TOK_ID ||
-            t == TOK_PAREN_LEFT) {  // expression
+            t == TOK_PAREN_LEFT ||
+            t == TOK_OP) {  // expression
         return ParseExpression();
     }
     else {
