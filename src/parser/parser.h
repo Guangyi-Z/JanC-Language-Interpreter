@@ -125,9 +125,6 @@ public:
     void Load(std::string path_to_file) {
         lexer.Load(path_to_file);
         lexer.GetNextToken();
-        for (auto op : OP_Precedence) {
-            mOP.insert(op);
-        }
     }
     void Parse();
     AST_Statement* ParseStatement();
@@ -143,7 +140,6 @@ public:
 private:
     bool EatToken(TOKEN t);
 
-    std::map<OP, int> mOP;
     Lexer lexer;
     OpProperty pp;
 };

@@ -88,7 +88,6 @@ public:
     OP GetCurOP();
 private:
     bool Eat(char c);
-    void Eat();
     char Next();
     TOKEN NextNum();
 

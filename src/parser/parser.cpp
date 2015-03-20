@@ -74,7 +74,8 @@ AST_ExpressionOperand Parser::GetNextOperand() {
 OP Parser::GetNextOP() {
     OP op;
     TOKEN t = lexer.GetCurToken();
-    if (t != TOK_OP || mOP.find(lexer.GetCurOP()) == mOP.end()) {
+    int prec = pp.GetOPPrecedence(lexer.GetCurOP());
+    if (t != TOK_OP || prec == OpProperty::OP_NOT_EXIST) {
         if (t == TOK_PAREN_RIGHT)
             EatToken(TOK_PAREN_RIGHT);
         if (t == TOK_SEMI)
@@ -93,8 +94,8 @@ AST_Expression* Parser::ParseExpressionHelper(AST_ExpressionOperand o1, OP op) {
     OP op_nxt = GetNextOP();
     if (op_nxt == OP_NONE)
         return new AST_Expression(o1, op, o2);
-    int prio_op = mOP[op],
-        prio_op_nxt = mOP[op_nxt];
+    int prio_op = pp.GetOPPrecedence(op),
+        prio_op_nxt = pp.GetOPPrecedence(op_nxt);
     if (prio_op >= prio_op_nxt) {
         AST_ExpressionOperand o1_new;
         o1_new.SetOperand(EXP_EXP, new AST_Expression(o1, op, o2));

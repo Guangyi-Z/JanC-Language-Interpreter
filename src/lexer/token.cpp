@@ -221,10 +221,6 @@ bool Lexer::Eat(char c) {
     return false;
 }
 
-void Lexer::Eat() {
-    cur = Next();
-}
-
 char Lexer::Next() {
     char c;
     if (qin.empty())

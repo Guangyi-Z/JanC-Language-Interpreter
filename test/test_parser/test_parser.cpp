@@ -10,22 +10,22 @@ using std::string;
 /*
  * Helper methods for Empty Statement
  */
-void TraverseASTBLock(AST_Block *block, stringstream &ss);
-void TraverseASTSt(AST_Statement *st, stringstream &ss);
+void TraverseASTBLock(AST_Block *block);
+void TraverseASTSt(AST_Statement *st);
 
-void TraverseASTBLock(AST_Block *block, stringstream &ss) {
-    ss << "{";
+void TraverseASTBLock(AST_Block *block) {
+    cout << "{";
     for (AST_Statement *st : block->statements) {
-        TraverseASTSt(st, ss);
+        TraverseASTSt(st);
     }
-    ss << "}";
+    cout << "}";
 }
 
-void TraverseASTSt(AST_Statement *st, stringstream &ss) {
+void TraverseASTSt(AST_Statement *st) {
     if (st->block) {
-        TraverseASTBLock(st->block, ss);
+        TraverseASTBLock(st->block);
     }
-    else ss << ";";
+    else cout << ";";
 }
 
 /*
@@ -224,12 +224,16 @@ void PrintASTExp(AST_Expression *exp) {
 TEST(test_parser, empty_block) {
     Parser parser("../test/test_parser/parser_test1.txt");
     stringstream ss;
+    auto buf = cout.rdbuf();
+    cout.rdbuf(ss.rdbuf());
+
     while (true) {
         AST_Statement *st = parser.ParseStatement();
         if (!st) break;
-        TraverseASTSt(st, ss);
+        TraverseASTSt(st);
     }
 
+    cout.rdbuf(buf);
     EXPECT_EQ(";{};{;}{;};;;{}{}{};;;{;}{;{{;};}}", ss.str());
 }
 
