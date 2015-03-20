@@ -11,9 +11,9 @@ bool Parser::EatToken(TOKEN t) {
     return true;
 }
 
-AST_ExpressionOperand Parser::GetNextOperand() {
+AST_Expression* Parser::GetNextOperand() {
     TOKEN t = lexer.GetCurToken();
-    AST_ExpressionOperand o;
+    Operand o;
     // get prefix operators
     while (t == TOK_OP) {
         OP op = lexer.GetCurOP();
@@ -29,19 +29,42 @@ AST_ExpressionOperand Parser::GetNextOperand() {
     switch (t) {
         case TOK_PAREN_LEFT:
             EatToken(TOK_PAREN_LEFT);
-            o.SetOperand(EXP_EXP, ParseExpression());
+            return ParseExpression();   // (..) has no unary op
             // TOK_PAREN_RIGHT is ate by GetNextOP()
             break;
         case TOK_INT:
-            o.SetOperand(EXP_INT, std::stoi(lexer.GetCurLexem()));
+            o.SetOperand(std::stoi(lexer.GetCurLexem()));
             EatToken(t);
             break;
         case TOK_DOUBLE:
-            o.SetOperand(EXP_DOUBLE, std::stod(lexer.GetCurLexem()));
+            o.SetOperand(std::stod(lexer.GetCurLexem()));
             EatToken(t);
             break;
         case TOK_ID:
-            /* todo */
+            {
+                string name = lexer.GetCurLexem();
+                EatToken(t);
+                if (lexer.GetCurToken() == TOK_PAREN_LEFT){  // func
+                    EatToken(TOK_PAREN_LEFT);
+                    AST_Expression *para = NULL;
+                    vector<void*> vpara;
+                    while(para = ParseExpression()) {
+                        vpara.push_back(para);
+                    }
+                    o.SetOperand(name, vpara);
+                    EatToken(TOK_PAREN_RIGHT);
+                }
+                else if (lexer.GetCurToken() == TOK_BRACE_LEFT) {   // array
+                    EatToken(TOK_BRACE_LEFT);
+                    AST_Expression *para = ParseExpression();
+                    vector<void*> vpara = {para};
+                    o.SetOperand(name, vpara);
+                    EatToken(TOK_BRACE_RIGHT);
+                }
+                else {  // var
+                    o.SetOperand(name, {});
+                }
+            }
             break;
         default:
             std::cout << "Error: ParseExpression switch default- " << t << std::endl;
@@ -68,7 +91,7 @@ AST_ExpressionOperand Parser::GetNextOperand() {
         }
         t = lexer.GetNextToken();
     }
-    return o;
+    return new AST_Expression(o);
 }
 
 OP Parser::GetNextOP() {
@@ -89,68 +112,109 @@ OP Parser::GetNextOP() {
     return op;
 }
 
-AST_Expression* Parser::ParseExpressionHelper(AST_ExpressionOperand o1, OP op) {
-    AST_ExpressionOperand o2 = GetNextOperand();
+AST_Expression* Parser::ParseExpressionHelper(AST_Expression *e1, OP op) {
+    AST_Expression* e2 = GetNextOperand();
     OP op_nxt = GetNextOP();
     if (op_nxt == OP_NONE)
-        return new AST_Expression(o1, op, o2);
+        return new AST_Expression(e1, op, e2);
     int prio_op = pp.GetOPPrecedence(op),
         prio_op_nxt = pp.GetOPPrecedence(op_nxt);
-    if (prio_op >= prio_op_nxt) {
-        AST_ExpressionOperand o1_new;
-        o1_new.SetOperand(EXP_EXP, new AST_Expression(o1, op, o2));
-        return ParseExpressionHelper(o1_new, op_nxt);
-    }
-    else {
-        AST_ExpressionOperand o2_new;
-        o2_new.SetOperand(EXP_EXP, ParseExpressionHelper(o2, op_nxt));
-        return new AST_Expression(o1, op, o2_new);
-    }
+    if (prio_op >= prio_op_nxt)
+        return ParseExpressionHelper(new AST_Expression(e1, op, e2), op_nxt);
+    else
+        return new AST_Expression(e1, op, ParseExpressionHelper(e2, op_nxt));
 }
 
 AST_Expression* Parser::ParseExpression() {
-    AST_ExpressionOperand o1 = GetNextOperand();
+    AST_Expression *e1 = GetNextOperand();
     OP op = GetNextOP();
     if (op == OP_NONE)
-        return new AST_Expression(o1);
+        return e1;
     else
-        return ParseExpressionHelper(o1, op);
+        return ParseExpressionHelper(e1, op);
 }
 
 AST_Var* Parser::ParseVar() {
     EatToken(TOK_VAR);
-    AST_Var *var = new AST_Var(ST_VAR, lexer.GetCurLexem());
+    string name = lexer.GetCurLexem();
+    bool is_array = false;
+    int sz_array = -1;
     EatToken(TOK_ID);
-    TOKEN t = lexer.GetCurToken();
-    if (t == TOK_BRACE_LEFT) {  // array var
-        var->is_array = true;
+    // test array var
+    if (lexer.GetCurToken() == TOK_BRACE_LEFT) {
+        is_array = true;
         EatToken(TOK_BRACE_LEFT);
-        var->sz_array = std::stoi(lexer.GetCurLexem());
+        sz_array = std::stoi(lexer.GetCurLexem());
         EatToken(TOK_BRACE_RIGHT);
     }
+    vector<double> vd;
+    // test initialization
+    Constant con;
+    if (lexer.GetCurToken() == TOK_OP && lexer.GetCurOP() == OP_ASSIGN) {
+        EatToken(TOK_OP);
+        if (is_array) {
+            EatToken(TOK_CURLY_BRACE_LEFT);
+            bool is_double = false;
+            while(lexer.GetCurToken() != TOK_CURLY_BRACE_RIGHT) {
+                switch(lexer.GetCurToken()) {
+                case TOK_INT:
+                    EatToken(TOK_INT);
+                    vd.push_back(std::stoi(lexer.GetCurLexem()));
+                    break;
+                case TOK_DOUBLE:
+                    EatToken(TOK_DOUBLE);
+                    is_double = true;
+                    vd.push_back(std::stod(lexer.GetCurLexem()));
+                    break;
+                default: ;
+                }
+                if (TOK_COMMA == lexer.GetNextToken())
+                    EatToken(TOK_COMMA);
+            }
+            EatToken(TOK_CURLY_BRACE_RIGHT);
+            if (is_double) {
+                con.SetValue(vd, sz_array);
+            }
+            else {
+                vector<int> vi;
+                for (double d : vd)
+                    vi.push_back((int)d);
+                con.SetValue(vi, sz_array);
+            }
+        }
+        else {
+            switch(lexer.GetCurToken()) {
+            case TOK_INT:
+                EatToken(TOK_INT);
+                con.SetValue(std::stoi(lexer.GetCurLexem()));
+                break;
+            case TOK_DOUBLE:
+                EatToken(TOK_DOUBLE);
+                con.SetValue(std::stod(lexer.GetCurLexem()));
+                break;
+            default: ;
+            }
+        }
+    }
     EatToken(TOK_SEMI);
-    return var;
+    return new AST_Var(name, con);
 }
 
 AST_Func* Parser::ParseFunc() {
     EatToken(TOK_FUNC);
-    AST_Func *func = new AST_Func(ST_FUNC, lexer.GetCurLexem());
+    string name = lexer.GetCurLexem();
     EatToken(TOK_ID);
-    // Parse the function's parameters
+    // parse the function's parameters
     EatToken(TOK_PAREN_LEFT);
-    TOKEN t = lexer.GetCurToken();
-    std::vector<AST_Var*> paras;
-    while (t == TOK_ID) {
-        paras.push_back(new AST_Var(ST_VAR, lexer.GetCurLexem()));
+    std::vector<string> paras;
+    while (lexer.GetCurToken() == TOK_ID) {
+        paras.push_back(lexer.GetCurLexem());
         EatToken(TOK_ID);
-        t = lexer.GetCurToken();
-        if (TOK_COMMA == t) {
+        if (TOK_COMMA == lexer.GetCurToken())
             EatToken(TOK_COMMA);
-            t = lexer.GetCurToken();
-        }
     }
-    func->paras = paras;
     EatToken(TOK_PAREN_RIGHT);
+    AST_Func *func = new AST_Func(name, paras);
     // Functions end with either ';' or {...}
     if (TOK_SEMI == lexer.GetCurToken())
         EatToken(TOK_SEMI);

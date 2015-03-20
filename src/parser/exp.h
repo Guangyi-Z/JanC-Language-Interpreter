@@ -1,38 +1,57 @@
 #ifndef EXP_H
 #define EXP_H
 #include "lexer/op.h"
-#include <utility>
+#include "constant.h"
 
-/*
- * operations associativity map
- */
-enum ASSOCIATE {
-    ASS_LEFT,
-    ASS_RIGHT
-};
-const std::pair<OP, ASSOCIATE> OP_Associativity[] {
-    {OP_INC, ASS_LEFT},   // ++
-    {OP_DEC, ASS_LEFT},   // --
-    {OP_NOT, ASS_LEFT},   // !
+class AST_Expression;
+class AST_Func;
+class AST_Var;
 
-    {OP_MUL, ASS_LEFT},   // *
-    {OP_DIV, ASS_LEFT},   // /
-    {OP_MOD, ASS_LEFT},   // %
+class Operand {
+public:
+    Operand () { }
 
-    {OP_ADD, ASS_LEFT},   // +
-    {OP_SUB, ASS_LEFT},   // -
+    Operand (int _v)                          { SetOperand(_v);                                      }
+    Operand (double _v)                       { SetOperand(_v);                                      }
+    Operand (char _v)                         { SetOperand(_v);                                      }
+    Operand (string _v)                       { SetOperand(_v);                                      }
+    Operand (string _id, vector<void*> _para) { SetOperand(_id, _para);}
 
-    {OP_EQ,     ASS_LEFT},// ==
-    {OP_NOT_EQ, ASS_LEFT},// !=
-    {OP_GT,     ASS_LEFT},// >
-    {OP_LT,     ASS_LEFT},// <
-    {OP_GT_EQ,  ASS_LEFT},// >=
-    {OP_LT_EQ,  ASS_LEFT},// <=
+    void SetOperand (int _v)                          { con.SetValue(_v);}
+    void SetOperand (double _v)                       { con.SetValue(_v);}
+    void SetOperand (char _v)                         { con.SetValue(_v);}
+    void SetOperand (string _v)                       { con.SetValue(_v);}
+    void SetOperand (string _id, vector<void*> _para) {
+        id = _id;
+        for (void *p : _para) {
+            parameters.push_back((AST_Expression*)p);
+        }
+    }
 
-    {OP_AND, ASS_LEFT},   // &&
-    {OP_OR,  ASS_LEFT},   // ||
+    void AddPrefixOP(OP op) {
+        prefix.push_back(op);
+    }
+    void AddSuffixOP(OP op) {
+        suffix.push_back(op);
+    }
 
-    {OP_ASSIGN, ASS_LEFT} // =
+    vector<OP> GetPrefix() {return prefix;}
+    vector<OP> GetSuffix() {return suffix;}
+    CONST_T GetType()               { return con.GetType();}
+    int GetInt()                    { return con.GetInt();}
+    double GetDouble()              { return con.GetDouble();}
+    char GetChar()                  { return con.GetChar();}
+    string GetString()              { return con.GetString();}
+    vector<int> GetArrayInt()       { return con.GetArrayInt();}
+    vector<double> GetArrayDouble() { return con.GetArrayDouble();}
+
+private:
+    std::vector<OP> prefix, suffix;
+
+    string id;
+    Constant con;
+    // For function
+    vector<AST_Expression*> parameters;
 };
 
 #endif

@@ -4,13 +4,14 @@
 #include <map>
 #include "lexer/token.h"
 #include "exp.h"
+using std::string;
+using std::vector;
 
 class AST_Block;
 class AST_Statement;
 class AST_Var;
 class AST_Func;
 class AST_Expression;
-class AST_ExpressionOperand;
 
 enum ST {
     ST_EMPTY,
@@ -35,83 +36,76 @@ public:
         statements.push_back(st);
     }
 
-    std::vector<AST_Statement*> statements;
+    vector<AST_Statement*> statements;
 };
 
 class AST_Var : public AST_Statement {
 public:
-    AST_Var(ST _type, std::string _id, bool _is_array = false, int _sz_array = -1)
-        : AST_Statement(_type, NULL), id(_id), is_array(_is_array), sz_array(_sz_array) {}
+    AST_Var() : AST_Statement(ST_VAR, NULL) {}
+    AST_Var(string _id, Constant _con)
+        : AST_Statement(ST_VAR, NULL),
+          id(_id),
+          con(_con) {}
+    void SetVar(string _id, Constant _con) {
+        id = _id;
+        con = _con;
+    }
 
-    std::string id;
-    bool is_array;
-    int sz_array;
+    string id;
+    Constant con;
 };
 
 class AST_Func : public AST_Statement {
 public:
-    AST_Func(ST _type, std::string _id, std::vector<AST_Var*> _paras = {})
-        : AST_Statement(_type, NULL), id(_id), paras(_paras) {}
+    AST_Func(string _id, vector<string> _paras = {})
+        : AST_Statement(ST_FUNC, NULL),
+          id(_id),
+          paras(_paras) {}
 
     std::string id;
-    std::vector<AST_Var*> paras;
+    std::vector<string> paras;
 };
 
-enum EXP_T {
-    EXP_INT,
-    EXP_DOUBLE,
-    EXP_EXP
-};
-
-class AST_ExpressionOperand {
-public:
-    AST_ExpressionOperand() {}
-
-    void SetOperand(EXP_T _type, int iv) {
-        type = _type;
-        val.iv = iv;
-    }
-    void SetOperand(EXP_T _type, double dv) {
-        type = _type;
-        val.dv = dv;
-    }
-    void SetOperand(EXP_T _type, AST_Expression* ev) {
-        type = _type;
-        val.ev = ev;
-    }
-    void AddPrefixOP(OP op) {
-        prefix.push_back(op);
-    }
-    void AddSuffixOP(OP op) {
-        suffix.push_back(op);
-    }
-
-    EXP_T type;
-    union v {
-        int iv;
-        double dv;
-        AST_Expression *ev;
-    } val;
-    std::vector<OP> prefix, suffix;
-};
+// class AST_Expression : public AST_Statement {
+// public:
+//     AST_Expression()
+//         : AST_Statement(ST_EXP, NULL),
+//           op(OP_NONE) {}
+//     AST_Expression(Operand _o1)
+//         : AST_Statement(ST_EXP, NULL),
+//           o1(_o1),
+//           op(OP_NONE),
+//           is_leaf(true){}
+//     AST_Expression(Operand _o1, OP _op, Operand _o2)
+//         : AST_Statement(ST_EXP, NULL),
+//           o1(_o1),
+//           o2(_o2),
+//           op(_op),
+//           is_leaf(false){}
+//
+//     Operand o1, o2;
+//     OP op;
+//     bool is_leaf;
+// };
 
 class AST_Expression : public AST_Statement {
 public:
-    AST_Expression() : AST_Statement(ST_EXP, NULL), op(OP_NONE) {}
-    AST_Expression(AST_ExpressionOperand _o1)
+    AST_Expression(Operand _o)
         : AST_Statement(ST_EXP, NULL),
-          o1(_o1),
           op(OP_NONE),
+          o(_o),
           is_leaf(true){}
-    AST_Expression(AST_ExpressionOperand _o1, OP _op, AST_ExpressionOperand _o2)
+    AST_Expression(AST_Expression* _e1, OP _op, AST_Expression* _e2)
         : AST_Statement(ST_EXP, NULL),
-          o1(_o1),
-          o2(_o2),
+          e1(_e1),
+          e2(_e2),
           op(_op),
           is_leaf(false){}
 
-    AST_ExpressionOperand o1, o2;
+    AST_Expression *e1, *e2;
     OP op;
+    // For the leaf expression
+    Operand o;
     bool is_leaf;
 };
 
@@ -134,8 +128,8 @@ public:
 
     AST_Expression* ParseExpression();
     OP GetNextOP();
-    AST_ExpressionOperand GetNextOperand();
-    AST_Expression* ParseExpressionHelper(AST_ExpressionOperand o1, OP op);
+    AST_Expression* GetNextOperand();
+    AST_Expression* ParseExpressionHelper(AST_Expression* e1, OP op);
 
 private:
     bool EatToken(TOKEN t);
