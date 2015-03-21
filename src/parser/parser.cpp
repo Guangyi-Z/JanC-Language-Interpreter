@@ -11,26 +11,62 @@ bool Parser::EatToken(TOKEN t) {
     return true;
 }
 
-AST_Expression* Parser::GetNextOperand() {
-    TOKEN t = lexer.GetCurToken();
-    Operand o;
-    // get prefix operators
-    while (t == TOK_OP) {
+void Parser::FindPrefixOP(Operand &o) {
+    while (lexer.GetCurToken() == TOK_OP) {
         OP op = lexer.GetCurOP();
         if (pp.IsPrefixOP(op))
             o.AddPrefixOP(op);
         else {
-            std::cout << "Error in GetNextOperand: prefix OP " << op << std::endl;
+            std::cout << "Error in FindPrefixOP: prefix OP " << op << std::endl;
             exit(0);
         }
-        t = lexer.GetNextToken();
+        EatToken(TOK_OP);
     }
+}
+
+bool Parser::IsTheEndOfExp(TOKEN t) {
+    static const std::set<TOKEN> se = {
+        TOK_COMMA,
+        TOK_SEMI,
+        TOK_BRACE_RIGHT,
+        TOK_PAREN_RIGHT
+    };
+    if (se.find(t) == se.end())
+        return false;
+    return true;
+}
+
+void Parser::FindSuffixOP(Operand &o) {
+    while (lexer.GetCurToken() == TOK_OP &&
+            pp.IsSuffixOP(lexer.GetCurOP())
+            ) {
+        TOKEN t_nxt = lexer.LookaheadOneToken();
+        if (IsTheEndOfExp(t_nxt) || t_nxt == TOK_OP) {
+            o.AddSuffixOP(lexer.GetCurOP());
+        }
+        else {
+            lexer.RewindOneToken();
+            lexer.GetNextToken();
+            break;
+        }
+        EatToken(TOK_OP);
+    }
+}
+
+AST_Expression* Parser::GetNextOperand() {
+    TOKEN t = lexer.GetCurToken();
+    Operand o;
+    // get prefix operators
+    FindPrefixOP(o);
     // get operand entity
     switch (t) {
         case TOK_PAREN_LEFT:
+            {
             EatToken(TOK_PAREN_LEFT);
-            return ParseExpression();   // (..) has no unary op
-            // TOK_PAREN_RIGHT is ate by GetNextOP()
+                AST_Expression *e = ParseExpression();   // (..) has no unary op outside
+            EatToken (TOK_PAREN_RIGHT);
+            return e;
+            }
             break;
         case TOK_INT:
             o.SetOperand(std::stoi(lexer.GetCurLexem()));
@@ -46,19 +82,19 @@ AST_Expression* Parser::GetNextOperand() {
                 EatToken(t);
                 if (lexer.GetCurToken() == TOK_PAREN_LEFT){  // func
                     EatToken(TOK_PAREN_LEFT);
-                    AST_Expression *para = NULL;
                     vector<void*> vpara;
-                    while(para = ParseExpression()) {
+                    while (lexer.GetCurToken() != TOK_PAREN_RIGHT) {
+                        AST_Expression *para = ParseExpression();
                         vpara.push_back(para);
+                        if (lexer.GetCurToken() == TOK_COMMA)
+                            EatToken(TOK_COMMA);
                     }
                     o.SetOperand(name, vpara);
-                    EatToken(TOK_PAREN_RIGHT);
                 }
                 else if (lexer.GetCurToken() == TOK_BRACE_LEFT) {   // array
                     EatToken(TOK_BRACE_LEFT);
                     AST_Expression *para = ParseExpression();
-                    vector<void*> vpara = {para};
-                    o.SetOperand(name, vpara);
+                    o.SetOperand(name, {(void*)para});
                     EatToken(TOK_BRACE_RIGHT);
                 }
                 else {  // var
@@ -71,26 +107,7 @@ AST_Expression* Parser::GetNextOperand() {
             exit(0);
     }
     // get suffix operators
-    t = lexer.GetCurToken();
-    while (t == TOK_OP) {
-        OP op = lexer.GetCurOP();
-        if (!pp.IsSuffixOP(op))
-            break;
-        TOKEN t_nxt = lexer.LookaheadOneToken();
-        if (t_nxt == TOK_OP ||
-                t_nxt == TOK_SEMI ||
-                t_nxt == TOK_PAREN_RIGHT ||
-                t_nxt == TOK_COMMA ||
-                t_nxt == TOK_CURLY_BRACE_RIGHT) {
-            o.AddSuffixOP(op);
-        }
-        else {
-            lexer.RewindOneToken();
-            lexer.GetNextToken();
-            break;
-        }
-        t = lexer.GetNextToken();
-    }
+    FindSuffixOP(o);
     return new AST_Expression(o);
 }
 
@@ -99,10 +116,6 @@ OP Parser::GetNextOP() {
     TOKEN t = lexer.GetCurToken();
     int prec = pp.GetOPPrecedence(lexer.GetCurOP());
     if (t != TOK_OP || prec == OpProperty::OP_NOT_EXIST) {
-        if (t == TOK_PAREN_RIGHT)
-            EatToken(TOK_PAREN_RIGHT);
-        if (t == TOK_SEMI)
-            EatToken(TOK_SEMI); // expression ends with semi
         return OP_NONE;
     }
     else {
@@ -185,12 +198,12 @@ AST_Var* Parser::ParseVar() {
         else {
             switch(lexer.GetCurToken()) {
             case TOK_INT:
-                EatToken(TOK_INT);
                 con.SetValue(std::stoi(lexer.GetCurLexem()));
+                EatToken(TOK_INT);
                 break;
             case TOK_DOUBLE:
-                EatToken(TOK_DOUBLE);
                 con.SetValue(std::stod(lexer.GetCurLexem()));
+                EatToken(TOK_DOUBLE);
                 break;
             default: ;
             }
@@ -242,7 +255,9 @@ AST_Statement* Parser::ParseStatement() {
             t == TOK_ID ||
             t == TOK_PAREN_LEFT ||
             t == TOK_OP) {  // expression
-        return ParseExpression();
+        AST_Expression* e = ParseExpression();
+        EatToken(TOK_SEMI);
+        return e;
     }
     else {
         std::cout << "Error: ParseStatement with TOK- " << t << std::endl;

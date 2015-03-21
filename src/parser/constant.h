@@ -47,7 +47,7 @@ private:
     CONST_T type;
     union v {
         int i;
-        int d;
+        double d;
         char c;
         void *s;    // string *s;
         void *vi;   // vector<int> *vi;

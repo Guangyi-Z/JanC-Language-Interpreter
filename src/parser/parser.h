@@ -127,11 +127,14 @@ public:
     AST_Func* ParseFunc();
 
     AST_Expression* ParseExpression();
-    OP GetNextOP();
-    AST_Expression* GetNextOperand();
     AST_Expression* ParseExpressionHelper(AST_Expression* e1, OP op);
 
 private:
+    OP GetNextOP();
+    AST_Expression* GetNextOperand();
+    bool IsTheEndOfExp(TOKEN t);
+    void FindPrefixOP(Operand &o);
+    void FindSuffixOP(Operand &o);
     bool EatToken(TOKEN t);
 
     Lexer lexer;

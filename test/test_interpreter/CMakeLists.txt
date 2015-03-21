@@ -1,0 +1,3 @@
+add_executable(test_interpreter test_interpreter.cpp)
+target_link_libraries(test_interpreter interpreter)
+add_gtest(test_interpreter)
