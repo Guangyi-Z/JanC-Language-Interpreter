@@ -1,9 +1,13 @@
 #ifndef CONSTANT
 #define CONSTANT
+#include <iostream>
 #include <string>
 #include <vector>
+#include "lexer/op.h"
 using std::string;
 using std::vector;
+using std::cout;
+using std::endl;
 
 enum CONST_T {
     CONST_INT,
@@ -17,6 +21,7 @@ enum CONST_T {
 
 class Constant {
 public:
+    /* construtor */
     Constant ()                   { SetType(CONST_NONE);}
     Constant (int _v)             { SetValue(_v);}
     Constant (double _v)          { SetValue(_v);}
@@ -25,6 +30,7 @@ public:
     Constant (vector<int> _v, int _sz)    { SetValue(_v, _sz);}
     Constant (vector<double> _v, int _sz) { SetValue(_v, _sz);}
 
+    /* setter */
     void SetValue (int _v)             { SetType(CONST_INT); val.i = _v;}
     void SetValue (double _v)          { SetType(CONST_DOUBLE); val.d = _v;}
     void SetValue (char _v)            { SetType(CONST_CHAR); val.c = _v;}
@@ -32,6 +38,7 @@ public:
     void SetValue (vector<int> _v, int _sz)    { SetType(CONST_ARRAY_INT); val.vi = new vector<int>(_v); sz = _sz;}
     void SetValue (vector<double> _v, int _sz) { SetType(CONST_ARRAY_DOUBLE); val.vd = new vector<double>(_v); sz = _sz;}
 
+    /* getter */
     CONST_T GetType()               { return type;}
     int GetInt()                    { return val.i;}
     double GetDouble()              { return val.d;}
@@ -41,7 +48,21 @@ public:
     vector<double> GetArrayDouble() { return (*(vector<double>*)(val.vd));}
     int GetArraySize()              { return sz;}
 
+    /* operation */
+    static Constant Add(Constant con1, Constant con2);
+    static Constant Sub(Constant con1, Constant con2);
+    static Constant Mul(Constant con1, Constant con2);
+    static Constant Div(Constant con1, Constant con2);
+    void ToDec();
+    void ToInc();
+    void ToNegative();
+
 private:
+    /* type checker */
+    void CheckType(Constant &con1, Constant &con2);
+    void TypeUpGrade();
+    void CheckOP(OP op, CONST_T t);
+
     void SetType  (CONST_T t)          { type = t;}
 
     CONST_T type;

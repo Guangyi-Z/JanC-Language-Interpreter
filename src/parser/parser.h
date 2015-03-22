@@ -3,7 +3,7 @@
 
 #include <map>
 #include "lexer/token.h"
-#include "exp.h"
+#include "operand.h"
 using std::string;
 using std::vector;
 
@@ -41,18 +41,29 @@ public:
 
 class AST_Var : public AST_Statement {
 public:
-    AST_Var() : AST_Statement(ST_VAR, NULL) {}
-    AST_Var(string _id, Constant _con)
-        : AST_Statement(ST_VAR, NULL),
-          id(_id),
-          con(_con) {}
-    void SetVar(string _id, Constant _con) {
+    AST_Var(string _id, AST_Expression *_e)
+        : AST_Statement(ST_VAR, NULL) {
+        SetVar(_id, _e);
+    }
+    AST_Var(string _id, vector<AST_Expression*> _ve)
+        : AST_Statement(ST_VAR, NULL) {
+        SetVar(_id, _ve);
+    }
+
+    void SetVar(string _id, AST_Expression *_e) {
+        is_array = false;
         id = _id;
-        con = _con;
+        ve.push_back(_e);
+    }
+    void SetVar(string _id, vector<AST_Expression*> _ve) {
+        is_array = true;
+        id = _id;
+        ve = _ve;
     }
 
     string id;
-    Constant con;
+    vector<AST_Expression*> ve;
+    bool is_array;
 };
 
 class AST_Func : public AST_Statement {
@@ -65,28 +76,6 @@ public:
     std::string id;
     std::vector<string> paras;
 };
-
-// class AST_Expression : public AST_Statement {
-// public:
-//     AST_Expression()
-//         : AST_Statement(ST_EXP, NULL),
-//           op(OP_NONE) {}
-//     AST_Expression(Operand _o1)
-//         : AST_Statement(ST_EXP, NULL),
-//           o1(_o1),
-//           op(OP_NONE),
-//           is_leaf(true){}
-//     AST_Expression(Operand _o1, OP _op, Operand _o2)
-//         : AST_Statement(ST_EXP, NULL),
-//           o1(_o1),
-//           o2(_o2),
-//           op(_op),
-//           is_leaf(false){}
-//
-//     Operand o1, o2;
-//     OP op;
-//     bool is_leaf;
-// };
 
 class AST_Expression : public AST_Statement {
 public:

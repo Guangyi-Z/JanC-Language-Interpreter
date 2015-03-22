@@ -3,6 +3,15 @@
 ###Grammar
 
 ```
+var arr[5] = {1,2,3,4,5};
+var a = 1;
+// var arr[5] = {1,1+1,3,4,5};
+// a = 1+1;
+```
+
+``var`` can only be initialized with literals value, not expression.
+
+```
 Statement :: = ; | Block
 Block     :: = {Statement*}
 /* declaration */
@@ -95,3 +104,8 @@ Subexp ::= Num [*/] Num
                  └─│  ST_Block   │  │ Statement*  │                                          
                    └─────────────┘  └─────────────┘                                          
 ```
+
+###Features To Do
+
+1. Comment
+2. Relational Logic

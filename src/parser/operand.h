@@ -1,5 +1,6 @@
-#ifndef EXP_H
-#define EXP_H
+#ifndef OPERAND_H
+#define OPERAND_H
+
 #include "lexer/op.h"
 #include "constant.h"
 
@@ -28,6 +29,10 @@ public:
         }
     }
 
+    void ToNegative() { con.ToNegative();}
+    void ToInc()      { con.ToInc();}
+    void ToDec()      { con.ToDec();}
+
     void AddPrefixOP(OP op) {
         prefix.push_back(op);
     }
@@ -37,6 +42,7 @@ public:
 
     vector<OP> GetPrefix() {return prefix;}
     vector<OP> GetSuffix() {return suffix;}
+    Constant GetConst()             { return con;}
     CONST_T GetType()               { return con.GetType();}
     int GetInt()                    { return con.GetInt();}
     double GetDouble()              { return con.GetDouble();}
@@ -45,12 +51,16 @@ public:
     vector<int> GetArrayInt()       { return con.GetArrayInt();}
     vector<double> GetArrayDouble() { return con.GetArrayDouble();}
 
+    string GetID()                          { return id;}
+    vector<AST_Expression*> GetParameters() { return parameters;}
+
 private:
     std::vector<OP> prefix, suffix;
 
-    string id;
+    // For basic type
     Constant con;
-    // For function
+    // For symbol reference
+    string id;
     vector<AST_Expression*> parameters;
 };
 

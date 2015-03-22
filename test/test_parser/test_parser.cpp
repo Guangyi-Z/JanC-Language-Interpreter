@@ -262,7 +262,6 @@ TEST(test_parser, simple_expression) {
     cout.rdbuf(ss.rdbuf());
 
     AST_Statement *st;
-    AST_Expression *e = NULL;
 
     // 10+27-16+2.1;
     st = parser.ParseStatement();
@@ -297,7 +296,7 @@ TEST(test_parser, simple_expression) {
     // EXPECT_EQ(511, e->o.val.iv);
 
     cout.rdbuf(buf);
-    string str = "((10+27)-16)+2\n"
+    string str = "((10+27)-16)+2.1\n"
         "2*(2+3)\n"
         "(128*4)/3\n"
         "10+(((128*4)-16)+(10/2))\n";

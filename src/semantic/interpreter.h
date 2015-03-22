@@ -2,11 +2,13 @@
 #define INTERPRETER_H
 #include <queue>
 #include "symbol.h"
+#include "exp.h"
 #include "parser/parser.h"
 using std::queue;
 
 class Interpreter {
 public:
+    /* construtor */
     Interpreter() {}
     Interpreter(string path_to_file) : Interpreter() { Load(path_to_file);}
     void Load(string path_to_file) {
@@ -18,11 +20,15 @@ public:
         }
     }
 
+    /* interpreter */
     void Interpret (AST_Statement *st);
     bool HasNextStatement();
     void NextStatement();
     void Continue();
 
+    /* symbol reader */
+    AST_Expression* ReadVar(string name);
+    AST_Func* ReadFunc(string name);
     int ReadVarInt(string name);
     double ReadVarDouble(string name);
     char ReadVarChar(string name);

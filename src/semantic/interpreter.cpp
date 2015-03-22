@@ -38,6 +38,14 @@ void Interpreter::Continue() {
         NextStatement();
 }
 
+AST_Func* Interpreter::ReadFunc(string name) {
+    return sym.LookupSymbol(name);
+}
+
+AST_Expression* Interpreter::ReadVar(string name) {
+    return fsym.LookupSymbol(name);
+}
+
 int            Interpreter::ReadVarInt(string name) {
     Constant con = sym.LookupSymbol(name);
     if (con.GetType() == CONST_INT)
