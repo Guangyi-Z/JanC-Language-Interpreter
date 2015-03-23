@@ -1,9 +1,9 @@
 #ifndef CONSTANT
 #define CONSTANT
 #include <iostream>
+#include <iomanip>
 #include <string>
 #include <vector>
-#include "lexer/op.h"
 using std::string;
 using std::vector;
 using std::cout;
@@ -47,15 +47,6 @@ public:
     vector<int> GetArrayInt()       { return (*(vector<int>*)(val.vi));}
     vector<double> GetArrayDouble() { return (*(vector<double>*)(val.vd));}
     int GetArraySize()              { return sz;}
-
-    /* operation */
-    static Constant Add(Constant con1, Constant con2);
-    static Constant Sub(Constant con1, Constant con2);
-    static Constant Mul(Constant con1, Constant con2);
-    static Constant Div(Constant con1, Constant con2);
-    /* type checker */
-    static void CheckType(Constant &con1, Constant &con2);
-    static void CheckOP(OP op, CONST_T t);
 
     void ToDec();
     void ToInc();

@@ -6,21 +6,20 @@ Constant Expression::CalcExp(SymbolTable &sym,
     if (exp->IsLeaf()) {
         return Expression::CalcOperand(sym, fsym, exp->o);
     }
-    // Constant con1 = CalcExp(sym, fsym, exp->e1);
-    // Constant con2 = CalcExp(sym, fsym, exp->e2);
-    // switch(exp->op) {
-    // case OP_ADD:
-    //     return Constant::Add(con1, con2);
-    // case OP_SUB:
-    //     return Constant::Sub(con1, con2);
-    // case OP_MUL:
-    //     return Constant::Mul(con1, con2);
-    // case OP_DIV:
-    //     return Constant::Div(con1, con2);
-    // default:
-    //     return Constant();
-    // }
-    return Constant();
+    Constant con1 = CalcExp(sym, fsym, exp->e1);
+    Constant con2 = CalcExp(sym, fsym, exp->e2);
+    switch(exp->op) {
+    case OP_ADD:
+        return Arithmetic::Add(con1, con2);
+    case OP_SUB:
+        return Arithmetic::Sub(con1, con2);
+    case OP_MUL:
+        return Arithmetic::Mul(con1, con2);
+    case OP_DIV:
+        return Arithmetic::Div(con1, con2);
+    default:
+        return Constant();
+    }
 }
 
 void Expression::DoPrefixOP(Operand *o) {

@@ -22,13 +22,13 @@ TEST(test_interpreter, exp_with_no_op) {
     cout.rdbuf(buf);
 }
 
-// TEST(test_interpreter, exp_with_no_var) {
-//     Interpreter intr("../test/test_interpreter/interpreter_test1.txt");
-//
-//     intr.IntrStatement();
-//     intr.IntrStatement();
-// }
-//
+TEST(test_interpreter, exp_with_no_ref) {
+    Interpreter intr("../test/test_interpreter/interpreter_test2.txt");
+
+    intr.IntrStatement();
+    intr.IntrStatement();
+}
+
 // TEST(test_interpreter, var) {
 //     Interpreter intr("../test/test_interpreter/interpreter_test1.txt");
 //

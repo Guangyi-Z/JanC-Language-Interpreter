@@ -2,6 +2,7 @@
 #define EXP_H
 #include "parser/parser.h"
 #include "symbol.h"
+#include "arithmetic.h"
 
 class Expression {
 public:
@@ -18,5 +19,6 @@ public:
 private:
 
 };
+
 
 #endif
