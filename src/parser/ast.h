@@ -1,14 +1,18 @@
 #ifndef AST_H
 #define AST_H
+#include <iostream>
 #include <string>
 #include <vector>
 using std::string;
 using std::vector;
+using std::cerr;
+using std::endl;
 
 enum ST {
     ST_EMPTY,
     ST_BLOCK,
     ST_VAR,
+    ST_ARRAY,
     ST_FUNC,
     ST_EXP
 };
@@ -16,6 +20,7 @@ enum ST {
 class AST_Block;
 class AST_Statement;
 class AST_Var;
+class AST_Array;
 class AST_Func;
 class AST_Expression;
 
@@ -38,31 +43,30 @@ public:
 
 class AST_Var : public AST_Statement {
 public:
+    AST_Var(string _id) : AST_Statement(ST_VAR), id(_id), val(NULL) {}
     AST_Var(string _id, AST_Expression *_e)
-        : AST_Statement(ST_VAR) {
-        SetVar(_id, _e);
-    }
-    AST_Var(string _id, int _sz, vector<AST_Expression*> _ve)
-        : AST_Statement(ST_VAR) {
-        SetVar(_id, _sz, _ve);
-    }
+        : AST_Statement(ST_VAR), id(_id), val(_e) {}
 
-    void SetVar(string _id, AST_Expression *_e) {
-        is_array = false;
-        id = _id;
-        ve.push_back(_e);
-    }
-    void SetVar(string _id, int _sz, vector<AST_Expression*> _ve) {
-        is_array = true;
-        id = _id;
-        sz_array = _sz;
-        ve = _ve;
+    string id;
+    AST_Expression *val;
+};
+
+class AST_Array : public AST_Statement {
+public:
+    AST_Array(string _id, int _sz)
+        : AST_Statement(ST_ARRAY), id(_id), sz_array(_sz) {}
+
+    void AddElement(AST_Expression *e) {
+        if (ve.size() > sz_array) {
+            cerr << "Error in AST_Array: too many elements for the array" << endl;
+            exit(0);
+        }
+        ve.push_back(e);
     }
 
     string id;
-    vector<AST_Expression*> ve;
     int sz_array;
-    bool is_array;
+    vector<AST_Expression*> ve;
 };
 
 class AST_Func : public AST_Statement {

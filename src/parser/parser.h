@@ -20,8 +20,11 @@ public:
     void Parse();
     AST_Statement* ParseStatement();
     AST_Block* ParseBlock();
-    AST_Var* ParseVar();
     AST_Func* ParseFunc();
+
+    AST_Statement* ParseVar();
+    AST_Array* ParseArray(string name);
+    AST_Var* ParseSingleVar(string name);
 
     AST_Expression* ParseExpression();
     AST_Expression* ParseExpressionHelper(AST_Expression* e1, OP op);
@@ -33,6 +36,8 @@ private:
     void FindPrefixOP(Operand &o);
     void FindSuffixOP(Operand &o);
     bool EatToken(TOKEN t);
+    bool IsNextOPEquals(OP op);
+    bool IsNextTokenEquals(TOKEN t);
 
     Lexer lexer;
     OpProperty pp;
