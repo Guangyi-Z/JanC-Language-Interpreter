@@ -8,42 +8,43 @@ class AST_Expression;
 class AST_Func;
 class AST_Var;
 
+enum OPRD_T {
+    OPRD_LITERAL,
+    OPRD_REF
+};
+
 class Operand {
 public:
-    Operand () { }
+    Operand (OPRD_T t) : type(t) {}
 
-    Operand (int _v)                          { SetOperand(_v);                                      }
-    Operand (double _v)                       { SetOperand(_v);                                      }
-    Operand (char _v)                         { SetOperand(_v);                                      }
-    Operand (string _v)                       { SetOperand(_v);                                      }
-    Operand (string _id, vector<void*> _para) { SetOperand(_id, _para);}
+    OPRD_T GetType()               { return type;}
 
-    void SetOperand (int _v)                          { con.SetValue(_v);}
-    void SetOperand (double _v)                       { con.SetValue(_v);}
-    void SetOperand (char _v)                         { con.SetValue(_v);}
-    void SetOperand (string _v)                       { con.SetValue(_v);}
-    void SetOperand (string _id, vector<void*> _para) {
-        id = _id;
-        for (void *p : _para) {
-            parameters.push_back((AST_Expression*)p);
-        }
-    }
+    void AddPrefixOP(OP op)        { prefix.push_back(op);}
+    void AddSuffixOP(OP op)        { suffix.push_back(op);}
+    void SetPrefixOP(vector<OP> v) { prefix = v;}
+    void SetSuffixOP(vector<OP> v) { suffix = v;}
+    vector<OP> GetPrefix()         { return prefix;}
+    vector<OP> GetSuffix()         { return suffix;}
 
-    void ToNegative() { con.ToNegative();}
-    void ToInc()      { con.ToInc();}
-    void ToDec()      { con.ToDec();}
+    /* virtual functions */
+    // void ToNegative() { con.ToNegative();}
+    // void ToInc()      { con.ToInc();}
+    // void ToDec()      { con.ToDec();}
 
-    void AddPrefixOP(OP op) {
-        prefix.push_back(op);
-    }
-    void AddSuffixOP(OP op) {
-        suffix.push_back(op);
-    }
+private:
+    OPRD_T type;
+    std::vector<OP> prefix, suffix;
+};
 
-    vector<OP> GetPrefix() {return prefix;}
-    vector<OP> GetSuffix() {return suffix;}
+class Literal : public Operand {
+public:
+    Literal () : Operand(OPRD_LITERAL) { }
+    Literal (Constant _con) : Operand(OPRD_LITERAL) { SetConst(_con);}
+
+    void SetConst (Constant _con)   { con = _con;}
     Constant GetConst()             { return con;}
-    CONST_T GetType()               { return con.GetType();}
+    CONST_T GetLiteralType()        { return con.GetType();}
+
     int GetInt()                    { return con.GetInt();}
     double GetDouble()              { return con.GetDouble();}
     char GetChar()                  { return con.GetChar();}
@@ -51,17 +52,26 @@ public:
     vector<int> GetArrayInt()       { return con.GetArrayInt();}
     vector<double> GetArrayDouble() { return con.GetArrayDouble();}
 
+private:
+    Constant con;
+};
+
+class Reference : public Operand {
+public:
+    Reference (string _id) : Operand(OPRD_REF) { id = _id;}
+
+    void AddParameter(AST_Expression *e) {
+        vp.push_back(e);
+    }
+
+    bool IsEmptyParameter()                 { return vp.empty();}
+    int GetNumOfParameter()                 { return vp.size();}
     string GetID()                          { return id;}
-    vector<AST_Expression*> GetParameters() { return parameters;}
+    vector<AST_Expression*> GetParameters() { return vp;}
 
 private:
-    std::vector<OP> prefix, suffix;
-
-    // For basic type
-    Constant con;
-    // For symbol reference
     string id;
-    vector<AST_Expression*> parameters;
+    vector<AST_Expression*> vp;
 };
 
 #endif

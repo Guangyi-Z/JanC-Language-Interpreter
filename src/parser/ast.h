@@ -89,9 +89,8 @@ public:
 
 class AST_Expression : public AST_Statement {
 public:
-    AST_Expression(Operand _o)
+    AST_Expression(Operand *_o)
         : AST_Statement(ST_EXP),
-          op(OP_NONE),
           o(_o),
           is_leaf(true){}
     AST_Expression(AST_Expression* _e1, OP _op, AST_Expression* _e2)
@@ -101,10 +100,12 @@ public:
           op(_op),
           is_leaf(false){}
 
+    bool IsLeaf() { return is_leaf;}
+
     AST_Expression *e1, *e2;
     OP op;
     // For the leaf expression
-    Operand o;
+    Operand *o;
     bool is_leaf;
 };
 

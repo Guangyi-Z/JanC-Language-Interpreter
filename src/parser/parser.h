@@ -35,8 +35,11 @@ private:
     OP GetNextOP();
     AST_Expression* GetNextOperand();
     bool IsTheEndOfExp(TOKEN t);
-    void FindPrefixOP(Operand &o);
-    void FindSuffixOP(Operand &o);
+    vector<OP> FindPrefixOP();
+    vector<OP> FindSuffixOP();
+    void FillSuffixOP(Operand &o);
+    void FillLiteralBody(Operand *o);
+    void FillReferenceBody(Operand *o);
     bool EatToken(TOKEN t);
 
     Lexer lexer;

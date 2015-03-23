@@ -140,10 +140,10 @@ void TraverseASTSt(AST_Statement *st) {
 void PrintASTExp(AST_Expression *exp);
 void PrintASTExpOperand(Operand o);
 
-void PrintASTExpOperand(Operand o) {
-    if (!o.GetPrefix().empty() || !o.GetSuffix().empty()) {
+void PrintASTExpOperand(Operand *o) {
+    if (!o->GetPrefix().empty() || !o->GetSuffix().empty()) {
         cout << "(";
-        for (OP op : o.GetPrefix()) {
+        for (OP op : o->GetPrefix()) {
             switch(op) {
                 case OP_ADD:
                     cout << "+";
@@ -164,18 +164,21 @@ void PrintASTExpOperand(Operand o) {
             }
         }
     }
-    switch(o.GetType()) {
-        case CONST_INT:
-            cout << o.GetInt();
-            break;
-        case CONST_DOUBLE:
-            cout << o.GetDouble();
-            break;
-        default:
-            break;
+    if (o->GetType() == OPRD_LITERAL) {
+        Literal *l = (Literal*) o;
+        switch(l->GetLiteralType()) {
+            case CONST_INT:
+                cout << l->GetInt();
+                break;
+            case CONST_DOUBLE:
+                cout << l->GetDouble();
+                break;
+            default:
+                break;
+        }
     }
-    if (!o.GetPrefix().empty() || !o.GetSuffix().empty()) {
-        for (OP op : o.GetSuffix()) {
+    if (!o->GetPrefix().empty() || !o->GetSuffix().empty()) {
+        for (OP op : o->GetSuffix()) {
             switch(op) {
                 case OP_INC:
                     cout << "++";
@@ -307,7 +310,6 @@ TEST(test_parser, expression_with_unary_op) {
     Parser parser("../test/test_parser/parser_test5.txt");
 
     AST_Statement *st;
-    Operand o;
     string s("(-7)+8\n"
             "5+(-6)\n"
             "(-3)+(+4)\n"
