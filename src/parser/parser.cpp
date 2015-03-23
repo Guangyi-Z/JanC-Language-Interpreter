@@ -195,27 +195,28 @@ AST_Func* Parser::ParseFunc() {
     EatToken(TOK_FUNC);
     string name = lexer.GetCurLexem();
     EatToken(TOK_ID);
-    // parse the function's parameters
+    AST_Func *func = new AST_Func(name);
+
+    // function's parameters
     EatToken(TOK_PAREN_LEFT);
-    std::vector<string> paras;
-    while (lexer.GetCurToken() == TOK_ID) {
-        paras.push_back(lexer.GetCurLexem());
+    while (lexer.IsNextTokenEquals(TOK_ID)) {
+        func->AddArgument(lexer.GetCurLexem());
         EatToken(TOK_ID);
-        if (TOK_COMMA == lexer.GetCurToken())
+        if (lexer.IsNextTokenEquals(TOK_COMMA))
             EatToken(TOK_COMMA);
     }
     EatToken(TOK_PAREN_RIGHT);
-    AST_Func *func = new AST_Func(name, paras);
+
     // Functions end with either ';' or {...}
-    if (TOK_SEMI == lexer.GetCurToken())
+    if (lexer.IsNextTokenEquals(TOK_SEMI))
         EatToken(TOK_SEMI);
     else
-        func->block = ParseBlock();
+        func->AddFunctionBody(ParseBlock());
     return func;
 }
 
 AST_Statement* Parser::ParseStatement() {
-    TOKEN t = lexer.GetCurToken();
+    const TOKEN t = lexer.GetCurToken();
     switch(t) {
     case TOK_END:
         return NULL;

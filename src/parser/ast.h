@@ -71,13 +71,19 @@ public:
 
 class AST_Func : public AST_Statement {
 public:
-    AST_Func(string _id, vector<string> _paras = {})
+    AST_Func(string _id)
         : AST_Statement(ST_FUNC),
-          id(_id),
-          paras(_paras) {}
+          id(_id) {}
+
+    void AddArgument(string arg) {
+        vp.push_back(arg);
+    }
+    void AddFunctionBody(AST_Block *_b) {
+        block = _b;
+    }
 
     std::string id;
-    std::vector<string> paras;
+    std::vector<string> vp;
     AST_Block *block;
 };
 
