@@ -27,7 +27,7 @@ void Constant::ToDec() {
     }
 }
 // con1 and con2 will be the same type after the check
-void Constant::CheckType(Constant &con1, Constant &con2) {
+void CheckType(Constant &con1, Constant &con2) {
     CONST_T t1 = con1.GetType();
     CONST_T t2 = con2.GetType();
     if (t1 == t2 && t1 != CONST_CHAR)
@@ -46,7 +46,7 @@ void Constant::CheckType(Constant &con1, Constant &con2) {
     exit(0);
 }
 
-void Constant::CheckOP(OP op, CONST_T t) {
+void CheckOP(OP op, CONST_T t) {
     switch(t) {
         case CONST_INT:
         case CONST_DOUBLE:
@@ -81,7 +81,7 @@ void Constant::TypeUpGrade() {
     }
 }
 
-static Constant::Constant Add(Constant con1, Constant con2) {
+Constant Add(Constant con1, Constant con2) {
     CheckType(con1, con2);
     CheckOP(OP_ADD, con1.GetType());
     switch(con1.GetType()) {
@@ -91,11 +91,11 @@ static Constant::Constant Add(Constant con1, Constant con2) {
         return Constant(con1.GetDouble() + con2.GetDouble());
     case CONST_STRING:
         return Constant(con1.GetString() + con2.GetString());
-    default
+    default:
         return Constant();
     }
 }
-static Constant::Constant Sub(Constant con1, Constant con2) {
+Constant Sub(Constant con1, Constant con2) {
     CheckType(con1, con2);
     CheckOP(OP_ADD, con1.GetType());
     switch(con1.GetType()) {
@@ -103,11 +103,11 @@ static Constant::Constant Sub(Constant con1, Constant con2) {
         return Constant(con1.GetInt() - con2.GetInt());
     case CONST_DOUBLE:
         return Constant(con1.GetDouble() - con2.GetDouble());
-    default
+    default:
         return Constant();
     }
 }
-static Constant::Constant Mul(Constant con1, Constant con2) {
+Constant Mul(Constant con1, Constant con2) {
     CheckType(con1, con2);
     CheckOP(OP_ADD, con1.GetType());
     switch(con1.GetType()) {
@@ -115,11 +115,11 @@ static Constant::Constant Mul(Constant con1, Constant con2) {
         return Constant(con1.GetInt() * con2.GetInt());
     case CONST_DOUBLE:
         return Constant(con1.GetDouble() * con2.GetDouble());
-    default
+    default:
         return Constant();
     }
 }
-static Constant::Constant Div(Constant con1, Constant con2) {
+Constant Div(Constant con1, Constant con2) {
     CheckType(con1, con2);
     CheckOP(OP_ADD, con1.GetType());
     switch(con1.GetType()) {
@@ -127,7 +127,7 @@ static Constant::Constant Div(Constant con1, Constant con2) {
         return Constant(con1.GetInt() / con2.GetInt());
     case CONST_DOUBLE:
         return Constant(con1.GetDouble() / con2.GetDouble());
-    default
+    default:
         return Constant();
     }
 }

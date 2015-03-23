@@ -22,9 +22,8 @@ void TraverseASTBLock(AST_Block *block) {
 }
 
 void TraverseASTSt(AST_Statement *st) {
-    if (st->block) {
-        TraverseASTBLock(st->block);
-    }
+    if (st->type == ST_BLOCK)
+        TraverseASTBLock((AST_Block*)st);
     else cout << ";";
 }
 

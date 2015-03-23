@@ -163,17 +163,19 @@ AST_Var* Parser::ParseVar() {
     }
     vector<double> vd;
     // test initialization
-    vector<AST_Expression*> ve;
+    AST_Var *res = NULL;
     if (lexer.GetCurToken() == TOK_OP && lexer.GetCurOP() == OP_ASSIGN) {
         EatToken(TOK_OP);
         if (is_array) {
-            ve.push_back(ParseExpression());
+            res = new AST_Var(name, ParseExpression());
         }
         else {
+            vector<AST_Expression*> ve;
             EatToken(TOK_CURLY_BRACE_LEFT);
             while(lexer.GetCurToken() != TOK_CURLY_BRACE_RIGHT)
                 ve.push_back(ParseExpression());
             EatToken(TOK_CURLY_BRACE_RIGHT);
+            res = new AST_Var(name, sz_array, ve);
         }
         // if (is_array) {
         //     EatToken(TOK_CURLY_BRACE_LEFT);
@@ -220,7 +222,7 @@ AST_Var* Parser::ParseVar() {
         // }
     }
     EatToken(TOK_SEMI);
-    return new AST_Var(name, ve);
+    return res;
 }
 
 AST_Func* Parser::ParseFunc() {
@@ -256,10 +258,10 @@ AST_Statement* Parser::ParseStatement() {
         return ParseVar();
     else if (t == TOK_SEMI) {
         EatToken(TOK_SEMI);
-        return new AST_Statement(ST_EMPTY, NULL);
+        return new AST_Statement(ST_EMPTY);
     }
     else if (t == TOK_CURLY_BRACE_LEFT)
-        return new AST_Statement(ST_BLOCK, ParseBlock());
+        return ParseBlock();
     else if(t == TOK_INT ||
             t == TOK_DOUBLE ||
             t == TOK_ID ||

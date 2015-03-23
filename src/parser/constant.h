@@ -53,15 +53,16 @@ public:
     static Constant Sub(Constant con1, Constant con2);
     static Constant Mul(Constant con1, Constant con2);
     static Constant Div(Constant con1, Constant con2);
+    /* type checker */
+    static void CheckType(Constant &con1, Constant &con2);
+    static void CheckOP(OP op, CONST_T t);
+
     void ToDec();
     void ToInc();
     void ToNegative();
+    void TypeUpGrade();
 
 private:
-    /* type checker */
-    void CheckType(Constant &con1, Constant &con2);
-    void TypeUpGrade();
-    void CheckOP(OP op, CONST_T t);
 
     void SetType  (CONST_T t)          { type = t;}
 
