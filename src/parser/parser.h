@@ -8,6 +8,7 @@
 
 class Parser {
 public:
+    /* constructor */
     Parser(){};
     Parser(std::string path_to_file) {
         Load(path_to_file);
@@ -17,7 +18,8 @@ public:
         lexer.Load(path_to_file);
         lexer.GetNextToken();
     }
-    void Parse();
+
+    /* parser fucntions */
     AST_Statement* ParseStatement();
     AST_Block* ParseBlock();
     AST_Func* ParseFunc();
@@ -36,8 +38,6 @@ private:
     void FindPrefixOP(Operand &o);
     void FindSuffixOP(Operand &o);
     bool EatToken(TOKEN t);
-    bool IsNextOPEquals(OP op);
-    bool IsNextTokenEquals(TOKEN t);
 
     Lexer lexer;
     OpProperty pp;

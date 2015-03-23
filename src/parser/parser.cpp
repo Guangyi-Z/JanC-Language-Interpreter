@@ -3,18 +3,6 @@ using std::cout;
 using std::cerr;
 using std::endl;
 
-bool Parser::IsNextOPEquals(OP op) {
-    if (lexer.GetCurToken() == TOK_OP && lexer.GetCurOP() == op)
-        return true;
-    return false;
-}
-
-bool Parser::IsNextTokenEquals(TOKEN t) {
-    if (lexer.GetCurToken() == t)
-        return true;
-    return false;
-}
-
 bool Parser::EatToken(TOKEN t) {
     if (t != lexer.GetCurToken()) {
         std::cerr << "Error: EatToken(" << t << "), but actually " << lexer.GetCurToken() << std::endl;
@@ -163,7 +151,7 @@ AST_Expression* Parser::ParseExpression() {
 
 AST_Var* Parser::ParseSingleVar(string name) {
     AST_Var *res = NULL;
-    if (IsNextOPEquals(OP_ASSIGN)) {    // initialization
+    if (lexer.IsNextOPEquals(OP_ASSIGN)) {    // initialization
         EatToken(TOK_OP);
         res = new AST_Var(name, ParseExpression());
     }
@@ -179,12 +167,12 @@ AST_Array* Parser::ParseArray(string name) {
     EatToken(TOK_BRACE_RIGHT);
 
     // initialization
-    if (IsNextOPEquals(OP_ASSIGN)) {
+    if (lexer.IsNextOPEquals(OP_ASSIGN)) {
         EatToken(TOK_OP);
         EatToken(TOK_CURLY_BRACE_LEFT);
-        while(! IsNextTokenEquals(TOK_CURLY_BRACE_RIGHT)) {
+        while(! lexer.IsNextTokenEquals(TOK_CURLY_BRACE_RIGHT)) {
             res->AddElement(ParseExpression());
-            if (IsNextTokenEquals(TOK_COMMA))
+            if (lexer.IsNextTokenEquals(TOK_COMMA))
                 EatToken(TOK_COMMA);
         }
         EatToken(TOK_CURLY_BRACE_RIGHT);
@@ -228,50 +216,42 @@ AST_Func* Parser::ParseFunc() {
 
 AST_Statement* Parser::ParseStatement() {
     TOKEN t = lexer.GetCurToken();
-    if (t == TOK_END)
+    switch(t) {
+    case TOK_END:
         return NULL;
-    else if (t == TOK_FUNC)
+    case TOK_FUNC:
         return ParseFunc();
-    else if (t == TOK_VAR)
+    case TOK_VAR:
         return ParseVar();
-    else if (t == TOK_SEMI) {
+    case TOK_SEMI:
         EatToken(TOK_SEMI);
         return new AST_Statement(ST_EMPTY);
-    }
-    else if (t == TOK_CURLY_BRACE_LEFT)
+    case TOK_CURLY_BRACE_LEFT:
         return ParseBlock();
-    else if(t == TOK_INT ||
-            t == TOK_DOUBLE ||
-            t == TOK_ID ||
-            t == TOK_PAREN_LEFT ||
-            t == TOK_OP) {  // expression
-        AST_Expression* e = ParseExpression();
-        EatToken(TOK_SEMI);
-        return e;
-    }
-    else {
+    case TOK_INT:
+    case TOK_DOUBLE:
+    case TOK_ID:
+    case TOK_PAREN_LEFT:
+    case TOK_OP:
+        {
+            AST_Expression* e = ParseExpression();
+            EatToken(TOK_SEMI);
+            return e;
+        }
+    default:
         std::cerr << "Error: ParseStatement with TOK- " << t << std::endl;
         exit(0);
     }
 }
 
 AST_Block* Parser::ParseBlock() {
-    TOKEN t = lexer.GetCurToken();
-    if (t == TOK_CURLY_BRACE_LEFT) {
-        AST_Block *block = new AST_Block();
-        EatToken(TOK_CURLY_BRACE_LEFT);
-        while (true) {
-            t = lexer.GetCurToken();
-            if (t == TOK_CURLY_BRACE_RIGHT)
-                break;
-            block->AddStatement(ParseStatement());
-        }
-        EatToken(TOK_CURLY_BRACE_RIGHT);
-        return block;
+    EatToken(TOK_CURLY_BRACE_LEFT);
+    AST_Block *block = new AST_Block();
+    while (true) {
+        if (lexer.IsNextTokenEquals(TOK_CURLY_BRACE_RIGHT))
+            break;
+        block->AddStatement(ParseStatement());
     }
-    else return NULL;
-}
-
-void Parser::Parse() {
-    ParseStatement();
+    EatToken(TOK_CURLY_BRACE_RIGHT);
+    return block;
 }

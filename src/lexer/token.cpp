@@ -21,6 +21,18 @@ void Lexer::Load(std::string path_to_file) {
     cur = Next();
 }
 
+bool Lexer::IsNextOPEquals(OP op) {
+    if (t == TOK_OP && ope.op == op)
+        return true;
+    return false;
+}
+
+bool Lexer::IsNextTokenEquals(TOKEN _t) {
+    if (t == _t)
+        return true;
+    return false;
+}
+
 OP Lexer::GetCurOP() {
     return ope.op;
 }

@@ -86,6 +86,9 @@ public:
     void RewindOneToken();
     std::string GetCurLexem();
     OP GetCurOP();
+    bool IsNextOPEquals(OP op);
+    bool IsNextTokenEquals(TOKEN t);
+
 private:
     bool Eat(char c);
     char Next();
