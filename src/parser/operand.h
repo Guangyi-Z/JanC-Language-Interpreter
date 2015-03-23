@@ -27,9 +27,9 @@ public:
     vector<OP> GetSuffix()         { return suffix;}
 
     /* virtual functions */
-    // void ToNegative() { con.ToNegative();}
-    // void ToInc()      { con.ToInc();}
-    // void ToDec()      { con.ToDec();}
+    virtual void ToNegative() = 0;
+    virtual void ToInc()      = 0;
+    virtual void ToDec()      = 0;
 
 private:
     OPRD_T type;
@@ -52,6 +52,10 @@ public:
     vector<int> GetArrayInt()       { return con.GetArrayInt();}
     vector<double> GetArrayDouble() { return con.GetArrayDouble();}
 
+    virtual void ToNegative() { con.ToNegative();}
+    virtual void ToInc()      { con.ToInc();}
+    virtual void ToDec()      { con.ToDec();}
+
 private:
     Constant con;
 };
@@ -68,6 +72,11 @@ public:
     int GetNumOfParameter()                 { return vp.size();}
     string GetID()                          { return id;}
     vector<AST_Expression*> GetParameters() { return vp;}
+
+    /* todo */
+    virtual void ToNegative() { }
+    virtual void ToInc()      { }
+    virtual void ToDec()      { }
 
 private:
     string id;

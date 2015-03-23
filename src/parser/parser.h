@@ -21,6 +21,8 @@ public:
 
     /* parser fucntions */
     AST_Statement* ParseStatement();
+
+private:
     AST_Block* ParseBlock();
     AST_Func* ParseFunc();
 
@@ -30,16 +32,14 @@ public:
 
     AST_Expression* ParseExpression();
     AST_Expression* ParseExpressionHelper(AST_Expression* e1, OP op);
-
-private:
     OP GetNextOP();
     AST_Expression* GetNextOperand();
     bool IsTheEndOfExp(TOKEN t);
     vector<OP> FindPrefixOP();
     vector<OP> FindSuffixOP();
-    void FillSuffixOP(Operand &o);
     void FillLiteralBody(Operand *o);
     void FillReferenceBody(Operand *o);
+
     bool EatToken(TOKEN t);
 
     Lexer lexer;

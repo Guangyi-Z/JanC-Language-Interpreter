@@ -5,6 +5,7 @@
 #include "exp.h"
 #include "parser/parser.h"
 using std::queue;
+using std::cerr;
 
 class Interpreter {
 public:
@@ -21,14 +22,19 @@ public:
     }
 
     /* interpreter */
-    void Interpret (AST_Statement *st);
+    void IntrVar(AST_Statement *st);
+    void IntrFunc(AST_Func* func);
+
+    /* interfaces */
     bool HasNextStatement();
-    void NextStatement();
+    void IntrStatement ();
+    void AddStatement(AST_Statement *st);
     void Continue();
 
     /* symbol reader */
-    AST_Expression* ReadVar(string name);
-    AST_Func* ReadFunc(string name);
+    // Constant ReadVar(string name);
+    // AST_Func* ReadFunc(string name);
+    // Literal type
     int ReadVarInt(string name);
     double ReadVarDouble(string name);
     char ReadVarChar(string name);

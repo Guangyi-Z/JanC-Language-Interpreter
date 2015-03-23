@@ -62,6 +62,9 @@ public:
     void ToNegative();
     void TypeUpGrade();
 
+    /* Printer */
+    void Print();
+
 private:
 
     void SetType  (CONST_T t)          { type = t;}

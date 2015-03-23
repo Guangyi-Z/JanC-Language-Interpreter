@@ -15,6 +15,9 @@ bool Parser::EatToken(TOKEN t) {
     return true;
 }
 
+/********************************************
+ * Parsing Expression
+ *******************************************/
 bool Parser::IsTheEndOfExp(TOKEN t) {
     static const std::set<TOKEN> se = {
         TOK_COMMA,
@@ -154,10 +157,6 @@ OP Parser::GetNextOP() {
     return op;
 }
 
-
-/********************************************
- * Parsing Expression
- *******************************************/
 AST_Expression* Parser::ParseExpressionHelper(AST_Expression *e1, OP op) {
     AST_Expression* e2 = GetNextOperand();
     const OP op_nxt = GetNextOP();

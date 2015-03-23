@@ -131,3 +131,37 @@ Constant Div(Constant con1, Constant con2) {
         return Constant();
     }
 }
+
+void Constant::Print() {
+    switch(type) {
+        ;
+    case CONST_INT:
+        cout << ">> " << GetInt() << endl;
+        break;
+    case CONST_DOUBLE:
+        cout << ">> " << GetDouble() << endl;
+        break;
+    case CONST_CHAR:
+        cout << ">> " << GetChar() << endl;
+        break;
+    case CONST_STRING:
+        cout << ">> " << GetString() << endl;
+        break;
+    case CONST_ARRAY_INT:
+        cout << ">> [ ";
+        for (int i : GetArrayInt()) {
+            cout << i << " ";
+        }
+        cout << "]" << endl;
+        break;
+    case CONST_ARRAY_DOUBLE:
+        cout << ">> [ ";
+        for (double d : GetArrayDouble()) {
+            cout << d << " ";
+        }
+        cout << "]" << endl;
+        break;
+    default:
+        cout << "Empty Constant Instance" << endl;
+    }
+}

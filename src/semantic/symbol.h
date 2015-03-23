@@ -48,21 +48,21 @@ public:
         }
         lsym.pop_back();
     }
-    AST_Expression* LookupSymbol(string name) {
+    Constant LookupSymbol(string name) {
         for (auto it = lsym.rbegin(); it!=lsym.rend(); it++) {
             if (it->find(name) != it->end()) {
                 return (*it)[name];
             }
         }
-        return NULL;
+        return Constant();
     }
-    void AddSymbol(string name, AST_Expression* e) {
+    void AddSymbol(string name, Constant con) {
         unordered_map<string, Constant> &m = lsym.back();
         if (m.find(name) != m.end()) {
             cout << "Error in AddSymbol: symbol \"" << name << "\" has been defined" << endl;
             exit(0);
         }
-        m[name] = e;
+        m[name] = con;
     }
 
 private:

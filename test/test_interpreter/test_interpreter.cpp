@@ -10,15 +10,34 @@ using std::string;
 /*
  * Test Case
  */
-TEST(test_interpreter, var) {
+TEST(test_interpreter, exp_with_no_op) {
     Interpreter intr("../test/test_interpreter/interpreter_test1.txt");
+    stringstream ss;
+    auto buf = cout.rdbuf();
+    cout.rdbuf(ss.rdbuf());
 
-    intr.NextStatement();
-    EXPECT_EQ(1, intr.ReadVarInt("a"));
-    intr.NextStatement();
-    EXPECT_EQ(2.5, intr.ReadVarDouble("b"));
+    intr.IntrStatement();
+    intr.IntrStatement();
+    EXPECT_EQ(">> 1\n>> 2.5\n", ss.str());
+    cout.rdbuf(buf);
 }
 
+// TEST(test_interpreter, exp_with_no_var) {
+//     Interpreter intr("../test/test_interpreter/interpreter_test1.txt");
+//
+//     intr.IntrStatement();
+//     intr.IntrStatement();
+// }
+//
+// TEST(test_interpreter, var) {
+//     Interpreter intr("../test/test_interpreter/interpreter_test1.txt");
+//
+//     intr.NextStatement();
+//     EXPECT_EQ(1, intr.ReadVarInt("a"));
+//     intr.NextStatement();
+//     EXPECT_EQ(2.5, intr.ReadVarDouble("b"));
+// }
+//
 // TEST(test_interpreter, array) {
 //     Interpreter intr("../test/test_interpreter/interpreter_test2.txt");
 //
