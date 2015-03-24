@@ -24,6 +24,7 @@ public:
     /* interpreter */
     void IntrVar(AST_Statement *st);
     void IntrFunc(AST_Func* func);
+    Constant IntrArrayContent(AST_Array *array);
 
     /* interfaces */
     bool HasNextStatement();

@@ -35,10 +35,11 @@ void Interpreter::IntrStatement () {
     case ST_FUNC:
         break;
     case ST_VAR:
+    case ST_ARRAY:
         IntrVar(st);
         break;
     default:
-        cout << "Error in NextStatement: wrong type for default" << endl;
+        cout << "Error in IntrStatement: wrong type for default" << endl;
         exit(0);
     };
 }
@@ -46,42 +47,46 @@ void Interpreter::IntrStatement () {
 /********************************************
  * Interpreter Methods
  *******************************************/
+Constant Interpreter::IntrArrayContent(AST_Array *array) {
+    if (array->ve.empty())
+        return Constant();  // not initialized
+
+    bool is_double = false;
+    vector<Constant> vc;
+    for (AST_Expression* e : array->ve) {
+        Constant _con = Expression::CalcExp(sym, fsym, e);
+        vc.push_back(_con);
+        if (_con.GetType() == CONST_DOUBLE)
+            is_double = true;
+    }
+    if (is_double) {
+        vector<double> vd;
+        for (Constant &con : vc)
+            vd.push_back(con.GetDouble());
+        return Constant(vd, array->sz_array);
+    }
+    else {
+        vector<int> vi;
+        for (Constant &con : vc)
+            vi.push_back(con.GetInt());
+        return Constant(vi, array->sz_array);
+    }
+}
+
 void Interpreter::IntrVar(AST_Statement *st) {
-    // Constant con;
-    // if (st->GetType() == ST_ARRAY) {
-    //     AST_Array *array = (AST_Array*) st;
-    //     vector<double> vd;
-    //     bool is_double = false;
-    //     for (AST_Expression* e : array->ve) {
-    //         Constant _con = Expression::CalcExp(sym, fsym, e);
-    //         switch(_con.GetType()) {
-    //             case CONST_INT:
-    //                 vd.push_back(_con.GetInt());
-    //                 break;
-    //             case CONST_DOUBLE:
-    //                 is_double = true;
-    //                 vd.push_back(_con.GetDouble());
-    //                 break;
-    //             default:
-    //                 cerr << "Error in IntrVar: not allow type- " << _con.GetType() << " in array" << endl;
-    //                 exit(0);
-    //         }
-    //     }
-    //     if (is_double) {
-    //         con.SetValue(vd, array->sz_array);
-    //     }
-    //     else {
-    //         vector<int> vi;
-    //         for (double d : vd)
-    //             vi.push_back((int) d);
-    //         con.SetValue(vi, array->sz_array);
-    //     }
-    // }
-    // else {
-    //     AST_Var *var = (AST_Var*) st;
-    //     con = Expression::CalcExp(sym, fsym, var->val);
-    // }
-    // sym.AddSymbol(st->id, con);
+    Constant con;
+    if (st->GetType() == ST_ARRAY) {
+        AST_Array *array = (AST_Array*) st;
+        Constant val = IntrArrayContent(array);
+        sym.AddSymbol(array->id, val);
+    }
+    else {
+        AST_Var *var = (AST_Var*) st;
+        Constant val;
+        if (var->val)
+            val = Expression::CalcExp(sym, fsym, var->val);
+        sym.AddSymbol(var->id, val);
+    }
 }
 
 void Interpreter::IntrFunc(AST_Func* func) {

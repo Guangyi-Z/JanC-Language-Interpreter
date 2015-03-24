@@ -6,8 +6,8 @@ void Arithmetic::CheckType(Constant &con1, Constant &con2) {
     CONST_T t2 = con2.GetType();
     if (t1 == t2 && t1 != CONST_CHAR)
         return;
-    if ((t1 == CONST_INT) && (t2 == CONST_DOUBLE) ||
-        (t1 == CONST_DOUBLE) && (t2 == CONST_INT)
+    if ((t1 == CONST_INT && t2 == CONST_DOUBLE) ||
+        (t1 == CONST_DOUBLE && t2 == CONST_INT)
             ) {
         con1.TypeUpGrade();
         con2.TypeUpGrade();

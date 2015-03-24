@@ -27,6 +27,7 @@ class AST_Expression;
 class AST_Statement {
 public:
     AST_Statement(ST _type) : type(_type) {};
+    ST GetType() { return type;}
 
     ST type;
 };

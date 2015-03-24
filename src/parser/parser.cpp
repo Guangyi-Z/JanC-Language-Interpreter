@@ -198,6 +198,7 @@ AST_Array* Parser::ParseArray(string name) {
     EatToken(TOK_BRACE_LEFT);
     const int sz_array = std::stoi(lexer.GetCurLexem());
     AST_Array *res = new AST_Array(name, sz_array);
+    EatToken(TOK_INT);
     EatToken(TOK_BRACE_RIGHT);
 
     // initialization

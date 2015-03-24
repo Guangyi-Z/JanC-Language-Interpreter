@@ -71,4 +71,5 @@ private:
     } val;
     int sz; // for array
 };
+
 #endif
