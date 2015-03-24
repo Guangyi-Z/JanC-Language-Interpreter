@@ -1,7 +1,7 @@
 #include "exp.h"
 
-Constant Expression::CalcExp(SymbolTable &sym,
-        FuncTable &fsym,
+Constant Expression::CalcExp(SymbolTable *sym,
+        FuncTable *fsym,
         AST_Expression *exp) {
     if (exp->IsLeaf()) {
         return Expression::CalcOperand(sym, fsym, exp->o);
@@ -15,7 +15,7 @@ Constant Expression::CalcExp(SymbolTable &sym,
             exit(0);
         }
         Constant rv = CalcExp(sym, fsym, exp->e2);
-        sym.AddSymbol(r->GetID(), rv);
+        sym->AddSymbol(r->GetID(), rv);
         return rv;
     }
     // Normal recursive process
@@ -76,7 +76,7 @@ void Expression::DoSuffixOP(Operand *o) {
     }
 }
 
-Constant Expression::CalcOperand(SymbolTable &sym, FuncTable &fsym, Operand *o) {
+Constant Expression::CalcOperand(SymbolTable *sym, FuncTable *fsym, Operand *o) {
     if (o->GetType() == OPRD_LITERAL) {
         Literal *l = (Literal*) o;
         DoPrefixOP(l);
@@ -88,8 +88,8 @@ Constant Expression::CalcOperand(SymbolTable &sym, FuncTable &fsym, Operand *o) 
         Reference *r = (Reference*) o;
 
         // var
-        if (sym.IsSymbolDefined(r->GetID())) {
-            Constant con = sym.LookupSymbol(r->GetID());
+        if (sym->IsSymbolDefined(r->GetID())) {
+            Constant con = sym->LookupSymbol(r->GetID());
             if (r->IsEmptyParameter())  // single var
                 return con;
             else {  // array element
@@ -124,11 +124,11 @@ Constant Expression::CalcOperand(SymbolTable &sym, FuncTable &fsym, Operand *o) 
     return Constant();
 }
 
-Constant Expression::CalcVar(SymbolTable &sym, FuncTable &fsym, Operand *o) {
+Constant Expression::CalcVar(SymbolTable *sym, FuncTable *fsym, Operand *o) {
     return Constant();
 }
 
-Constant Expression::CalcFunc(SymbolTable &sym, FuncTable &fsym, Operand *o) {
+Constant Expression::CalcFunc(SymbolTable *sym, FuncTable *fsym, Operand *o) {
     return Constant();
 }
 

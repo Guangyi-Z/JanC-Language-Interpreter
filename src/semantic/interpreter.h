@@ -10,7 +10,9 @@ using std::cerr;
 class Interpreter {
 public:
     /* construtor */
-    Interpreter() {}
+    Interpreter() {
+        cur_sym = &sym;
+    }
     Interpreter(string path_to_file) : Interpreter() { Load(path_to_file);}
     void Load(string path_to_file) {
         parser.Load(path_to_file);
@@ -25,6 +27,7 @@ public:
     void IntrVar(AST_Statement *st);
     void IntrFunc(AST_Func* func);
     Constant IntrArrayContent(AST_Array *array);
+    void IntrBlock(AST_Block* block);
 
     /* interfaces */
     bool HasNextStatement();
@@ -48,7 +51,8 @@ private:
 
     queue<AST_Statement*> qst;
     Parser parser;
-    SymbolTable sym;
+    SymbolTable sym;  // global symbol table
+    SymbolTable *cur_sym;
     FuncTable fsym;
 };
 

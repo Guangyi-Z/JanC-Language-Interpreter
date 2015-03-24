@@ -38,44 +38,35 @@ private:
 
 class SymbolTable {
 public:
-    SymbolTable(){
-        unordered_map<string, Constant> m;
-        lsym.push_back(m);  // global symbol table
-    }
-    void CreateNewFrame() {
-        unordered_map<string, Constant> m;
-        lsym.push_back(m);
-    }
-    void RemoveCurFrame() {
-        if (lsym.empty()) {
-            cout << "Error in RemoveCurFrame(): lsym is empty" << endl;
-            exit(0);
-        }
-        lsym.pop_back();
-    }
+    SymbolTable() : parent(NULL) {}
+    SymbolTable(SymbolTable *p) : parent(p) {}
+
     bool IsSymbolDefined(string name) {
-        for (auto it = lsym.rbegin(); it!=lsym.rend(); it++) {
-            if (it->find(name) != it->end()) {
+        SymbolTable *p = this;
+        while(p) {
+            if (p->sym.find(name) != p->sym.end())
                 return true;
-            }
+            p = p->GetParent();
         }
         return false;
     }
+    SymbolTable* GetParent() { return parent;}
     Constant LookupSymbol(string name) {
-        for (auto it = lsym.rbegin(); it!=lsym.rend(); it++) {
-            if (it->find(name) != it->end()) {
-                return (*it)[name];
-            }
+        SymbolTable *p = this;
+        while(p) {
+            if (p->sym.find(name) != p->sym.end())
+                return p->sym[name];
+            p = p->GetParent();
         }
         return Constant();
     }
     void AddSymbol(string name, Constant con) {
-        unordered_map<string, Constant> &m = lsym.back();
-        m[name] = con;
+        sym[name] = con;
     }
 
 private:
-    vector<unordered_map<string, Constant> > lsym;
+    unordered_map<string, Constant> sym;
+    SymbolTable *parent;
 };
 
 #endif

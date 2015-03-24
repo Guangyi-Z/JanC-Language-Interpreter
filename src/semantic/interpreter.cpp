@@ -25,14 +25,18 @@ void Interpreter::IntrStatement () {
     case ST_EMPTY:
         break;
     case ST_BLOCK:
+        {
+            IntrBlock((AST_Block*)st);
+        }
         break;
     case ST_EXP:
         {
-        Constant con = Expression::CalcExp(sym, fsym, (AST_Expression*)st);
+        Constant con = Expression::CalcExp(cur_sym, &fsym, (AST_Expression*)st);
         con.Print();
         }
         break;
     case ST_FUNC:
+        IntrFunc((AST_Func *)st);
         break;
     case ST_VAR:
     case ST_ARRAY:
@@ -47,6 +51,11 @@ void Interpreter::IntrStatement () {
 /********************************************
  * Interpreter Methods
  *******************************************/
+void Interpreter::IntrBlock(AST_Block* block) {
+    /* todo */
+    ;
+}
+
 Constant Interpreter::IntrArrayContent(AST_Array *array) {
     if (array->ve.empty())
         return Constant();  // not initialized
@@ -54,7 +63,7 @@ Constant Interpreter::IntrArrayContent(AST_Array *array) {
     bool is_double = false;
     vector<Constant> vc;
     for (AST_Expression* e : array->ve) {
-        Constant _con = Expression::CalcExp(sym, fsym, e);
+        Constant _con = Expression::CalcExp(cur_sym, &fsym, e);
         vc.push_back(_con);
         if (_con.GetType() == CONST_DOUBLE)
             is_double = true;
@@ -78,27 +87,27 @@ void Interpreter::IntrVar(AST_Statement *st) {
     if (st->GetType() == ST_ARRAY) {
         AST_Array *array = (AST_Array*) st;
         Constant val = IntrArrayContent(array);
-        if (sym.IsSymbolDefined(array->id)) {
+        if (cur_sym->IsSymbolDefined(array->id)) {
             cerr << "Error in IntrVar: symbol " << array->id << " has been defined" << endl;
             exit(0);
         }
-        sym.AddSymbol(array->id, val);
+        cur_sym->AddSymbol(array->id, val);
     }
     else {
         AST_Var *var = (AST_Var*) st;
         Constant val;
         if (var->val)
-            val = Expression::CalcExp(sym, fsym, var->val);
-        if (sym.IsSymbolDefined(var->id)) {
+            val = Expression::CalcExp(cur_sym, &fsym, var->val);
+        if (cur_sym->IsSymbolDefined(var->id)) {
             cerr << "Error in IntrVar: symbol " << var->id << " has been defined" << endl;
             exit(0);
         }
-        sym.AddSymbol(var->id, val);
+        cur_sym->AddSymbol(var->id, val);
     }
 }
 
 void Interpreter::IntrFunc(AST_Func* func) {
-    /* todo */
+    fsym.AddSymbol(func->id, func);
 }
 
 
@@ -115,7 +124,7 @@ void Interpreter::IntrFunc(AST_Func* func) {
 // }
 
 int            Interpreter::ReadVarInt(string name) {
-    Constant con = sym.LookupSymbol(name);
+    Constant con = cur_sym->LookupSymbol(name);
     if (con.GetType() == CONST_INT)
         return con.GetInt();
     else {
@@ -125,7 +134,7 @@ int            Interpreter::ReadVarInt(string name) {
 }
 
 double         Interpreter::ReadVarDouble(string name) {
-    Constant con = sym.LookupSymbol(name);
+    Constant con = cur_sym->LookupSymbol(name);
     if (con.GetType() == CONST_DOUBLE)
         return con.GetDouble();
     else {
@@ -135,7 +144,7 @@ double         Interpreter::ReadVarDouble(string name) {
 }
 
 char           Interpreter::ReadVarChar(string name) {
-    Constant con = sym.LookupSymbol(name);
+    Constant con = cur_sym->LookupSymbol(name);
     if (con.GetType() == CONST_CHAR)
         return con.GetChar();
     else {
@@ -145,7 +154,7 @@ char           Interpreter::ReadVarChar(string name) {
 }
 
 string         Interpreter::ReadVarString(string name) {
-    Constant con = sym.LookupSymbol(name);
+    Constant con = cur_sym->LookupSymbol(name);
     if (con.GetType() == CONST_STRING)
         return con.GetString();
     else {
@@ -155,7 +164,7 @@ string         Interpreter::ReadVarString(string name) {
 }
 
 vector<int>    Interpreter::ReadArrayInt(string name) {
-    Constant con = sym.LookupSymbol(name);
+    Constant con = cur_sym->LookupSymbol(name);
     if (con.GetType() == CONST_ARRAY_INT)
         return con.GetArrayInt();
     else {
@@ -165,7 +174,7 @@ vector<int>    Interpreter::ReadArrayInt(string name) {
 }
 
 vector<double> Interpreter::ReadArrayDouble(string name) {
-    Constant con = sym.LookupSymbol(name);
+    Constant con = cur_sym->LookupSymbol(name);
     if (con.GetType() == CONST_ARRAY_DOUBLE)
         return con.GetArrayDouble();
     else {
@@ -175,7 +184,7 @@ vector<double> Interpreter::ReadArrayDouble(string name) {
 }
 
 int Interpreter::ReadArraySize(string name) {
-    Constant con = sym.LookupSymbol(name);
+    Constant con = cur_sym->LookupSymbol(name);
     if (con.GetType() == CONST_ARRAY_DOUBLE || con.GetType() == CONST_ARRAY_INT)
         return con.GetArraySize();
     else {

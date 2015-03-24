@@ -1,0 +1,8 @@
+var y = 1;
+func add(o1, o2) {
+    return o1+o2;
+}
+func g() {
+    var y = 2;
+    add(y, y);
+}
