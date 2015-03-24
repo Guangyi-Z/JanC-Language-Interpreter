@@ -86,35 +86,10 @@ Constant Expression::CalcOperand(SymbolTable *sym, FuncTable *fsym, Operand *o) 
     }
     else {
         Reference *r = (Reference*) o;
-
-        // var
-        if (sym->IsSymbolDefinedRecursively(r->GetID())) {
-            Constant con = sym->LookupSymbol(r->GetID());
-            if (r->IsEmptyParameter())  // single var
-                return con;
-            else {  // array element
-                AST_Expression *e = r->GetParameters()[0];
-                Constant cindex = CalcExp(sym, fsym, e);
-                if (cindex.GetType() != CONST_INT) {
-                    cerr << "Error in CalcOperand: array index must be Int- " << cindex.GetType() << endl;
-                    exit(0);
-                }
-                int index = cindex.GetInt();
-                switch(con.GetType()) {
-                case CONST_ARRAY_INT:
-                    return Constant(con.GetArrayInt()[index]);
-                case CONST_ARRAY_DOUBLE:
-                    return Constant(con.GetArrayDouble()[index]);
-                default:
-                    cerr << "Error in CalcOperand: wrong array type- " << con.GetType() << endl;
-                    exit(0);
-                }
-            }
-        }
-        // func
-        /* todo */
-        // else if (fsym.LookupSymbol(r->GetID()))
-        //     con = CalcFunc(sym, fsym, r);
+        if (sym->IsSymbolDefinedRecursively(r->GetID()))    // var
+            return CalcVar(sym, fsym, r);
+        else if (fsym->LookupSymbol(r->GetID())) // func
+            return CalcFunc(sym, fsym, r);
         else {
             cout << "Error in CalcOperand: symbol not defined- " << r->GetID() << endl;
             exit(0);
@@ -124,11 +99,35 @@ Constant Expression::CalcOperand(SymbolTable *sym, FuncTable *fsym, Operand *o) 
     return Constant();
 }
 
-Constant Expression::CalcVar(SymbolTable *sym, FuncTable *fsym, Operand *o) {
-    return Constant();
+Constant Expression::CalcVar(SymbolTable *sym, FuncTable *fsym, Reference *r) {
+    Constant con = sym->LookupSymbol(r->GetID());
+    if (r->IsEmptyParameter())  // single var
+        return con;
+    // array element
+    AST_Expression *e = r->GetParameters()[0];
+    Constant cindex = CalcExp(sym, fsym, e);
+    if (cindex.GetType() != CONST_INT) {
+        cerr << "Error in CalcOperand: array index must be Int- " << cindex.GetType() << endl;
+        exit(0);
+    }
+    int index = cindex.GetInt();
+    switch(con.GetType()) {
+    case CONST_ARRAY_INT:
+        return Constant(con.GetArrayInt()[index]);
+    case CONST_ARRAY_DOUBLE:
+        return Constant(con.GetArrayDouble()[index]);
+    default:
+        cerr << "Error in CalcOperand: wrong array type- " << con.GetType() << endl;
+        exit(0);
+    }
 }
 
-Constant Expression::CalcFunc(SymbolTable *sym, FuncTable *fsym, Operand *o) {
+Constant Expression::CalcFunc(SymbolTable *sym, FuncTable *fsym, Reference *r) {
+    // if (!fsym->IsSymbolDefined(r->GetID())) {
+    //     cerr << "Error in CalcFunc: symbol " << r->GetID() << " not defined" << endl;
+    //     exit(0);
+    // }
+    // AST_Func func = fsym->LookupSymbol(r->GetID());
     return Constant();
 }
 

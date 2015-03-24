@@ -2,6 +2,7 @@
 #define INTERPRETER_H
 #include <deque>
 #include "symbol.h"
+#include "reader.h"
 #include "exp.h"
 #include "parser/parser.h"
 using std::deque;
@@ -50,17 +51,8 @@ public:
     void AddStatement(AST_Statement *st);
     void Continue();
 
-    /* symbol reader */
-    // Constant ReadVar(string name);
-    // AST_Func* ReadFunc(string name);
-    // Literal type
-    int ReadVarInt(string name);
-    double ReadVarDouble(string name);
-    char ReadVarChar(string name);
-    string ReadVarString(string name);
-    vector<int> ReadArrayInt(string name);
-    vector<double> ReadArrayDouble(string name);
-    int ReadArraySize(string name);
+    /* reader */
+    SymbolReader GetSymbolReader() { return SymbolReader(cur_sym);}
 
 private:
 

@@ -14,8 +14,8 @@ public:
     static void DoSuffixOP(Operand *o);
 
     static Constant CalcOperand(SymbolTable *sym, FuncTable *fsym, Operand *o);
-    static Constant CalcVar(SymbolTable *sym, FuncTable *fsym, Operand *o);
-    static Constant CalcFunc(SymbolTable *sym, FuncTable *fsym, Operand *o);
+    static Constant CalcVar(SymbolTable *sym, FuncTable *fsym, Reference *o);
+    static Constant CalcFunc(SymbolTable *sym, FuncTable *fsym, Reference *o);
 private:
 
 };

@@ -40,20 +40,20 @@ TEST(test_interpreter, var) {
     Interpreter intr("../test/test_interpreter/interpreter_test3.txt");
 
     intr.IntrStatement();
-    EXPECT_EQ(1, intr.ReadVarInt("a"));
+    EXPECT_EQ(1, intr.GetSymbolReader().ReadVarInt("a"));
     intr.IntrStatement();
-    EXPECT_EQ(2.5, intr.ReadVarDouble("b"));
+    EXPECT_EQ(2.5, intr.GetSymbolReader().ReadVarDouble("b"));
 }
 
 TEST(test_interpreter, array) {
     Interpreter intr("../test/test_interpreter/interpreter_test4.txt");
 
     intr.IntrStatement();
-    EXPECT_EQ(vector<int>({1,2,3,4,5}), intr.ReadArrayInt("arr_a"));
-    EXPECT_EQ(5, intr.ReadArraySize("arr_a"));
+    EXPECT_EQ(vector<int>({1,2,3,4,5}), intr.GetSymbolReader().ReadArrayInt("arr_a"));
+    EXPECT_EQ(5, intr.GetSymbolReader().ReadArraySize("arr_a"));
     intr.IntrStatement();
-    EXPECT_EQ(vector<double>({1.1,2.2,3.3}), intr.ReadArrayDouble("arr_b"));
-    EXPECT_EQ(5, intr.ReadArraySize("arr_b"));
+    EXPECT_EQ(vector<double>({1.1,2.2,3.3}), intr.GetSymbolReader().ReadArrayDouble("arr_b"));
+    EXPECT_EQ(5, intr.GetSymbolReader().ReadArraySize("arr_b"));
 }
 
 TEST(test_interpreter, assgiment) {
@@ -64,14 +64,14 @@ TEST(test_interpreter, assgiment) {
     cout.rdbuf(ss.rdbuf());
 
     intr.IntrStatement();
-    EXPECT_EQ(1, intr.ReadVarInt("a"));
+    EXPECT_EQ(1, intr.GetSymbolReader().ReadVarInt("a"));
     intr.IntrStatement();
-    EXPECT_EQ(2.5, intr.ReadVarDouble("b"));
+    EXPECT_EQ(2.5, intr.GetSymbolReader().ReadVarDouble("b"));
 
     intr.IntrStatement();
-    EXPECT_EQ(2, intr.ReadVarInt("a"));
+    EXPECT_EQ(2, intr.GetSymbolReader().ReadVarInt("a"));
     intr.IntrStatement();
-    EXPECT_EQ(3.5, intr.ReadVarDouble("b"));
+    EXPECT_EQ(3.5, intr.GetSymbolReader().ReadVarDouble("b"));
 
     EXPECT_EQ(">> 2\n>> 3.5\n", ss.str());
     cout.rdbuf(buf);
@@ -92,13 +92,13 @@ TEST(test_interpreter, block) {
     Interpreter intr("../test/test_interpreter/interpreter_test7.txt");
 
     intr.IntrStatement();
-    EXPECT_EQ(1, intr.ReadVarInt("x"));
+    EXPECT_EQ(1, intr.GetSymbolReader().ReadVarInt("x"));
     intr.IntrStatement();
-    EXPECT_EQ(2.5, intr.ReadVarDouble("y"));
+    EXPECT_EQ(2.5, intr.GetSymbolReader().ReadVarDouble("y"));
     intr.IntrStatement();
-    EXPECT_EQ(3, intr.ReadVarInt("x"));
+    EXPECT_EQ(3, intr.GetSymbolReader().ReadVarInt("x"));
     intr.IntrStatement();
-    EXPECT_EQ(3.5, intr.ReadVarDouble("y"));
+    EXPECT_EQ(3.5, intr.GetSymbolReader().ReadVarDouble("y"));
 }
 
 // TEST(test_symbol_table, function_local_var_override) {
