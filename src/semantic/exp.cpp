@@ -6,6 +6,19 @@ Constant Expression::CalcExp(SymbolTable &sym,
     if (exp->IsLeaf()) {
         return Expression::CalcOperand(sym, fsym, exp->o);
     }
+    // For assgiment
+    if (exp->op == OP_ASSIGN) {
+        AST_Expression *lv = exp->e1;
+        Reference *r = (Reference*)(lv->o);
+        if (!lv->IsLeaf() || r->GetType() != OPRD_REF) {
+            cerr << "Error in CalcExp: l-value must be assignable" << endl;
+            exit(0);
+        }
+        Constant rv = CalcExp(sym, fsym, exp->e2);
+        sym.AddSymbol(r->GetID(), rv);
+        return rv;
+    }
+    // Normal recursive process
     Constant con1 = CalcExp(sym, fsym, exp->e1);
     Constant con2 = CalcExp(sym, fsym, exp->e2);
     switch(exp->op) {

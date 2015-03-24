@@ -56,18 +56,26 @@ TEST(test_interpreter, array) {
     EXPECT_EQ(5, intr.ReadArraySize("arr_b"));
 }
 
-// TEST(test_interpreter, var_assgiment) {
-//     Interpreter intr("../test/test_interpreter/interpreter_test3.txt");
-//
-//     intr.NextStatement();
-//     EXPECT_EQ(1, intr.ReadVarInt("a"));
-//     intr.NextStatement();
-//     EXPECT_EQ(2.5, intr.ReadVarDouble("b"));
-//     intr.NextStatement();
-//     EXPECT_EQ(2, intr.ReadVarInt("a"));
-//     intr.NextStatement();
-//     EXPECT_EQ(3.5, intr.ReadVarDouble("b"));
-// }
+TEST(test_interpreter, assgiment) {
+    Interpreter intr("../test/test_interpreter/interpreter_test5.txt");
+
+    stringstream ss;
+    auto buf = cout.rdbuf();
+    cout.rdbuf(ss.rdbuf());
+
+    intr.IntrStatement();
+    EXPECT_EQ(1, intr.ReadVarInt("a"));
+    intr.IntrStatement();
+    EXPECT_EQ(2.5, intr.ReadVarDouble("b"));
+
+    intr.IntrStatement();
+    EXPECT_EQ(2, intr.ReadVarInt("a"));
+    intr.IntrStatement();
+    EXPECT_EQ(3.5, intr.ReadVarDouble("b"));
+
+    EXPECT_EQ(">> 2\n>> 3.5\n", ss.str());
+    cout.rdbuf(buf);
+}
 
 // TEST(test_symbol_table, assgiment_in_expression) {
 // }

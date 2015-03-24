@@ -78,6 +78,10 @@ void Interpreter::IntrVar(AST_Statement *st) {
     if (st->GetType() == ST_ARRAY) {
         AST_Array *array = (AST_Array*) st;
         Constant val = IntrArrayContent(array);
+        if (sym.IsSymbolDefined(array->id)) {
+            cerr << "Error in IntrVar: symbol " << array->id << " has been defined" << endl;
+            exit(0);
+        }
         sym.AddSymbol(array->id, val);
     }
     else {
@@ -85,6 +89,10 @@ void Interpreter::IntrVar(AST_Statement *st) {
         Constant val;
         if (var->val)
             val = Expression::CalcExp(sym, fsym, var->val);
+        if (sym.IsSymbolDefined(var->id)) {
+            cerr << "Error in IntrVar: symbol " << var->id << " has been defined" << endl;
+            exit(0);
+        }
         sym.AddSymbol(var->id, val);
     }
 }

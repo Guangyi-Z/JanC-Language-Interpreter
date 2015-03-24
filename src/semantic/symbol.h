@@ -20,6 +20,11 @@ public:
             return fsym[name];
         else return NULL;
     }
+    bool IsSymbolDefined(string name) {
+        if (fsym.find(name) != fsym.end())
+            return true;
+        else return false;
+    }
     void AddSymbol(string name, AST_Func *f) {
         if (fsym.find(name) != fsym.end()) {
             cout << "Error in AddSymbol: function symbol \"" << name << "\" has been defined" << endl;
@@ -48,6 +53,14 @@ public:
         }
         lsym.pop_back();
     }
+    bool IsSymbolDefined(string name) {
+        for (auto it = lsym.rbegin(); it!=lsym.rend(); it++) {
+            if (it->find(name) != it->end()) {
+                return true;
+            }
+        }
+        return false;
+    }
     Constant LookupSymbol(string name) {
         for (auto it = lsym.rbegin(); it!=lsym.rend(); it++) {
             if (it->find(name) != it->end()) {
@@ -58,10 +71,6 @@ public:
     }
     void AddSymbol(string name, Constant con) {
         unordered_map<string, Constant> &m = lsym.back();
-        if (m.find(name) != m.end()) {
-            cout << "Error in AddSymbol: symbol \"" << name << "\" has been defined" << endl;
-            exit(0);
-        }
         m[name] = con;
     }
 
