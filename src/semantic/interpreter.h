@@ -1,11 +1,25 @@
 #ifndef INTERPRETER_H
 #define INTERPRETER_H
-#include <queue>
+#include <deque>
 #include "symbol.h"
 #include "exp.h"
 #include "parser/parser.h"
-using std::queue;
+using std::deque;
 using std::cerr;
+
+enum TASK_T {
+    TASK_ST,
+    TASK_RM_SYMBOL_TABLE
+};
+
+class Task {
+public:
+    Task(TASK_T t) : type(t), p(NULL) {}
+    Task(AST_Statement* st) : type(TASK_ST), p(st) {}
+
+    TASK_T type;
+    void *p;
+};
 
 class Interpreter {
 public:
@@ -18,7 +32,7 @@ public:
         parser.Load(path_to_file);
         AST_Statement* st = parser.ParseStatement();
         while(st) {
-            qst.push(st);
+            qst.push_back(st);
             st = parser.ParseStatement();
         }
     }
@@ -31,6 +45,7 @@ public:
 
     /* interfaces */
     bool HasNextStatement();
+    AST_Statement* NextStatement();
     void IntrStatement ();
     void AddStatement(AST_Statement *st);
     void Continue();
@@ -49,7 +64,7 @@ public:
 
 private:
 
-    queue<AST_Statement*> qst;
+    deque<Task> qst;
     Parser parser;
     SymbolTable sym;  // global symbol table
     SymbolTable *cur_sym;

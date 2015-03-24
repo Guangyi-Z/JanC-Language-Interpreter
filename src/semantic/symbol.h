@@ -41,13 +41,18 @@ public:
     SymbolTable() : parent(NULL) {}
     SymbolTable(SymbolTable *p) : parent(p) {}
 
-    bool IsSymbolDefined(string name) {
+    bool IsSymbolDefinedRecursively(string name) {
         SymbolTable *p = this;
         while(p) {
             if (p->sym.find(name) != p->sym.end())
                 return true;
             p = p->GetParent();
         }
+        return false;
+    }
+    bool IsSymbolDefined(string name) {
+        if (sym.find(name) != sym.end())
+            return true;
         return false;
     }
     SymbolTable* GetParent() { return parent;}

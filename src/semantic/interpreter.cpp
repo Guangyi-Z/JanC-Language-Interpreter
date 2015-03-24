@@ -4,13 +4,34 @@
  * Interfaces
  *******************************************/
 void Interpreter::AddStatement(AST_Statement *st) {
-    qst.push(st);
+    qst.push_back(Task(st));
 }
 
 bool Interpreter::HasNextStatement() {
     if (qst.empty())
         return false;
-    return true;
+    while(!qst.empty()) {
+        Task task = qst.front();
+        switch(task.type) {
+        case TASK_ST:
+            return true;
+        case TASK_RM_SYMBOL_TABLE:
+            cur_sym = cur_sym->GetParent();
+            qst.pop_front();
+            break;
+        default: ;
+        }
+    }
+    return false;
+}
+
+AST_Statement* Interpreter::NextStatement() {
+    if (HasNextStatement()) {
+        Task task = qst.front();
+        qst.pop_front();
+        return (AST_Statement*)(task.p);
+    }
+    return NULL;
 }
 
 void Interpreter::Continue() {
@@ -20,7 +41,7 @@ void Interpreter::Continue() {
 
 /* Interpreter Start Point */
 void Interpreter::IntrStatement () {
-    AST_Statement *st = qst.front(); qst.pop();
+    AST_Statement *st = NextStatement();
     switch(st->type) {
     case ST_EMPTY:
         break;
@@ -52,8 +73,12 @@ void Interpreter::IntrStatement () {
  * Interpreter Methods
  *******************************************/
 void Interpreter::IntrBlock(AST_Block* block) {
-    /* todo */
-    ;
+    cur_sym = new SymbolTable(cur_sym);
+    qst.push_front(Task(TASK_RM_SYMBOL_TABLE));
+    for (auto it = block->statements.rbegin(); it!=block->statements.rend(); it++) {
+        qst.push_front(*it);
+    }
+    IntrStatement();
 }
 
 Constant Interpreter::IntrArrayContent(AST_Array *array) {

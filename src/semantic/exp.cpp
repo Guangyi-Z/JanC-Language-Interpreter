@@ -88,7 +88,7 @@ Constant Expression::CalcOperand(SymbolTable *sym, FuncTable *fsym, Operand *o) 
         Reference *r = (Reference*) o;
 
         // var
-        if (sym->IsSymbolDefined(r->GetID())) {
+        if (sym->IsSymbolDefinedRecursively(r->GetID())) {
             Constant con = sym->LookupSymbol(r->GetID());
             if (r->IsEmptyParameter())  // single var
                 return con;
