@@ -1,90 +1,39 @@
 #include "calculator.h"
 
-/********************************************
- * Interfaces
- *******************************************/
-void Calculator::ExecStatement(AST_Statement* st) {
-    qt.push_back(st);
-}
-
-void Calculator::ExecNext() {
-    if(HasNext())
-        IntrStatement();
-}
-
-bool Calculator::HasNext() {
-    if (qt.empty())
-        return false;
-    while(!qt.empty()) {
-        Task task = qt.front();
-        switch(task.type) {
-        case TASK_ST:
-            return true;
-        case TASK_RM_SYMBOL_TABLE:
-            cur_sym = cur_sym->GetParent();
-            qt.pop_front();
-            break;
-        default: ;
-        }
-    }
-    return false;
-}
-
-void Calculator::Continue() {
-    while(HasNext())
-        IntrStatement();
-}
-
-/********************************************
- * Interpreter Methods
- *******************************************/
-
-AST_Statement* Calculator::Next() {
-    if (HasNext()) {
-        AST_Statement *st = (AST_Statement*)(qt.front().p);
-        qt.pop_front();
-        return st;
-    }
-    return NULL;
-}
-
 /* Interpreter Start Point */
-void Calculator::IntrStatement () {
-    AST_Statement *st = Next();
+vector<Command*> Calculator::IntrStatement (AST_Statement *st) {
     switch(st->type) {
     case ST_EMPTY:
-        break;
+        return {};
     case ST_BLOCK:
-        {
-            IntrBlock((AST_Block*)st);
-        }
-        break;
+        return IntrBlock((AST_Block*)st);
     case ST_EXP:
         {
         Constant con = Expression::CalcExp(cur_sym, &fsym, (AST_Expression*)st);
         con.Print();
         }
-        break;
+        return {};
     case ST_FUNC:
         IntrFunc((AST_Func *)st);
-        break;
+        return {};
     case ST_VAR:
     case ST_ARRAY:
         IntrVar(st);
-        break;
+        return {};
     default:
         cout << "Error in IntrStatement: wrong type for default" << endl;
         exit(0);
     };
 }
 
-void Calculator::IntrBlock(AST_Block* block) {
-    cur_sym = new SymbolTable(cur_sym);
-    qt.push_front(Task(TASK_RM_SYMBOL_TABLE));
-    for (auto it = block->statements.rbegin(); it!=block->statements.rend(); it++) {
-        qt.push_front(*it);
+vector<Command*> Calculator::IntrBlock(AST_Block* block) {
+    vector<Command*> vc;
+    vc.push_back(new CommNewSymbolTable());
+    for (AST_Statement *st : block->statements) {
+        vc.push_back(new CommInterprete(st));
     }
-    IntrStatement();
+    vc.push_back(new CommDelSymbolTable());
+    return vc;
 }
 
 Constant Calculator::IntrArrayContent(AST_Array *array) {
@@ -139,5 +88,35 @@ void Calculator::IntrVar(AST_Statement *st) {
 
 void Calculator::IntrFunc(AST_Func* func) {
     fsym.AddSymbol(func->id, func);
+    // vector<Command*> vc;
+    // vc.push_back(CommNewFuncSymbolTable());
+    // vc.push_back(CommDelFuncSymbolTable());
 }
 
+
+/********************************************
+ * Command
+ *******************************************/
+vector<Command*> CommInterprete::Execute(Calculator &calc) {
+    return calc.IntrStatement(st);
+}
+
+vector<Command*> CommNewSymbolTable::Execute(Calculator &calc) {
+    calc.NewSymbolTable();
+    return {};
+}
+
+vector<Command*> CommDelSymbolTable::Execute(Calculator &calc) {
+    calc.DelSymbolTable();
+    return {};
+}
+
+vector<Command*> CommNewFuncSymbolTable::Execute(Calculator &calc) {
+    calc.NewFuncSymbolTable();
+    return {};
+}
+
+vector<Command*> CommDelFuncSymbolTable::Execute(Calculator &calc) {
+    calc.DelFuncSymbolTable();
+    return {};
+}

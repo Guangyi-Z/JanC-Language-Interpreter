@@ -1,5 +1,6 @@
 #ifndef AST_H
 #define AST_H
+#include "operand.h"
 #include <iostream>
 #include <string>
 #include <vector>

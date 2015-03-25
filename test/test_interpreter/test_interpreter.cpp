@@ -93,16 +93,23 @@ TEST(test_interpreter, block) {
 
     intr.SetDebugMode(true);
     intr.NextStatement();
-    intr.ContinueCommand();
+    intr.NextCommand();
     EXPECT_EQ(1, intr.GetSymbolReader().ReadVarInt("x"));
+    // enter block
     intr.NextStatement();
     intr.NextCommand();
+    intr.NextCommand();
+    intr.NextCommand();
     EXPECT_EQ(2.5, intr.GetSymbolReader().ReadVarDouble("y"));
+    // enter block
+    intr.NextCommand();
+    intr.NextCommand();
     intr.NextCommand();
     EXPECT_EQ(3, intr.GetSymbolReader().ReadVarInt("x"));
     intr.NextCommand();
     EXPECT_EQ(3.5, intr.GetSymbolReader().ReadVarDouble("y"));
     intr.ContinueCommand();
+    EXPECT_EQ(1, intr.GetSymbolReader().ReadVarInt("x"));
 }
 
 // TEST(test_symbol_table, function_local_var_override) {

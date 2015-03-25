@@ -1,10 +1,9 @@
 #ifndef INTERPRETER_H
 #define INTERPRETER_H
 #include <deque>
-#include "symbol.h"
 #include "reader.h"
-#include "calculator.h"
 #include "parser/parser.h"
+#include "command_queue.h"
 using std::deque;
 using std::cerr;
 
@@ -27,22 +26,22 @@ public:
     /* interfaces */
     bool HasNextStatement();
     void NextStatement();
-    void AddStatement(AST_Statement *st);
+    void AddStatement(AST_Statement *st) { qst.push_back(st);}
     void Continue();
 
     /* debug */
     void SetDebugMode(bool b) { is_debug = b;}
-    bool IsEndOfCommand() { return !calc.HasNext();}
-    void NextCommand() { calc.ExecNext();}
-    void ContinueCommand() { calc.Continue();}
+    bool IsEndOfCommand() { return !qc.HasNextCommand();}
+    void NextCommand() { qc.ExecNextCommand();}
+    void ContinueCommand() { qc.ContinueCommand();}
 
     /* reader */
-    SymbolReader GetSymbolReader() { return calc.GetSymbolReader();}
+    SymbolReader GetSymbolReader() { return qc.GetSymbolReader();}
 
 private:
 
     bool is_debug;
-    Calculator calc;
+    CommQueue qc;
     deque<AST_Statement*> qst;
     Parser parser;
 };
