@@ -2,8 +2,9 @@
 
 /* Interpreter Start Point */
 void Interpreter::IntrStatement (AST_Statement *st) {
+    if (!st)
+        return;
     switch(st->type) {
-    case ST_EMPTY:
         break;
     case ST_BLOCK:
         IntrBlock((AST_Block*)st);

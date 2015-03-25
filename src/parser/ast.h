@@ -10,12 +10,14 @@ using std::cerr;
 using std::endl;
 
 enum ST {
-    ST_EMPTY,
     ST_BLOCK,
     ST_VAR,
     ST_ARRAY,
     ST_FUNC,
-    ST_EXP
+    ST_EXP,
+    ST_RETURN,
+    ST_IF,
+    ST_WHILE
 };
 
 class AST_Block;
@@ -109,6 +111,13 @@ public:
     // For the leaf expression
     Operand *o;
     bool is_leaf;
+};
+
+class AST_Return : public AST_Statement {
+public:
+    AST_Return(AST_Expression *_e) : AST_Statement(ST_RETURN), e(_e) {}
+
+    AST_Expression *e;
 };
 
 #endif

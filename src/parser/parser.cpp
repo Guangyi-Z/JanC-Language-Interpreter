@@ -284,7 +284,7 @@ AST_Statement* Parser::ParseStatement() {
         return ParseVar();
     case TOK_SEMI:
         EatToken(TOK_SEMI);
-        return new AST_Statement(ST_EMPTY);
+        return NULL;
     case TOK_CURLY_BRACE_LEFT:
         return ParseBlock();
     case TOK_INT:
@@ -297,6 +297,17 @@ AST_Statement* Parser::ParseStatement() {
             EatToken(TOK_SEMI);
             return e;
         }
+    case TOK_RETURN:
+        {
+            EatToken(TOK_RETURN);
+            AST_Expression* e = ParseExpression();
+            EatToken(TOK_SEMI);
+            return new AST_Return(e);
+        }
+    case TOK_IF:
+    case TOK_WHILE:
+        /* todo */
+        break;
     default:
         std::cerr << "Error: ParseStatement with TOK- " << t << std::endl;
         exit(0);

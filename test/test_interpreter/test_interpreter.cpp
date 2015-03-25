@@ -101,16 +101,16 @@ TEST(test_interpreter, block) {
     EXPECT_EQ(2.5, intr.GetSymbolReader().ReadVarDouble("y"));
 }
 
-// TEST(test_symbol_table, function_local_var_override) {
-//     InterpreterController intr("../test/test_interpreter/interpreter_test7.txt");
-//     stringstream ss;
-//     auto buf = cout.rdbuf();
-//     cout.rdbuf(ss.rdbuf());
-//
-//     intr.Continue();
-//     EXPECT_EQ(">> 2\n>> 1.5\n>> 6.5", ss.str());
-//     cout.rdbuf(buf);
-// }
+TEST(test_interpreter, function_no_arg) {
+    InterpreterController intr("../test/test_interpreter/interpreter_test8.txt");
+    stringstream ss;
+    auto buf = cout.rdbuf();
+    cout.rdbuf(ss.rdbuf());
+
+    intr.Continue();
+    EXPECT_EQ(">> 1\n", ss.str());
+    cout.rdbuf(buf);
+}
 
 // TEST(test_symbol_table, function_recursion) {
 //     InterpreterController intr("../test/test_interpreter/interpreter_test7.txt");

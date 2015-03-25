@@ -123,11 +123,12 @@ Constant Expression::CalcVar(SymbolTable *sym, FuncTable *fsym, Reference *r) {
 }
 
 Constant Expression::CalcFunc(SymbolTable *sym, FuncTable *fsym, Reference *r) {
-    // if (!fsym->IsSymbolDefined(r->GetID())) {
-    //     cerr << "Error in CalcFunc: symbol " << r->GetID() << " not defined" << endl;
-    //     exit(0);
-    // }
-    // AST_Func func = fsym->LookupSymbol(r->GetID());
-    return Constant();
+    if (!fsym->IsSymbolDefined(r->GetID())) {
+        cerr << "Error in CalcFunc: symbol " << r->GetID() << " not defined" << endl;
+        exit(0);
+    }
+    AST_Func *func = fsym->LookupSymbol(r->GetID());
+    AST_Return *rt = (AST_Return*)(func->block->statements[0]);
+    return CalcExp(sym, fsym, rt->e);
 }
 
