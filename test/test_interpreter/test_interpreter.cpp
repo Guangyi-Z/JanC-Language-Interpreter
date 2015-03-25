@@ -18,8 +18,8 @@ TEST(test_interpreter, exp_with_no_op) {
     auto buf = cout.rdbuf();
     cout.rdbuf(ss.rdbuf());
 
-    intr.IntrStatement();
-    intr.IntrStatement();
+    intr.NextStatement();
+    intr.NextStatement();
     EXPECT_EQ(">> 1\n>> 2.5\n", ss.str());
     cout.rdbuf(buf);
 }
@@ -30,8 +30,8 @@ TEST(test_interpreter, exp_with_no_ref) {
     auto buf = cout.rdbuf();
     cout.rdbuf(ss.rdbuf());
 
-    intr.IntrStatement();
-    intr.IntrStatement();
+    intr.NextStatement();
+    intr.NextStatement();
     EXPECT_EQ(">> 6\n>> 15.1\n", ss.str());
     cout.rdbuf(buf);
 }
@@ -39,19 +39,19 @@ TEST(test_interpreter, exp_with_no_ref) {
 TEST(test_interpreter, var) {
     Interpreter intr("../test/test_interpreter/interpreter_test3.txt");
 
-    intr.IntrStatement();
+    intr.NextStatement();
     EXPECT_EQ(1, intr.GetSymbolReader().ReadVarInt("a"));
-    intr.IntrStatement();
+    intr.NextStatement();
     EXPECT_EQ(2.5, intr.GetSymbolReader().ReadVarDouble("b"));
 }
 
 TEST(test_interpreter, array) {
     Interpreter intr("../test/test_interpreter/interpreter_test4.txt");
 
-    intr.IntrStatement();
+    intr.NextStatement();
     EXPECT_EQ(vector<int>({1,2,3,4,5}), intr.GetSymbolReader().ReadArrayInt("arr_a"));
     EXPECT_EQ(5, intr.GetSymbolReader().ReadArraySize("arr_a"));
-    intr.IntrStatement();
+    intr.NextStatement();
     EXPECT_EQ(vector<double>({1.1,2.2,3.3}), intr.GetSymbolReader().ReadArrayDouble("arr_b"));
     EXPECT_EQ(5, intr.GetSymbolReader().ReadArraySize("arr_b"));
 }
@@ -63,14 +63,14 @@ TEST(test_interpreter, assgiment) {
     auto buf = cout.rdbuf();
     cout.rdbuf(ss.rdbuf());
 
-    intr.IntrStatement();
+    intr.NextStatement();
     EXPECT_EQ(1, intr.GetSymbolReader().ReadVarInt("a"));
-    intr.IntrStatement();
+    intr.NextStatement();
     EXPECT_EQ(2.5, intr.GetSymbolReader().ReadVarDouble("b"));
 
-    intr.IntrStatement();
+    intr.NextStatement();
     EXPECT_EQ(2, intr.GetSymbolReader().ReadVarInt("a"));
-    intr.IntrStatement();
+    intr.NextStatement();
     EXPECT_EQ(3.5, intr.GetSymbolReader().ReadVarDouble("b"));
 
     EXPECT_EQ(">> 2\n>> 3.5\n", ss.str());
@@ -91,14 +91,18 @@ TEST(test_interpreter, exp_with_ref) {
 TEST(test_interpreter, block) {
     Interpreter intr("../test/test_interpreter/interpreter_test7.txt");
 
-    intr.IntrStatement();
+    intr.SetDebugMode(true);
+    intr.NextStatement();
+    intr.ContinueCommand();
     EXPECT_EQ(1, intr.GetSymbolReader().ReadVarInt("x"));
-    intr.IntrStatement();
+    intr.NextStatement();
+    intr.NextCommand();
     EXPECT_EQ(2.5, intr.GetSymbolReader().ReadVarDouble("y"));
-    intr.IntrStatement();
+    intr.NextCommand();
     EXPECT_EQ(3, intr.GetSymbolReader().ReadVarInt("x"));
-    intr.IntrStatement();
+    intr.NextCommand();
     EXPECT_EQ(3.5, intr.GetSymbolReader().ReadVarDouble("y"));
+    intr.ContinueCommand();
 }
 
 // TEST(test_symbol_table, function_local_var_override) {

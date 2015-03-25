@@ -3,30 +3,16 @@
 #include <deque>
 #include "symbol.h"
 #include "reader.h"
-#include "exp.h"
+#include "calculator.h"
 #include "parser/parser.h"
 using std::deque;
 using std::cerr;
-
-enum TASK_T {
-    TASK_ST,
-    TASK_RM_SYMBOL_TABLE
-};
-
-class Task {
-public:
-    Task(TASK_T t) : type(t), p(NULL) {}
-    Task(AST_Statement* st) : type(TASK_ST), p(st) {}
-
-    TASK_T type;
-    void *p;
-};
 
 class Interpreter {
 public:
     /* construtor */
     Interpreter() {
-        cur_sym = &sym;
+        is_debug = false;
     }
     Interpreter(string path_to_file) : Interpreter() { Load(path_to_file);}
     void Load(string path_to_file) {
@@ -38,29 +24,27 @@ public:
         }
     }
 
-    /* interpreter */
-    void IntrVar(AST_Statement *st);
-    void IntrFunc(AST_Func* func);
-    Constant IntrArrayContent(AST_Array *array);
-    void IntrBlock(AST_Block* block);
-
     /* interfaces */
     bool HasNextStatement();
-    AST_Statement* NextStatement();
-    void IntrStatement ();
+    void NextStatement();
     void AddStatement(AST_Statement *st);
     void Continue();
 
+    /* debug */
+    void SetDebugMode(bool b) { is_debug = b;}
+    bool IsEndOfCommand() { return !calc.HasNext();}
+    void NextCommand() { calc.ExecNext();}
+    void ContinueCommand() { calc.Continue();}
+
     /* reader */
-    SymbolReader GetSymbolReader() { return SymbolReader(cur_sym);}
+    SymbolReader GetSymbolReader() { return calc.GetSymbolReader();}
 
 private:
 
-    deque<Task> qst;
+    bool is_debug;
+    Calculator calc;
+    deque<AST_Statement*> qst;
     Parser parser;
-    SymbolTable sym;  // global symbol table
-    SymbolTable *cur_sym;
-    FuncTable fsym;
 };
 
 #endif
