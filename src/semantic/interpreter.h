@@ -10,9 +10,7 @@ using std::cerr;
 
 class Interpreter {
 public:
-    Interpreter() {
-        cur_sym = &g_sym;
-    }
+    Interpreter() {}
 
     void IntrStatement(AST_Statement *st);
     void IntrVar(AST_Statement *st);
@@ -27,18 +25,12 @@ public:
     static void DoPrefixOP(Operand *o);
     static void DoSuffixOP(Operand *o);
 
-    void NewSymbolTable()     { cur_sym = new SymbolTable(cur_sym);}
-    void DelSymbolTable()     { cur_sym = cur_sym->GetParent();}
-    void NewFuncSymbolTable() { bak_sym = cur_sym; cur_sym = new SymbolTable(&g_sym);}
-    void DelFuncSymbolTable() { cur_sym = bak_sym;}
-
     /* reader */
-    SymbolReader GetSymbolReader() { return SymbolReader(cur_sym);}
+    SymbolReader GetSymbolReader() { return SymbolReader(sym.GetCurSymbolTable());}
 
 private:
 
-    SymbolTable g_sym;  // global symbol table
-    SymbolTable *cur_sym, *bak_sym;
+    NestedSymbolTable sym;
     FuncTable fsym;
 };
 

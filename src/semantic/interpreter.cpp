@@ -29,11 +29,11 @@ void Interpreter::IntrStatement (AST_Statement *st) {
 }
 
 void Interpreter::IntrBlock(AST_Block* block) {
-    NewSymbolTable();
+    sym.NewSymbolTable();
     for (AST_Statement *st : block->statements) {
         IntrStatement(st);
     }
-    DelSymbolTable();
+    sym.DelSymbolTable();
 }
 
 Constant Interpreter::IntrArrayContent(AST_Array *array) {
@@ -67,30 +67,27 @@ void Interpreter::IntrVar(AST_Statement *st) {
     if (st->GetType() == ST_ARRAY) {
         AST_Array *array = (AST_Array*) st;
         Constant val = IntrArrayContent(array);
-        if (cur_sym->IsSymbolDefined(array->id)) {
+        if (sym.GetCurSymbolTable()->IsSymbolDefined(array->id)) {
             cerr << "Error in IntrVar: symbol " << array->id << " has been defined" << endl;
             exit(0);
         }
-        cur_sym->AddSymbol(array->id, val);
+        sym.GetCurSymbolTable()->AddSymbol(array->id, val);
     }
     else {
         AST_Var *var = (AST_Var*) st;
         Constant val;
         if (var->val)
             val = IntrExpression(var->val);
-        if (cur_sym->IsSymbolDefined(var->id)) {
+        if (sym.GetCurSymbolTable()->IsSymbolDefined(var->id)) {
             cerr << "Error in IntrVar: symbol " << var->id << " has been defined" << endl;
             exit(0);
         }
-        cur_sym->AddSymbol(var->id, val);
+        sym.GetCurSymbolTable()->AddSymbol(var->id, val);
     }
 }
 
 void Interpreter::IntrFunc(AST_Func* func) {
     fsym.AddSymbol(func->id, func);
-    // vector<Command*> vc;
-    // vc.push_back(CommNewFuncSymbolTable());
-    // vc.push_back(CommDelFuncSymbolTable());
 }
 
 Constant Interpreter::IntrExpression(AST_Expression* exp) {
@@ -106,7 +103,7 @@ Constant Interpreter::IntrExpression(AST_Expression* exp) {
             exit(0);
         }
         Constant rv = IntrExpression(exp->e2);
-        cur_sym->ChangeSymbol(r->GetID(), rv);
+        sym.GetCurSymbolTable()->ChangeSymbol(r->GetID(), rv);
         return rv;
     }
     // Normal recursive process
@@ -136,7 +133,7 @@ Constant Interpreter::IntrOperand(Operand *o) {
     }
     else {
         Reference *r = (Reference*) o;
-        if (cur_sym->IsSymbolDefinedRecursively(r->GetID()))    // var
+        if (sym.GetCurSymbolTable()->IsSymbolDefinedRecursively(r->GetID()))    // var
             return UnpackVar(r);
         else if (fsym.LookupSymbol(r->GetID())) // func
             return UnpackFunc(r);
@@ -150,7 +147,7 @@ Constant Interpreter::IntrOperand(Operand *o) {
 }
 
 Constant Interpreter::UnpackVar(Reference *r) {
-    Constant con = cur_sym->LookupSymbol(r->GetID());
+    Constant con = sym.GetCurSymbolTable()->LookupSymbol(r->GetID());
     if (r->IsEmptyParameter())  // single var
         return con;
     // array element
@@ -177,9 +174,12 @@ Constant Interpreter::UnpackFunc(Reference *r) {
         cerr << "Error in UnpackFunc: symbol " << r->GetID() << " not defined" << endl;
         exit(0);
     }
+    sym.NewFuncSymbolTable();
     AST_Func *func = fsym.LookupSymbol(r->GetID());
     AST_Return *rt = (AST_Return*)(func->block->statements[0]);
-    return IntrExpression(rt->e);
+    Constant con = IntrExpression(rt->e);
+    sym.DelFuncSymbolTable();
+    return con;
 }
 
 void Interpreter::DoPrefixOP(Operand *o) {

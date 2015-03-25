@@ -88,4 +88,19 @@ private:
     SymbolTable *parent;
 };
 
+class NestedSymbolTable {
+public:
+    NestedSymbolTable() { cur_sym = &g_sym;}
+
+    /* nested symtable interfaces */
+    SymbolTable* GetCurSymbolTable() { return cur_sym;}
+    void NewSymbolTable()     { cur_sym = new SymbolTable(cur_sym);}
+    void DelSymbolTable()     { cur_sym = cur_sym->GetParent();}
+    void NewFuncSymbolTable() { bak_sym = cur_sym; cur_sym = new SymbolTable(&g_sym);}
+    void DelFuncSymbolTable() { cur_sym = bak_sym;}
+private:
+    SymbolTable *cur_sym, *bak_sym;
+    SymbolTable g_sym;  // global symbol table
+};
+
 #endif
