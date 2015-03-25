@@ -11,7 +11,7 @@ void Interpreter::IntrStatement (AST_Statement *st) {
         break;
     case ST_EXP:
         {
-        Constant con = Expression::CalcExp(cur_sym, &fsym, (AST_Expression*)st);
+        Constant con = IntrExpression((AST_Expression*)st);
         con.Print();
         }
         break;
@@ -43,7 +43,7 @@ Constant Interpreter::IntrArrayContent(AST_Array *array) {
     bool is_double = false;
     vector<Constant> vc;
     for (AST_Expression* e : array->ve) {
-        Constant _con = Expression::CalcExp(cur_sym, &fsym, e);
+        Constant _con = IntrExpression(e);
         vc.push_back(_con);
         if (_con.GetType() == CONST_DOUBLE)
             is_double = true;
@@ -77,7 +77,7 @@ void Interpreter::IntrVar(AST_Statement *st) {
         AST_Var *var = (AST_Var*) st;
         Constant val;
         if (var->val)
-            val = Expression::CalcExp(cur_sym, &fsym, var->val);
+            val = IntrExpression(var->val);
         if (cur_sym->IsSymbolDefined(var->id)) {
             cerr << "Error in IntrVar: symbol " << var->id << " has been defined" << endl;
             exit(0);
@@ -91,4 +91,134 @@ void Interpreter::IntrFunc(AST_Func* func) {
     // vector<Command*> vc;
     // vc.push_back(CommNewFuncSymbolTable());
     // vc.push_back(CommDelFuncSymbolTable());
+}
+
+Constant Interpreter::IntrExpression(AST_Expression* exp) {
+    if (exp->IsLeaf()) {
+        return IntrOperand(exp->o);
+    }
+    // For assgiment
+    if (exp->op == OP_ASSIGN) {
+        AST_Expression *lv = exp->e1;
+        Reference *r = (Reference*)(lv->o);
+        if (!lv->IsLeaf() || r->GetType() != OPRD_REF) {
+            cerr << "Error in IntrExpression: l-value must be assignable" << endl;
+            exit(0);
+        }
+        Constant rv = IntrExpression(exp->e2);
+        cur_sym->ChangeSymbol(r->GetID(), rv);
+        return rv;
+    }
+    // Normal recursive process
+    Constant con1 = IntrExpression(exp->e1);
+    Constant con2 = IntrExpression(exp->e2);
+    switch(exp->op) {
+    case OP_ADD:
+        return Arithmetic::Add(con1, con2);
+    case OP_SUB:
+        return Arithmetic::Sub(con1, con2);
+    case OP_MUL:
+        return Arithmetic::Mul(con1, con2);
+    case OP_DIV:
+        return Arithmetic::Div(con1, con2);
+    default:
+        return Constant();
+    }
+}
+
+Constant Interpreter::IntrOperand(Operand *o) {
+    if (o->GetType() == OPRD_LITERAL) {
+        Literal *l = (Literal*) o;
+        DoPrefixOP(l);
+        Constant con = l->GetConst();  // con is independent of suffix operations
+        DoSuffixOP(l);
+        return con;
+    }
+    else {
+        Reference *r = (Reference*) o;
+        if (cur_sym->IsSymbolDefinedRecursively(r->GetID()))    // var
+            return UnpackVar(r);
+        else if (fsym.LookupSymbol(r->GetID())) // func
+            return UnpackFunc(r);
+        else {
+            cout << "Error in IntrOperand: symbol not defined- " << r->GetID() << endl;
+            exit(0);
+        }
+    }
+    /* never been here */
+    return Constant();
+}
+
+Constant Interpreter::UnpackVar(Reference *r) {
+    Constant con = cur_sym->LookupSymbol(r->GetID());
+    if (r->IsEmptyParameter())  // single var
+        return con;
+    // array element
+    AST_Expression *e = r->GetParameters()[0];
+    Constant cindex = IntrExpression(e);
+    if (cindex.GetType() != CONST_INT) {
+        cerr << "Error in UnpackVar: array index must be Int- " << cindex.GetType() << endl;
+        exit(0);
+    }
+    int index = cindex.GetInt();
+    switch(con.GetType()) {
+    case CONST_ARRAY_INT:
+        return Constant(con.GetArrayInt()[index]);
+    case CONST_ARRAY_DOUBLE:
+        return Constant(con.GetArrayDouble()[index]);
+    default:
+        cerr << "Error in UnpackVar: wrong array type- " << con.GetType() << endl;
+        exit(0);
+    }
+}
+
+Constant Interpreter::UnpackFunc(Reference *r) {
+    if (!fsym.IsSymbolDefined(r->GetID())) {
+        cerr << "Error in UnpackFunc: symbol " << r->GetID() << " not defined" << endl;
+        exit(0);
+    }
+    AST_Func *func = fsym.LookupSymbol(r->GetID());
+    AST_Return *rt = (AST_Return*)(func->block->statements[0]);
+    return IntrExpression(rt->e);
+}
+
+void Interpreter::DoPrefixOP(Operand *o) {
+    if (o->GetPrefix().empty())
+        return;
+    for (OP op : o->GetPrefix()) {
+        switch(op) {
+            case OP_ADD:
+                /* empty */
+                break;
+            case OP_SUB:
+                o->ToNegative();
+                break;
+            case OP_INC:
+                o->ToInc();
+                break;
+            case OP_DEC:
+                o->ToDec();
+                break;
+            case OP_NOT:
+                /* to do */
+                break;
+            default: ;
+        }
+    }
+}
+
+void Interpreter::DoSuffixOP(Operand *o) {
+    if (o->GetSuffix().empty())
+        return;
+    for (OP op : o->GetSuffix()) {
+        switch(op) {
+            case OP_INC:
+                o->ToInc();
+                break;
+            case OP_DEC:
+                o->ToDec();
+                break;
+            default: ;
+        }
+    }
 }
