@@ -1,5 +1,5 @@
 #include "gtest/gtest.h"
-#include "semantic/Interpreter.h"
+#include "semantic/controller.h"
 #include <iostream>
 #include <sstream>
 #include <vector>
@@ -13,7 +13,7 @@ using std::vector;
  * Test Case
  */
 TEST(test_interpreter, exp_with_no_op) {
-    Interpreter intr("../test/test_interpreter/interpreter_test1.txt");
+    InterpreterController intr("../test/test_interpreter/interpreter_test1.txt");
     stringstream ss;
     auto buf = cout.rdbuf();
     cout.rdbuf(ss.rdbuf());
@@ -25,7 +25,7 @@ TEST(test_interpreter, exp_with_no_op) {
 }
 
 TEST(test_interpreter, exp_with_no_ref) {
-    Interpreter intr("../test/test_interpreter/interpreter_test2.txt");
+    InterpreterController intr("../test/test_interpreter/interpreter_test2.txt");
     stringstream ss;
     auto buf = cout.rdbuf();
     cout.rdbuf(ss.rdbuf());
@@ -37,7 +37,7 @@ TEST(test_interpreter, exp_with_no_ref) {
 }
 
 TEST(test_interpreter, var) {
-    Interpreter intr("../test/test_interpreter/interpreter_test3.txt");
+    InterpreterController intr("../test/test_interpreter/interpreter_test3.txt");
 
     intr.NextStatement();
     EXPECT_EQ(1, intr.GetSymbolReader().ReadVarInt("a"));
@@ -46,7 +46,7 @@ TEST(test_interpreter, var) {
 }
 
 TEST(test_interpreter, array) {
-    Interpreter intr("../test/test_interpreter/interpreter_test4.txt");
+    InterpreterController intr("../test/test_interpreter/interpreter_test4.txt");
 
     intr.NextStatement();
     EXPECT_EQ(vector<int>({1,2,3,4,5}), intr.GetSymbolReader().ReadArrayInt("arr_a"));
@@ -57,7 +57,7 @@ TEST(test_interpreter, array) {
 }
 
 TEST(test_interpreter, assgiment) {
-    Interpreter intr("../test/test_interpreter/interpreter_test5.txt");
+    InterpreterController intr("../test/test_interpreter/interpreter_test5.txt");
 
     stringstream ss;
     auto buf = cout.rdbuf();
@@ -78,7 +78,7 @@ TEST(test_interpreter, assgiment) {
 }
 
 TEST(test_interpreter, exp_with_ref) {
-    Interpreter intr("../test/test_interpreter/interpreter_test6.txt");
+    InterpreterController intr("../test/test_interpreter/interpreter_test6.txt");
     stringstream ss;
     auto buf = cout.rdbuf();
     cout.rdbuf(ss.rdbuf());
@@ -89,7 +89,7 @@ TEST(test_interpreter, exp_with_ref) {
 }
 
 TEST(test_interpreter, block) {
-    Interpreter intr("../test/test_interpreter/interpreter_test7.txt");
+    InterpreterController intr("../test/test_interpreter/interpreter_test7.txt");
 
     intr.SetDebugMode(true);
     intr.NextStatement();
@@ -113,7 +113,7 @@ TEST(test_interpreter, block) {
 }
 
 // TEST(test_symbol_table, function_local_var_override) {
-//     Interpreter intr("../test/test_interpreter/interpreter_test7.txt");
+//     InterpreterController intr("../test/test_interpreter/interpreter_test7.txt");
 //     stringstream ss;
 //     auto buf = cout.rdbuf();
 //     cout.rdbuf(ss.rdbuf());
@@ -124,7 +124,7 @@ TEST(test_interpreter, block) {
 // }
 
 // TEST(test_symbol_table, function_recursion) {
-//     Interpreter intr("../test/test_interpreter/interpreter_test7.txt");
+//     InterpreterController intr("../test/test_interpreter/interpreter_test7.txt");
 //     stringstream ss;
 //     auto buf = cout.rdbuf();
 //     cout.rdbuf(ss.rdbuf());

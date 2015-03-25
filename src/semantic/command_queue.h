@@ -1,7 +1,7 @@
 #ifndef COMMAND_QUEUE_H
 #define COMMAND_QUEUE_H
 #include "parser/ast.h"
-#include "calculator.h"
+#include "interpreter.h"
 #include <deque>
 using std::deque;
 
@@ -14,12 +14,12 @@ public:
     void ContinueCommand();
 
     /* reader */
-    SymbolReader GetSymbolReader() { return calc.GetSymbolReader();}
+    SymbolReader GetSymbolReader() { return intr.GetSymbolReader();}
 
 private:
     void AddDerivedCommand(vector<Command*> vc);
 
-    Calculator calc;
+    Interpreter intr;
     deque<Command*> qt;
 };
 

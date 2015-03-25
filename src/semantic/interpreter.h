@@ -1,49 +1,81 @@
 #ifndef INTERPRETER_H
 #define INTERPRETER_H
 #include <deque>
-#include "reader.h"
 #include "parser/parser.h"
-#include "command_queue.h"
+#include "symbol.h"
+#include "reader.h"
+#include "exp.h"
+#include "arithmetic.h"
 using std::deque;
 using std::cerr;
 
+class Command;
+class CommInterprete;
+class CommNewSymbolTable;
+class CommDelSymbolTable;
+class CommNewFuncSymbolTable;
+class CommDelFuncSymbolTable;
+
 class Interpreter {
 public:
-    /* construtor */
     Interpreter() {
-        is_debug = false;
-    }
-    Interpreter(string path_to_file) : Interpreter() { Load(path_to_file);}
-    void Load(string path_to_file) {
-        parser.Load(path_to_file);
-        AST_Statement* st = parser.ParseStatement();
-        while(st) {
-            qst.push_back(st);
-            st = parser.ParseStatement();
-        }
+        cur_sym = &g_sym;
     }
 
-    /* interfaces */
-    bool HasNextStatement();
-    void NextStatement();
-    void AddStatement(AST_Statement *st) { qst.push_back(st);}
-    void Continue();
+    vector<Command*> IntrStatement(AST_Statement *st);
+    void IntrVar(AST_Statement *st);
+    void IntrFunc(AST_Func* func);
+    vector<Command*> IntrBlock(AST_Block* block);
+    Constant IntrArrayContent(AST_Array *array);
 
-    /* debug */
-    void SetDebugMode(bool b) { is_debug = b;}
-    bool IsEndOfCommand() { return !qc.HasNextCommand();}
-    void NextCommand() { qc.ExecNextCommand();}
-    void ContinueCommand() { qc.ContinueCommand();}
+    void NewSymbolTable()     { cur_sym = new SymbolTable(cur_sym);}
+    void DelSymbolTable()     { cur_sym = cur_sym->GetParent();}
+    void NewFuncSymbolTable() { bak_sym = cur_sym; cur_sym = new SymbolTable(&g_sym);}
+    void DelFuncSymbolTable() { cur_sym = bak_sym;}
 
     /* reader */
-    SymbolReader GetSymbolReader() { return qc.GetSymbolReader();}
+    SymbolReader GetSymbolReader() { return SymbolReader(cur_sym);}
 
 private:
 
-    bool is_debug;
-    CommQueue qc;
-    deque<AST_Statement*> qst;
-    Parser parser;
+    SymbolTable g_sym;  // global symbol table
+    SymbolTable *cur_sym, *bak_sym;
+    FuncTable fsym;
+};
+
+class Command {
+public:
+    virtual vector<Command*> Execute(Interpreter &intr) = 0;
+};
+
+class CommInterprete : public Command {
+public:
+    CommInterprete(AST_Statement *_st) : st(_st) {}
+
+    vector<Command*> Execute(Interpreter &intr);
+
+private:
+    AST_Statement *st;
+};
+
+class CommNewSymbolTable : public Command {
+public:
+    vector<Command*> Execute(Interpreter &intr);
+};
+
+class CommDelSymbolTable : public Command {
+public:
+    vector<Command*> Execute(Interpreter &intr);
+};
+
+class CommNewFuncSymbolTable : public Command {
+public:
+    vector<Command*> Execute(Interpreter &intr);
+};
+
+class CommDelFuncSymbolTable : public Command {
+public:
+    vector<Command*> Execute(Interpreter &intr);
 };
 
 #endif

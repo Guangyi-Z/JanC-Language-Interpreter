@@ -16,7 +16,7 @@ void CommQueue::ExecNextCommand() {
     if(HasNextCommand()) {
         Command *c = qt.front();
         qt.pop_front();
-        AddDerivedCommand(c->Execute(calc));
+        AddDerivedCommand(c->Execute(intr));
     }
 }
 
