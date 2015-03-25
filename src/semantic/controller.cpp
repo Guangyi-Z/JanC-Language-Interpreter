@@ -13,9 +13,7 @@ void InterpreterController::NextStatement() {
     if (HasNextStatement()) {
         AST_Statement* st = qst.front();
         qst.pop_front();
-        qc.AddCommand(st);
-        if (!is_debug)
-            qc.ContinueCommand();
+        intr.IntrStatement(st);
     }
 }
 

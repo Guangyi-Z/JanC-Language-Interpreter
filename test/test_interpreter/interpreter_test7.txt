@@ -1,8 +1,8 @@
 var x = 1;
+var y = 2.5;
 {
-    var y = x + 1.5;
+    var y = 1.5;
     {
-        var x = 3;
-        var y = 3.5;
+        x = y;
     }
 }

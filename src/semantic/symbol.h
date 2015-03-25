@@ -68,6 +68,20 @@ public:
     void AddSymbol(string name, Constant con) {
         sym[name] = con;
     }
+    void ChangeSymbol(string name, Constant con) {
+        SymbolTable *p = this;
+        bool is_defined = false;
+        while(p) {
+            if (p->sym.find(name) != p->sym.end()) {
+                p->sym[name] = con;
+                is_defined = true;
+                break;
+            }
+            p = p->GetParent();
+        }
+        if (!is_defined)
+            cerr << "Error in ChangeSymbol: symbol not defined- " << name << endl;
+    }
 
 private:
     unordered_map<string, Constant> sym;

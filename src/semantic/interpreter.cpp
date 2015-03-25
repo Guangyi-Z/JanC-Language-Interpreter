@@ -1,39 +1,38 @@
 #include "interpreter.h"
 
 /* Interpreter Start Point */
-vector<Command*> Interpreter::IntrStatement (AST_Statement *st) {
+void Interpreter::IntrStatement (AST_Statement *st) {
     switch(st->type) {
     case ST_EMPTY:
-        return {};
+        break;
     case ST_BLOCK:
-        return IntrBlock((AST_Block*)st);
+        IntrBlock((AST_Block*)st);
+        break;
     case ST_EXP:
         {
         Constant con = Expression::CalcExp(cur_sym, &fsym, (AST_Expression*)st);
         con.Print();
         }
-        return {};
+        break;
     case ST_FUNC:
         IntrFunc((AST_Func *)st);
-        return {};
+        break;
     case ST_VAR:
     case ST_ARRAY:
         IntrVar(st);
-        return {};
+        break;
     default:
         cout << "Error in IntrStatement: wrong type for default" << endl;
         exit(0);
     };
 }
 
-vector<Command*> Interpreter::IntrBlock(AST_Block* block) {
-    vector<Command*> vc;
-    vc.push_back(new CommNewSymbolTable());
+void Interpreter::IntrBlock(AST_Block* block) {
+    NewSymbolTable();
     for (AST_Statement *st : block->statements) {
-        vc.push_back(new CommInterprete(st));
+        IntrStatement(st);
     }
-    vc.push_back(new CommDelSymbolTable());
-    return vc;
+    DelSymbolTable();
 }
 
 Constant Interpreter::IntrArrayContent(AST_Array *array) {
@@ -91,32 +90,4 @@ void Interpreter::IntrFunc(AST_Func* func) {
     // vector<Command*> vc;
     // vc.push_back(CommNewFuncSymbolTable());
     // vc.push_back(CommDelFuncSymbolTable());
-}
-
-
-/********************************************
- * Command
- *******************************************/
-vector<Command*> CommInterprete::Execute(Interpreter &intr) {
-    return intr.IntrStatement(st);
-}
-
-vector<Command*> CommNewSymbolTable::Execute(Interpreter &intr) {
-    intr.NewSymbolTable();
-    return {};
-}
-
-vector<Command*> CommDelSymbolTable::Execute(Interpreter &intr) {
-    intr.DelSymbolTable();
-    return {};
-}
-
-vector<Command*> CommNewFuncSymbolTable::Execute(Interpreter &intr) {
-    intr.NewFuncSymbolTable();
-    return {};
-}
-
-vector<Command*> CommDelFuncSymbolTable::Execute(Interpreter &intr) {
-    intr.DelFuncSymbolTable();
-    return {};
 }

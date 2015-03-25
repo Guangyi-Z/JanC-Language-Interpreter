@@ -1,7 +1,6 @@
 #ifndef CONTROLLER_H
 #define CONTROLLER_H
 #include "interpreter.h"
-#include "command_queue.h"
 
 class InterpreterController {
 public:
@@ -25,20 +24,14 @@ public:
     void AddStatement(AST_Statement *st) { qst.push_back(st);}
     void Continue();
 
-    /* debug */
-    void SetDebugMode(bool b) { is_debug = b;}
-    bool IsEndOfCommand() { return !qc.HasNextCommand();}
-    void NextCommand() { qc.ExecNextCommand();}
-    void ContinueCommand() { qc.ContinueCommand();}
-
     /* reader */
-    SymbolReader GetSymbolReader() { return qc.GetSymbolReader();}
+    SymbolReader GetSymbolReader() { return intr.GetSymbolReader();}
 
 private:
     bool is_debug;
-    CommQueue qc;
     deque<AST_Statement*> qst;
     Parser parser;
+    Interpreter intr;
 };
 
 #endif

@@ -15,7 +15,7 @@ Constant Expression::CalcExp(SymbolTable *sym,
             exit(0);
         }
         Constant rv = CalcExp(sym, fsym, exp->e2);
-        sym->AddSymbol(r->GetID(), rv);
+        sym->ChangeSymbol(r->GetID(), rv);
         return rv;
     }
     // Normal recursive process
