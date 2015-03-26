@@ -19,33 +19,33 @@ public:
         lexer.GetNextToken();
     }
 
-    /* parser fucntions */
+    /* Parsing Interfaces */
     AST_Statement* ParseStatement();
-
 private:
+    /* parser fucntions */
     AST_Block* ParseBlock();
     AST_Func* ParseFunc();
-
     AST_Statement* ParseVar();
     AST_Array* ParseArray(string name);
     AST_Var* ParseSingleVar(string name);
 
+    /* Parsing Expresion */
     AST_Expression* ParseExpression();
     AST_Expression* ParseExpressionHelper(AST_Expression* e1, OP op);
     OP GetNextOP();
-    AST_Expression* GetNextOperand();
+    AST_Expression* GetNextExpression();
     bool IsTheEndOfExp(TOKEN t);
     vector<OP> FindPrefixOP();
     vector<OP> FindSuffixOP();
-    void FillLiteralBody(Operand *o);
-    void FillReferenceBody(Operand *o);
+    Literal* FindLiteral();
+    Reference* FindReference();
 
+    /* Util */
     bool EatToken(TOKEN t);
 
     Lexer lexer;
     OpProperty pp;
 };
-
 
 #endif
 

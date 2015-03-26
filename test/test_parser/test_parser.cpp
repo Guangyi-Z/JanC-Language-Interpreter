@@ -62,10 +62,16 @@ void PrintASTExpOperand(Operand *o) {
         Literal *l = (Literal*) o;
         switch(l->GetLiteralType()) {
             case CONST_INT:
-                cout << l->GetInt();
+                {
+                    Int* i = (Int*) l->GetConst();
+                    cout << i->GetInt();
+                }
                 break;
             case CONST_DOUBLE:
-                cout << l->GetDouble();
+                {
+                    Double* d = (Double*) l->GetConst();
+                    cout << d->GetDouble();
+                }
                 break;
             default:
                 break;

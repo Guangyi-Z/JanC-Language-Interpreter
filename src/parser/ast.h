@@ -20,12 +20,15 @@ enum ST {
     ST_WHILE
 };
 
-class AST_Block;
 class AST_Statement;
+class AST_Block;
 class AST_Var;
 class AST_Array;
 class AST_Func;
 class AST_Expression;
+class AST_Return;
+class AST_If;
+class AST_While;
 
 class AST_Statement {
 public:

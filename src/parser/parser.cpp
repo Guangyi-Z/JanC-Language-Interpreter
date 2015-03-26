@@ -66,10 +66,14 @@ vector<OP> Parser::FindSuffixOP() {
     return vo;
 }
 
-void Parser::FillReferenceBody(Operand *o) {
-    Reference *r = (Reference*)o;
+Reference* Parser::FindReference() {
+    string name = lexer.GetCurLexem();
+    EatToken(TOK_ID);
+    Reference *r = new Reference(name);
+    // check for parameters
     switch(lexer.GetCurToken()) {
-        case TOK_PAREN_LEFT:    // func
+        case TOK_PAREN_LEFT:
+            // func parameters
             EatToken(TOK_PAREN_LEFT);
             while (!lexer.IsNextTokenEquals(TOK_PAREN_RIGHT)) {
                 AST_Expression *pa = ParseExpression();
@@ -79,35 +83,36 @@ void Parser::FillReferenceBody(Operand *o) {
             }
             EatToken(TOK_PAREN_RIGHT);
             break;
-        case TOK_BRACE_LEFT:   // array
+        case TOK_BRACE_LEFT:
+            // array indexing
             EatToken(TOK_BRACE_LEFT);
             r->AddParameter(ParseExpression());
             EatToken(TOK_BRACE_RIGHT);
             break;
-        default:    // var or reference to func and array
-            ;
+        default: ;
+            // var or direct reference to func and array
     }
+    return r;
 }
 
-void Parser::FillLiteralBody(Operand *o) {
-    Constant con;
+Literal* Parser::FindLiteral() {
+    Constant* con = NULL;
     switch (lexer.GetCurToken()) {
         case TOK_INT:
-            con.SetValue(std::stoi(lexer.GetCurLexem()));
+            con = new Int(std::stoi(lexer.GetCurLexem()));
             EatToken(TOK_INT);
             break;
         case TOK_DOUBLE:
-            con.SetValue(std::stod(lexer.GetCurLexem()));
+            con = new Double(std::stod(lexer.GetCurLexem()));
             EatToken(TOK_DOUBLE);
             break;
         default: /* never been here */;
     }
-    Literal *l = (Literal*)o;
-    l->SetConst(con);
+    return new Literal(con);
 }
 
-AST_Expression* Parser::GetNextOperand() {
-    Operand *o;
+AST_Expression* Parser::GetNextExpression() {
+    Operand *o = NULL;
     // get prefix operators
     vector<OP> prefix = FindPrefixOP();
     // get operand entity
@@ -122,18 +127,10 @@ AST_Expression* Parser::GetNextOperand() {
             break;
         case TOK_INT:
         case TOK_DOUBLE:
-            {
-            o = new Literal();
-            FillLiteralBody(o);
-            }
+            o = FindLiteral();
             break;
         case TOK_ID:
-            {
-            string name = lexer.GetCurLexem();
-            EatToken(TOK_ID);
-            o = new Reference(name);
-            FillReferenceBody(o);
-            }
+            o = FindReference();
             break;
         default:
             std::cerr << "Error in ParseExpression: switch default- " << lexer.GetCurToken() << std::endl;
@@ -141,6 +138,7 @@ AST_Expression* Parser::GetNextOperand() {
     }
     // get suffix operators
     vector<OP> suffix = FindSuffixOP();
+    // fill operand
     o->SetPrefixOP(prefix);
     o->SetSuffixOP(suffix);
     return new AST_Expression(o);
@@ -158,7 +156,7 @@ OP Parser::GetNextOP() {
 }
 
 AST_Expression* Parser::ParseExpressionHelper(AST_Expression *e1, OP op) {
-    AST_Expression* e2 = GetNextOperand();
+    AST_Expression* e2 = GetNextExpression();
     const OP op_nxt = GetNextOP();
     if (op_nxt == OP_NONE)
         return new AST_Expression(e1, op, e2);
@@ -171,7 +169,7 @@ AST_Expression* Parser::ParseExpressionHelper(AST_Expression *e1, OP op) {
 }
 
 AST_Expression* Parser::ParseExpression() {
-    AST_Expression *e1 = GetNextOperand();
+    AST_Expression *e1 = GetNextExpression();
     const OP op = GetNextOP();
     if (op == OP_NONE)
         return e1;
@@ -312,4 +310,5 @@ AST_Statement* Parser::ParseStatement() {
         std::cerr << "Error: ParseStatement with TOK- " << t << std::endl;
         exit(0);
     }
+    return NULL;    /* never been here */
 }
