@@ -22,9 +22,12 @@ void TraverseASTBLock(AST_Block *block) {
 }
 
 void TraverseASTSt(AST_Statement *st) {
+    if (!st) {
+        cout << ";";
+        return;
+    }
     if (st->type == ST_BLOCK)
         TraverseASTBLock((AST_Block*)st);
-    else cout << ";";
 }
 
 /* Print out the AST_EXPRESSION */
@@ -126,9 +129,9 @@ TEST(test_parser, empty_block) {
     auto buf = cout.rdbuf();
     cout.rdbuf(ss.rdbuf());
 
-    while (true) {
+    int ns = 16;
+    for (int i = 0; i<ns; i++) {
         AST_Statement *st = parser.ParseStatement();
-        if (!st) break;
         TraverseASTSt(st);
     }
 
