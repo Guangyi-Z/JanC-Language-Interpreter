@@ -23,10 +23,6 @@ public:
     void NextStatement();
     void AddStatement(AST_Statement *st) { qst.push_back(st);}
     void Continue();
-
-    /* reader */
-    SymbolReader GetSymbolReader() { return intr.GetSymbolReader();}
-
 private:
     bool is_debug;
     deque<AST_Statement*> qst;

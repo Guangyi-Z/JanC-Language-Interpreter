@@ -20,9 +20,9 @@ public:
     Constant* ToDec()      { return new Int(i-1);}
 
     Arithmetic* Add(Arithmetic* o2) { return o2->GetType() == CONST_INT? AddInt((Int*)o2) : AddDouble((Double*)o2);}
-    Arithmetic* Sub(Arithmetic* o2) { return o2->GetType() == CONST_INT? AddInt((Int*)o2) : AddDouble((Double*)o2);}
-    Arithmetic* Mul(Arithmetic* o2) { return o2->GetType() == CONST_INT? AddInt((Int*)o2) : AddDouble((Double*)o2);}
-    Arithmetic* Div(Arithmetic* o2) { return o2->GetType() == CONST_INT? AddInt((Int*)o2) : AddDouble((Double*)o2);}
+    Arithmetic* Sub(Arithmetic* o2) { return o2->GetType() == CONST_INT? SubInt((Int*)o2) : SubDouble((Double*)o2);}
+    Arithmetic* Mul(Arithmetic* o2) { return o2->GetType() == CONST_INT? MulInt((Int*)o2) : MulDouble((Double*)o2);}
+    Arithmetic* Div(Arithmetic* o2) { return o2->GetType() == CONST_INT? DivInt((Int*)o2) : DivDouble((Double*)o2);}
 
     Bool* GT   ( Arithmetic* o2) { return o2->GetType()==CONST_INT? GTInt((Int*)o2) : GTDouble((Double*)o2);}
     Bool* GTEQ ( Arithmetic* o2) { return o2->GetType()==CONST_INT? GTEQInt((Int*)o2) : GTEQDouble((Double*)o2);}
@@ -53,6 +53,9 @@ public:
     Bool* LTEQDouble ( Double* o2 );
     Bool* EQDouble   ( Double* o2 );
     Bool* NEQDouble  ( Double* o2 );
+
+    /* Printer */
+    void Print() { cout << i;}
 private:
     int i;
 };
@@ -71,9 +74,9 @@ public:
     Constant* ToDec()      { return new Double(d-1);}
 
     Arithmetic* Add(Arithmetic* o2) { return o2->GetType() == CONST_INT? AddInt((Int*)o2) : AddDouble((Double*)o2);}
-    Arithmetic* Sub(Arithmetic* o2) { return o2->GetType() == CONST_INT? AddInt((Int*)o2) : AddDouble((Double*)o2);}
-    Arithmetic* Mul(Arithmetic* o2) { return o2->GetType() == CONST_INT? AddInt((Int*)o2) : AddDouble((Double*)o2);}
-    Arithmetic* Div(Arithmetic* o2) { return o2->GetType() == CONST_INT? AddInt((Int*)o2) : AddDouble((Double*)o2);}
+    Arithmetic* Sub(Arithmetic* o2) { return o2->GetType() == CONST_INT? SubInt((Int*)o2) : SubDouble((Double*)o2);}
+    Arithmetic* Mul(Arithmetic* o2) { return o2->GetType() == CONST_INT? MulInt((Int*)o2) : MulDouble((Double*)o2);}
+    Arithmetic* Div(Arithmetic* o2) { return o2->GetType() == CONST_INT? DivInt((Int*)o2) : DivDouble((Double*)o2);}
 
     Bool* GT   ( Arithmetic* o2) { return o2->GetType()==CONST_INT? GTInt((Int*)o2) : GTDouble((Double*)o2);}
     Bool* GTEQ ( Arithmetic* o2) { return o2->GetType()==CONST_INT? GTEQInt((Int*)o2) : GTEQDouble((Double*)o2);}
@@ -104,6 +107,9 @@ public:
     Bool* LTEQDouble ( Double* o2 );
     Bool* EQDouble   ( Double* o2 );
     Bool* NEQDouble  ( Double* o2 );
+
+    /* Printer */
+    void Print() { cout << d;}
 private:
     double d;
 };
@@ -149,6 +155,9 @@ public:
     Arithmetic* AddInt(Int* o2);
     Arithmetic* AddDouble(Double* o2);
     Arithmetic* AddString(String* o2);
+
+    /* Printer */
+    void Print() { cout << s;}
 private:
     string s;
 };

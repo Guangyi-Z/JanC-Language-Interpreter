@@ -20,7 +20,7 @@ TEST(test_interpreter, exp_with_no_op) {
 
     intr.NextStatement();
     intr.NextStatement();
-    EXPECT_EQ(">> 1\n>> 2.5\n", ss.str());
+    EXPECT_EQ("1\n2.5\n", ss.str());
     cout.rdbuf(buf);
 }
 
@@ -32,28 +32,35 @@ TEST(test_interpreter, exp_with_no_ref) {
 
     intr.NextStatement();
     intr.NextStatement();
-    EXPECT_EQ(">> 6\n>> 15.1\n", ss.str());
+    EXPECT_EQ("6\n15.1\n", ss.str());
     cout.rdbuf(buf);
 }
 
 TEST(test_interpreter, var) {
     InterpreterController intr("../test/test_interpreter/interpreter_test3.txt");
+    stringstream ss;
+    auto buf = cout.rdbuf();
+    cout.rdbuf(ss.rdbuf());
 
-    intr.NextStatement();
-    EXPECT_EQ(1, intr.GetSymbolReader().ReadVarInt("a"));
-    intr.NextStatement();
-    EXPECT_EQ(2.5, intr.GetSymbolReader().ReadVarDouble("b"));
+    intr.Continue();
+    EXPECT_EQ("1\n2.5\n", ss.str());
+    cout.rdbuf(buf);
 }
 
 TEST(test_interpreter, array) {
     InterpreterController intr("../test/test_interpreter/interpreter_test4.txt");
+    stringstream ss;
+    auto buf = cout.rdbuf();
+    cout.rdbuf(ss.rdbuf());
 
-    intr.NextStatement();
-    EXPECT_EQ(vector<int>({1,2,3,4,5}), intr.GetSymbolReader().ReadArrayInt("arr_a"));
-    EXPECT_EQ(5, intr.GetSymbolReader().ReadArraySize("arr_a"));
-    intr.NextStatement();
-    EXPECT_EQ(vector<double>({1.1,2.2,3.3}), intr.GetSymbolReader().ReadArrayDouble("arr_b"));
-    EXPECT_EQ(5, intr.GetSymbolReader().ReadArraySize("arr_b"));
+    intr.Continue();
+    // var arr_c[3] = {true, 1,2.5,"hello world"};
+    // arr_c;
+    // intr.NextStatement();
+    // intr.NextStatement();
+    // EXPECT_EQ("[1, 2, 3, 4, 5, ]\n[1.1, 2.2, 3.3, ]\n[true, 1, 2.5, \"hello world\", ]", ss.str());
+    EXPECT_EQ("[1, 2, 3, 4, 5, ]\n[1.1, 2.2, 3.3, ]\n", ss.str());
+    cout.rdbuf(buf);
 }
 
 TEST(test_interpreter, assgiment) {
@@ -63,17 +70,8 @@ TEST(test_interpreter, assgiment) {
     auto buf = cout.rdbuf();
     cout.rdbuf(ss.rdbuf());
 
-    intr.NextStatement();
-    EXPECT_EQ(1, intr.GetSymbolReader().ReadVarInt("a"));
-    intr.NextStatement();
-    EXPECT_EQ(2.5, intr.GetSymbolReader().ReadVarDouble("b"));
-
-    intr.NextStatement();
-    EXPECT_EQ(2, intr.GetSymbolReader().ReadVarInt("a"));
-    intr.NextStatement();
-    EXPECT_EQ(3.5, intr.GetSymbolReader().ReadVarDouble("b"));
-
-    EXPECT_EQ(">> 2\n>> 3.5\n", ss.str());
+    intr.Continue();
+    EXPECT_EQ("1\n2.5\n2\n3.5\n", ss.str());
     cout.rdbuf(buf);
 }
 
@@ -84,21 +82,19 @@ TEST(test_interpreter, exp_with_ref) {
     cout.rdbuf(ss.rdbuf());
 
     intr.Continue();
-    EXPECT_EQ(">> 2\n>> 1.5\n>> 6.5\n", ss.str());
+    EXPECT_EQ("2\n2.5\n2.5\n1.5\n6.5\n", ss.str());
     cout.rdbuf(buf);
 }
 
 TEST(test_interpreter, block) {
     InterpreterController intr("../test/test_interpreter/interpreter_test7.txt");
+    stringstream ss;
+    auto buf = cout.rdbuf();
+    cout.rdbuf(ss.rdbuf());
 
-    intr.NextStatement();
-    EXPECT_EQ(1, intr.GetSymbolReader().ReadVarInt("x"));
-    intr.NextStatement();
-    EXPECT_EQ(2.5, intr.GetSymbolReader().ReadVarDouble("y"));
-    // enter block
-    intr.NextStatement();
-    EXPECT_EQ(1.5, intr.GetSymbolReader().ReadVarDouble("x"));
-    EXPECT_EQ(2.5, intr.GetSymbolReader().ReadVarDouble("y"));
+    intr.Continue();
+    EXPECT_EQ("1\n2.5\n1.5\n1.5\n1.5\n2.5\n", ss.str());
+    cout.rdbuf(buf);
 }
 
 TEST(test_interpreter, function_no_arg) {
@@ -108,7 +104,7 @@ TEST(test_interpreter, function_no_arg) {
     cout.rdbuf(ss.rdbuf());
 
     intr.Continue();
-    EXPECT_EQ(">> 1\n", ss.str());
+    EXPECT_EQ("1\n5\n", ss.str());
     cout.rdbuf(buf);
 }
 
@@ -122,3 +118,18 @@ TEST(test_interpreter, function_no_arg) {
 //     EXPECT_EQ(">> 2\n>> 1.5\n>> 6.5", ss.str());
 //     cout.rdbuf(buf);
 // }
+//
+// TEST(test_interpreter, array_len) {
+//     InterpreterController intr("../test/test_interpreter/interpreter_test10.txt");
+//     stringstream ss;
+//     auto buf = cout.rdbuf();
+//     cout.rdbuf(ss.rdbuf());
+//
+//     intr.NextStatement();
+//     intr.NextStatement();
+//     intr.NextStatement();
+//     intr.NextStatement();
+//     EXPECT_EQ("[1, 2, 3, 0, 0, ]\n5\n[1, 2, 3, 4, 0, ]", ss.str());
+//     cout.rdbuf(buf);
+// }
+

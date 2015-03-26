@@ -56,19 +56,19 @@ public:
         return false;
     }
     SymbolTable* GetParent() { return parent;}
-    Constant LookupSymbol(string name) {
+    Constant* LookupSymbol(string name) {
         SymbolTable *p = this;
         while(p) {
             if (p->sym.find(name) != p->sym.end())
                 return p->sym[name];
             p = p->GetParent();
         }
-        return Constant();
+        return NULL;
     }
-    void AddSymbol(string name, Constant con) {
+    void AddSymbol(string name, Constant* con) {
         sym[name] = con;
     }
-    void ChangeSymbol(string name, Constant con) {
+    void ChangeSymbol(string name, Constant* con) {
         SymbolTable *p = this;
         bool is_defined = false;
         while(p) {
@@ -84,7 +84,7 @@ public:
     }
 
 private:
-    unordered_map<string, Constant> sym;
+    unordered_map<string, Constant*> sym;
     SymbolTable *parent;
 };
 

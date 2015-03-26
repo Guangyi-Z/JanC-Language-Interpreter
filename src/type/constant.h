@@ -37,7 +37,7 @@ public:
     virtual Constant* ToDec()      { cerr << "Error: incorrect op for type- " << GetType() << endl; return NULL;}
 
     /* Printer */
-    // void Print() = 0;
+    virtual void Print() = 0;
 private:
     CONST_T type;
 };
@@ -69,9 +69,12 @@ public:
     bool GetBool() { return b;}
     void SetBool(bool _b) { b = _b;}
 
-    Bool And(Bool* o2) { return this->GetBool() && o2->GetBool();}
-    Bool Or(Bool* o2) { return this->GetBool() || o2->GetBool();}
-    Bool Not() { return !this->GetBool();}
+    Bool* And(Bool* o2) { return new Bool(this->GetBool() && o2->GetBool());}
+    Bool* Or(Bool* o2)  { return new Bool(this->GetBool() || o2->GetBool());}
+    Bool* Not()         { return new Bool(!this->GetBool());}
+
+    /* Printer */
+    void Print() { cout << b;}
 private:
     bool b;
 };
@@ -81,6 +84,17 @@ public:
     Array(int _sz) : Constant(CONST_ARRAY) { sz_array = _sz;}
 
     void AddElement(Constant* _c) { vc.push_back(_c);}
+    Constant* At(int index)       { return vc[index];}
+
+    /* Printer */
+    void Print() {
+        cout << "[";
+        for (Constant *c : vc) {
+            c->Print();
+            cout << ", ";
+        }
+        cout << "]";
+    }
 private:
     vector<Constant*> vc;
     int sz_array;

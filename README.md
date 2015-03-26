@@ -12,8 +12,17 @@
 6. while
 
 For functions, you are allowed to pass or return the reference to variables, array, and functions.
+``return`` statement can only be used in the main block of the function.
 
 Built-in Operation on String
+
+Array
+
+```
+var arr[5] = {1,2,3};   // default as 0
+arr.len();  // 5
+arr[4] = 4;
+```
 
 ####Difficult Points
 

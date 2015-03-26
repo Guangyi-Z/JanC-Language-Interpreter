@@ -1,8 +1,13 @@
 var x = 1;
+x;
 var y = 2.5;
+y;
 {
     var y = 1.5;
+    y;
     {
         x = y;
     }
 }
+x;
+y;

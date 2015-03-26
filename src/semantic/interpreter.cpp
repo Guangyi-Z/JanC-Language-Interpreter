@@ -5,14 +5,16 @@ void Interpreter::IntrStatement (AST_Statement *st) {
     if (!st)
         return;
     switch(st->type) {
-        break;
     case ST_BLOCK:
         IntrBlock((AST_Block*)st);
         break;
     case ST_EXP:
         {
-        Constant con = IntrExpression((AST_Expression*)st);
-        con.Print();
+        Constant *con = IntrExpression((AST_Expression*)st);
+        if (con) {
+            con->Print();
+            cout << endl;
+        }
         }
         break;
     case ST_FUNC:
@@ -36,37 +38,22 @@ void Interpreter::IntrBlock(AST_Block* block) {
     sym.DelSymbolTable();
 }
 
-Constant Interpreter::IntrArrayContent(AST_Array *array) {
+Constant* Interpreter::IntrArrayContent(AST_Array *array) {
     if (array->ve.empty())
-        return Constant();  // not initialized
+        return NULL;
 
-    bool is_double = false;
-    vector<Constant> vc;
+    Array *arr = new Array(array->sz_array);
     for (AST_Expression* e : array->ve) {
-        Constant _con = IntrExpression(e);
-        vc.push_back(_con);
-        if (_con.GetType() == CONST_DOUBLE)
-            is_double = true;
+        Constant *_con = IntrExpression(e);
+        arr->AddElement(_con);
     }
-    if (is_double) {
-        vector<double> vd;
-        for (Constant &con : vc)
-            vd.push_back(con.GetDouble());
-        return Constant(vd, array->sz_array);
-    }
-    else {
-        vector<int> vi;
-        for (Constant &con : vc)
-            vi.push_back(con.GetInt());
-        return Constant(vi, array->sz_array);
-    }
+    return arr;
 }
 
 void Interpreter::IntrVar(AST_Statement *st) {
-    Constant con;
     if (st->GetType() == ST_ARRAY) {
         AST_Array *array = (AST_Array*) st;
-        Constant val = IntrArrayContent(array);
+        Constant* val = IntrArrayContent(array);
         if (sym.GetCurSymbolTable()->IsSymbolDefined(array->id)) {
             cerr << "Error in IntrVar: symbol " << array->id << " has been defined" << endl;
             exit(0);
@@ -75,11 +62,16 @@ void Interpreter::IntrVar(AST_Statement *st) {
     }
     else {
         AST_Var *var = (AST_Var*) st;
-        Constant val;
-        if (var->val)
-            val = IntrExpression(var->val);
         if (sym.GetCurSymbolTable()->IsSymbolDefined(var->id)) {
             cerr << "Error in IntrVar: symbol " << var->id << " has been defined" << endl;
+            exit(0);
+        }
+        Constant *val = NULL;
+        if (var->val) {
+            val = IntrExpression(var->val);
+        }
+        else {
+            cerr << "Error in IntrVar: symbol " << var->id << " not initialized" << endl;
             exit(0);
         }
         sym.GetCurSymbolTable()->AddSymbol(var->id, val);
@@ -90,135 +82,160 @@ void Interpreter::IntrFunc(AST_Func* func) {
     fsym.AddSymbol(func->id, func);
 }
 
-Constant Interpreter::IntrExpression(AST_Expression* exp) {
+Constant* Interpreter::DoBinaryOP(Constant* con1, Constant *con2, OP op) {
+    switch(op) {
+    /* arithmetic */
+    case OP_ADD:
+        return ((Arithmetic*)con1)->Add((Arithmetic*)con2);
+    case OP_SUB:
+        return ((Arithmetic*)con1)->Sub((Arithmetic*)con2);
+    case OP_MUL:
+        return ((Arithmetic*)con1)->Mul((Arithmetic*)con2);
+    case OP_DIV:
+        return ((Arithmetic*)con1)->Div((Arithmetic*)con2);
+    /* relational */
+    case OP_EQ:
+        return ((Arithmetic*)con1)->EQ((Arithmetic*)con2);
+    case OP_NOT_EQ:
+        return ((Arithmetic*)con1)->NEQ((Arithmetic*)con2);
+    case OP_GT:
+        return ((Arithmetic*)con1)->GT((Arithmetic*)con2);
+    case OP_LT:
+        return ((Arithmetic*)con1)->LT((Arithmetic*)con2);
+    case OP_GT_EQ:
+        return ((Arithmetic*)con1)->GTEQ((Arithmetic*)con2);
+    case OP_LT_EQ:
+        return ((Arithmetic*)con1)->LTEQ((Arithmetic*)con2);
+    /* logical */
+    case OP_AND:
+        return ((Bool*)con1)->And((Bool*)con2);
+    case OP_OR:
+        return ((Bool*)con1)->Or((Bool*)con2);
+    default: ;
+    }
+    return NULL;
+}
+
+Constant* Interpreter::IntrExpression(AST_Expression* exp) {
     if (exp->IsLeaf()) {
         return IntrOperand(exp->o);
     }
     // For assgiment
     if (exp->op == OP_ASSIGN) {
         AST_Expression *lv = exp->e1;
-        Reference *r = (Reference*)(lv->o);
-        if (!lv->IsLeaf() || r->GetType() != OPRD_REF) {
+        if (!lv->IsLeaf() || lv->o->GetType() != OPRD_REF) {
             cerr << "Error in IntrExpression: l-value must be assignable" << endl;
             exit(0);
         }
-        Constant rv = IntrExpression(exp->e2);
+        Reference *r = (Reference*)(lv->o);
+        Constant* rv = IntrExpression(exp->e2);
         sym.GetCurSymbolTable()->ChangeSymbol(r->GetID(), rv);
         return rv;
     }
     // Normal recursive process
-    Constant con1 = IntrExpression(exp->e1);
-    Constant con2 = IntrExpression(exp->e2);
-    switch(exp->op) {
-    case OP_ADD:
-        return Arithmetic::Add(con1, con2);
-    case OP_SUB:
-        return Arithmetic::Sub(con1, con2);
-    case OP_MUL:
-        return Arithmetic::Mul(con1, con2);
-    case OP_DIV:
-        return Arithmetic::Div(con1, con2);
-    default:
-        return Constant();
-    }
+    Constant* con1 = IntrExpression(exp->e1);
+    Constant* con2 = IntrExpression(exp->e2);
+    return DoBinaryOP(con1, con2, exp->op);
 }
 
-Constant Interpreter::IntrOperand(Operand *o) {
+Constant* Interpreter::IntrOperand(Operand *o) {
     if (o->GetType() == OPRD_LITERAL) {
         Literal *l = (Literal*) o;
-        DoPrefixOP(l);
-        Constant con = l->GetConst();  // con is independent of suffix operations
-        DoSuffixOP(l);
-        return con;
+        return l->GetConst();
     }
     else {
         Reference *r = (Reference*) o;
-        if (sym.GetCurSymbolTable()->IsSymbolDefinedRecursively(r->GetID()))    // var
+        // var
+        if (sym.GetCurSymbolTable()->IsSymbolDefinedRecursively(r->GetID()))
             return UnpackVar(r);
-        else if (fsym.LookupSymbol(r->GetID())) // func
+        // func
+        else if (fsym.LookupSymbol(r->GetID()))
             return UnpackFunc(r);
         else {
-            cout << "Error in IntrOperand: symbol not defined- " << r->GetID() << endl;
+            cerr << "Error in IntrOperand: symbol not defined- " << r->GetID() << endl;
             exit(0);
         }
     }
-    /* never been here */
-    return Constant();
+    return NULL;    /* never been here */
 }
 
-Constant Interpreter::UnpackVar(Reference *r) {
-    Constant con = sym.GetCurSymbolTable()->LookupSymbol(r->GetID());
-    if (r->IsEmptyParameter())  // single var
+Constant* Interpreter::UnpackVar(Reference *r) {
+    Constant* con = sym.GetCurSymbolTable()->LookupSymbol(r->GetID());
+    // single var
+    if (r->IsEmptyParameter())
         return con;
     // array element
     AST_Expression *e = r->GetParameters()[0];
-    Constant cindex = IntrExpression(e);
-    if (cindex.GetType() != CONST_INT) {
-        cerr << "Error in UnpackVar: array index must be Int- " << cindex.GetType() << endl;
+    Constant *cindex = IntrExpression(e);
+    if (cindex->GetType() != CONST_INT) {
+        cerr << "Error in UnpackVar: array index must be Int- " << cindex->GetType() << endl;
         exit(0);
     }
-    int index = cindex.GetInt();
-    switch(con.GetType()) {
-    case CONST_ARRAY_INT:
-        return Constant(con.GetArrayInt()[index]);
-    case CONST_ARRAY_DOUBLE:
-        return Constant(con.GetArrayDouble()[index]);
-    default:
-        cerr << "Error in UnpackVar: wrong array type- " << con.GetType() << endl;
-        exit(0);
-    }
+    int index = ((Int*)cindex)->GetInt();
+    return ((Array*)cindex)->At(index);
 }
 
-Constant Interpreter::UnpackFunc(Reference *r) {
+Constant* Interpreter::UnpackFunc(Reference *r) {
     if (!fsym.IsSymbolDefined(r->GetID())) {
         cerr << "Error in UnpackFunc: symbol " << r->GetID() << " not defined" << endl;
         exit(0);
     }
-    sym.NewFuncSymbolTable();
+    // sym.NewFuncSymbolTable();
+    sym.NewSymbolTable();
+    Constant *res = NULL;
     AST_Func *func = fsym.LookupSymbol(r->GetID());
-    AST_Return *rt = (AST_Return*)(func->block->statements[0]);
-    Constant con = IntrExpression(rt->e);
-    sym.DelFuncSymbolTable();
-    return con;
+    for (AST_Statement *st : func->block->statements) {
+        if (st->GetType() != ST_RETURN) {
+            IntrStatement(st);
+            continue;
+        }
+        // return
+        AST_Return *rt = (AST_Return*)st;
+        res = IntrExpression(rt->e);
+        break;
+    }
+    // sym.DelFuncSymbolTable();
+    sym.DelSymbolTable();
+    return res;
 }
 
-void Interpreter::DoPrefixOP(Operand *o) {
-    if (o->GetPrefix().empty())
-        return;
-    for (OP op : o->GetPrefix()) {
-        switch(op) {
-            case OP_ADD:
-                /* empty */
-                break;
-            case OP_SUB:
-                o->ToNegative();
-                break;
-            case OP_INC:
-                o->ToInc();
-                break;
-            case OP_DEC:
-                o->ToDec();
-                break;
-            case OP_NOT:
-                /* to do */
-                break;
-            default: ;
-        }
-    }
-}
-
-void Interpreter::DoSuffixOP(Operand *o) {
-    if (o->GetSuffix().empty())
-        return;
-    for (OP op : o->GetSuffix()) {
-        switch(op) {
-            case OP_INC:
-                o->ToInc();
-                break;
-            case OP_DEC:
-                o->ToDec();
-                break;
-            default: ;
-        }
-    }
-}
+// void Interpreter::DoPrefixOP(Operand *o) {
+//     if (o->GetPrefix().empty())
+//         return;
+//     for (OP op : o->GetPrefix()) {
+//         switch(op) {
+//             case OP_ADD:
+//                 /* empty */
+//                 break;
+//             case OP_SUB:
+//                 o->ToNegative();
+//                 break;
+//             case OP_INC:
+//                 o->ToInc();
+//                 break;
+//             case OP_DEC:
+//                 o->ToDec();
+//                 break;
+//             case OP_NOT:
+//                 /* to do */
+//                 break;
+//             default: ;
+//         }
+//     }
+// }
+//
+// void Interpreter::DoSuffixOP(Operand *o) {
+//     if (o->GetSuffix().empty())
+//         return;
+//     for (OP op : o->GetSuffix()) {
+//         switch(op) {
+//             case OP_INC:
+//                 o->ToInc();
+//                 break;
+//             case OP_DEC:
+//                 o->ToDec();
+//                 break;
+//             default: ;
+//         }
+//     }
+// }

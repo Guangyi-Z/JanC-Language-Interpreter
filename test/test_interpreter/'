@@ -3,7 +3,7 @@ func simple() {
 }
 simple();
 func simple2() {
-    var x = 5;
-    return x;
+    var x = 2;
+    return 2;
 }
 simple2();
