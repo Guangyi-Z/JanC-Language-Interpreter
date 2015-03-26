@@ -303,8 +303,10 @@ AST_If* Parser::ParseIf() {
  * Parsing While
  *******************************************/
 AST_While* Parser::ParseWhile() {
-    /* todo */
-    return NULL;
+    EatToken(TOK_WHILE);
+    AST_Expression *cond = ParseExpression();
+    AST_Statement *block = ParseStatement();
+    return new AST_While(cond, block);
 }
 
 /********************************************

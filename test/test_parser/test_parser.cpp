@@ -257,3 +257,20 @@ TEST(test_parser, if_statement) {
     EXPECT_EQ(2, stif->GetConds().size());
     EXPECT_EQ(2, stif->GetStams().size());
 }
+
+TEST(test_parser, while_statement) {
+    Parser parser("../test/test_parser/parser_test7.txt");
+
+    AST_Statement *st;
+    AST_While *sw;
+
+    st = parser.ParseStatement();
+    EXPECT_EQ(ST_WHILE, st->GetType());
+    sw = (AST_While*) st;
+    EXPECT_EQ(ST_EXP, sw->GetBlock()->GetType());
+
+    st = parser.ParseStatement();
+    EXPECT_EQ(ST_WHILE, st->GetType());
+    sw = (AST_While*) st;
+    EXPECT_EQ(ST_BLOCK, sw->GetBlock()->GetType());
+}
