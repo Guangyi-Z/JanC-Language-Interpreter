@@ -238,3 +238,22 @@ TEST(test_parser, expression_with_unary_op) {
     cout.rdbuf(buf_bak);
     EXPECT_EQ(s, ss.str());
 }
+
+TEST(test_parser, if_statement) {
+    Parser parser("../test/test_parser/parser_test6.txt");
+
+    AST_Statement *st;
+    AST_If *stif;
+
+    st = parser.ParseStatement();
+    EXPECT_EQ(ST_IF, st->GetType());
+    stif = (AST_If*) st;
+    EXPECT_EQ(1, stif->GetConds().size());
+    EXPECT_EQ(1, stif->GetStams().size());
+
+    st = parser.ParseStatement();
+    EXPECT_EQ(ST_IF, st->GetType());
+    stif = (AST_If*) st;
+    EXPECT_EQ(2, stif->GetConds().size());
+    EXPECT_EQ(2, stif->GetStams().size());
+}

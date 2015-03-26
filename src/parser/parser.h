@@ -28,6 +28,8 @@ private:
     AST_Statement* ParseVar();
     AST_Array* ParseArray(string name);
     AST_Var* ParseSingleVar(string name);
+    AST_If* ParseIf();
+    AST_While* ParseWhile();
 
     /* Parsing Expresion */
     AST_Expression* ParseExpression();

@@ -44,7 +44,7 @@ TEST(test_lexer, id) {
     EXPECT_EQ(TOK_INT, lexer.GetNextToken());
     EXPECT_EQ(TOK_ID, lexer.GetNextToken());
     EXPECT_EQ(TOK_ID, lexer.GetNextToken());
-    EXPECT_EQ(TOK_BOOL, lexer.GetNextToken());
+    EXPECT_EQ(TOK_FALSE, lexer.GetNextToken());
     EXPECT_EQ(TOK_INT, lexer.GetNextToken());
     EXPECT_EQ(TOK_DOUBLE, lexer.GetNextToken());
     EXPECT_EQ(TOK_DOUBLE, lexer.GetNextToken());

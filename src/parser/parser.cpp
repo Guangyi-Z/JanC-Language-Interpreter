@@ -98,6 +98,14 @@ Reference* Parser::FindReference() {
 Literal* Parser::FindLiteral() {
     Constant* con = NULL;
     switch (lexer.GetCurToken()) {
+        case TOK_TRUE:
+            con = new Bool(true);
+            EatToken(TOK_TRUE);
+            break;
+        case TOK_FALSE:
+            con = new Bool(false);
+            EatToken(TOK_FALSE);
+            break;
         case TOK_INT:
             con = new Int(std::stoi(lexer.GetCurLexem()));
             EatToken(TOK_INT);
@@ -125,6 +133,8 @@ AST_Expression* Parser::GetNextExpression() {
             return e;   // (..) has no unary op outside
             }
             break;
+        case TOK_TRUE:
+        case TOK_FALSE:
         case TOK_INT:
         case TOK_DOUBLE:
             o = FindLiteral();
@@ -269,6 +279,35 @@ AST_Block* Parser::ParseBlock() {
 }
 
 /********************************************
+ * Parsing If
+ *******************************************/
+AST_If* Parser::ParseIf() {
+    EatToken(TOK_IF);
+    AST_Expression *cond = ParseExpression();
+    AST_Statement *stam = ParseStatement();
+    AST_If *ifs = new AST_If(cond, stam);
+    if (lexer.IsNextTokenEquals(TOK_ELSEIF)) {
+        EatToken(TOK_ELSEIF);
+        AST_Expression *cond = ParseExpression();
+        AST_Statement *stam = ParseStatement();
+        ifs->AddElseIf(cond, stam);
+    }
+    if (lexer.IsNextTokenEquals(TOK_ELSE)) {
+        EatToken(TOK_ELSE);
+        ifs->AddElse(ParseStatement());
+    }
+    return ifs;
+}
+
+/********************************************
+ * Parsing While
+ *******************************************/
+AST_While* Parser::ParseWhile() {
+    /* todo */
+    return NULL;
+}
+
+/********************************************
  * Parsing Start Point
  *******************************************/
 AST_Statement* Parser::ParseStatement() {
@@ -303,9 +342,9 @@ AST_Statement* Parser::ParseStatement() {
             return new AST_Return(e);
         }
     case TOK_IF:
+        return ParseIf();
     case TOK_WHILE:
-        /* todo */
-        break;
+        return ParseWhile();
     default:
         std::cerr << "Error: ParseStatement with TOK- " << t << std::endl;
         exit(0);

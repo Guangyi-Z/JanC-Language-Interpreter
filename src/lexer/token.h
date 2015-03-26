@@ -14,43 +14,46 @@
 enum TOKEN {
     /* value */
     TOK_ID,
-    TOK_BOOL,
+    TOK_TRUE,
+    TOK_FALSE,
     TOK_INT,
     TOK_DOUBLE,
-    TOK_STRING,
+    TOK_STRING, // 5th
 
     /* flow control */
-    TOK_IF, // 5th
+    TOK_IF,
+    TOK_ELSEIF,
     TOK_ELSE,
     TOK_VAR,
-    TOK_FUNC,
+    TOK_FUNC, // 10th
     TOK_WHILE,
-    TOK_BREAK, // 10th
+    TOK_BREAK,
     TOK_CONTINUE,
     TOK_FOR,
-    TOK_RETURN,
+    TOK_RETURN, // 15th
 
     /* punctuation */
     TOK_PAREN_LEFT,
-    TOK_PAREN_RIGHT, // 15th
+    TOK_PAREN_RIGHT,
     TOK_BRACE_LEFT,
     TOK_BRACE_RIGHT,
-    TOK_CURLY_BRACE_LEFT,
+    TOK_CURLY_BRACE_LEFT, // 20th
     TOK_CURLY_BRACE_RIGHT,
-    TOK_SEMI, // 20th
+    TOK_SEMI,
     TOK_COMMA,
     TOK_OP,
 
     /* helper token */
-    TOK_NUMBER_OF_TOKENS,
+    TOK_NUMBER_OF_TOKENS, // 25th
     TOK_BAD_TOKEN,
-    TOK_START, // 25th
+    TOK_START,
     TOK_END
 };
 
 /* mapping reserved key words to TOK_ */
 const std::pair<std::string, TOKEN> Key_Words[] = {
     {"if", TOK_IF},
+    {"elseif", TOK_ELSEIF},
     {"else", TOK_ELSE},
     {"var", TOK_VAR},
     {"func", TOK_FUNC},
@@ -59,8 +62,8 @@ const std::pair<std::string, TOKEN> Key_Words[] = {
     {"continue", TOK_CONTINUE},
     {"for", TOK_FOR},
     {"return", TOK_RETURN},
-    {"true", TOK_BOOL},
-    {"false", TOK_BOOL},
+    {"true", TOK_TRUE},
+    {"false", TOK_FALSE},
     /* delimeter */
     {",", TOK_COMMA},
     {";", TOK_SEMI},

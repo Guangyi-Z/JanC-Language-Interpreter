@@ -123,4 +123,44 @@ public:
     AST_Expression *e;
 };
 
+class AST_If : public AST_Statement {
+public:
+    AST_If(AST_Expression *_cond, AST_Statement* _e) : AST_Statement(ST_IF) {
+        vcond.push_back(_cond);
+        ve.push_back(_e);
+        e_else = NULL;
+    }
+    void AddElseIf(AST_Expression *_cond, AST_Statement* _e) {
+        vcond.push_back(_cond);
+        ve.push_back(_e);
+    }
+    void AddElse(AST_Statement* _e) {
+        e_else = _e;
+    }
+
+    /* getter */
+    vector<AST_Expression*> GetConds() { return vcond;}
+    vector<AST_Statement*> GetStams() { return ve;}
+    AST_Statement* GetElse() { return e_else;}
+private:
+    vector<AST_Expression*> vcond;
+    vector<AST_Statement*> ve;
+    AST_Statement* e_else;
+};
+
+class AST_While : public AST_Statement {
+public:
+    AST_While(AST_Expression *_cond, AST_Statement *_block) : AST_Statement(ST_WHILE) {
+        cond = _cond;
+        block = _block;
+    }
+
+    /* getter */
+    AST_Expression* GetCond() { return cond;}
+    AST_Statement* GetBlock() { return block;}
+private:
+    AST_Expression *cond;
+    AST_Statement *block;
+};
+
 #endif
