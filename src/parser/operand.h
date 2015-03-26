@@ -2,7 +2,7 @@
 #define OPERAND_H
 
 #include "lexer/op.h"
-#include "constant.h"
+#include "type/arithmetic.h"
 
 class AST_Expression;
 class AST_Func;
