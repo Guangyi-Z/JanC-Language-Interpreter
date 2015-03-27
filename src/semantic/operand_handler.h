@@ -16,7 +16,7 @@ class OperandHandler {
 public:
     OperandHandler() {}
 
-    virtual Constant* IntrOperand(NestedSymbolTable *sym, FuncTable *fsym) = 0;
+    virtual Constant* IntrOperand(NestedSymbolTable *sym, FuncTable *fsym, Constant **ret_val) = 0;
 private:
     virtual void DoPrefixOP() = 0;
     virtual void DoSuffixOP() = 0;
@@ -26,7 +26,7 @@ class LiteralHandler : public OperandHandler {
 public:
     LiteralHandler(Literal* _l) : l(_l) {}
 
-    Constant* IntrOperand(NestedSymbolTable *sym, FuncTable *fsym);
+    Constant* IntrOperand(NestedSymbolTable *sym, FuncTable *fsym, Constant **ret_val);
 private:
     void DoPrefixOP() {}
     void DoSuffixOP() {}
@@ -38,7 +38,7 @@ class RefArrayHandler : public OperandHandler {
 public:
     RefArrayHandler(RefArray* _r) : r(_r) {}
 
-    Constant* IntrOperand(NestedSymbolTable *sym, FuncTable *fsym);
+    Constant* IntrOperand(NestedSymbolTable *sym, FuncTable *fsym, Constant **ret_val);
 private:
     void DoPrefixOP() {}
     void DoSuffixOP() {}
@@ -50,7 +50,7 @@ class RefFuncHandler : public OperandHandler {
 public:
     RefFuncHandler(RefFunc* _r) : r(_r) {}
 
-    Constant* IntrOperand(NestedSymbolTable *sym, FuncTable *fsym);
+    Constant* IntrOperand(NestedSymbolTable *sym, FuncTable *fsym, Constant **ret_val);
 private:
     void DoPrefixOP() {}
     void DoSuffixOP() {}
@@ -62,7 +62,7 @@ class ReferenceHandler : public OperandHandler {
 public:
     ReferenceHandler(Reference* _r) : r(_r) {}
 
-    Constant* IntrOperand(NestedSymbolTable *sym, FuncTable *fsym);
+    Constant* IntrOperand(NestedSymbolTable *sym, FuncTable *fsym, Constant **ret_val);
 private:
     void DoPrefixOP() {}
     void DoSuffixOP() {}

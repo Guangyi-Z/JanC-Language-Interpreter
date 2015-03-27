@@ -7,3 +7,10 @@ func simple2() {
     return x;
 }
 simple2();
+func simple3() {
+    {
+    return 2;
+    }
+    return 3;
+}
+simple3();

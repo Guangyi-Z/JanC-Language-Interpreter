@@ -23,13 +23,13 @@ OperandHandler* OperandHandlerFactory::GetOperandHandler(Operand *o) {
  * OperandHandler
  */
 
-Constant* LiteralHandler::IntrOperand(NestedSymbolTable *sym, FuncTable *fsym) {
+Constant* LiteralHandler::IntrOperand(NestedSymbolTable *sym, FuncTable *fsym, Constant **ret_val) {
     return l->GetConst();
 }
 
-Constant* RefArrayHandler::IntrOperand(NestedSymbolTable *sym, FuncTable *fsym) {
+Constant* RefArrayHandler::IntrOperand(NestedSymbolTable *sym, FuncTable *fsym, Constant **ret_val) {
     AST_Expression *e = r->GetIndex();
-    Constant *cindex = Interpreter::IntrExpression(e, sym, fsym);
+    Constant *cindex = Interpreter::IntrExpression(e, sym, fsym, ret_val);
     if (cindex->GetType() != CONST_INT) {
         cerr << "Error in UnpackVar: array index must be Int- " << cindex->GetType() << endl;
         exit(0);
@@ -38,29 +38,23 @@ Constant* RefArrayHandler::IntrOperand(NestedSymbolTable *sym, FuncTable *fsym) 
     return ((Array*)cindex)->At(index);
 }
 
-Constant* RefFuncHandler::IntrOperand(NestedSymbolTable *sym, FuncTable *fsym) {
+Constant* RefFuncHandler::IntrOperand(NestedSymbolTable *sym, FuncTable *fsym, Constant **ret_val) {
     if (!fsym->IsSymbolDefined(r->GetID())) {
-        cerr << "Error in UnpackFunc: symbol " << r->GetID() << " not defined" << endl;
+        cerr << "Error in IntrOperand: symbol " << r->GetID() << " not defined" << endl;
         exit(0);
     }
     sym->NewFuncSymbolTable();
-    Constant *res = NULL;
     AST_Func *func = (AST_Func*)(fsym->LookupSymbol(r->GetID()));
     for (AST_Statement *st : func->block->statements) {
-        if (st->GetType() != ST_RETURN) {
-            Interpreter::IntrStatement(st, sym, fsym);
-            continue;
-        }
-        // return
-        AST_Return *rt = (AST_Return*)st;
-        res = Interpreter::IntrExpression(rt->e, sym, fsym);
-        break;
+        Interpreter::IntrStatement(st, sym, fsym, ret_val);
     }
     sym->DelFuncSymbolTable();
+    Constant *res = *ret_val;
+    *ret_val = NULL;
     return res;
 }
 
-Constant* ReferenceHandler::IntrOperand(NestedSymbolTable *sym, FuncTable *fsym) {
+Constant* ReferenceHandler::IntrOperand(NestedSymbolTable *sym, FuncTable *fsym, Constant **ret_val) {
     Constant* con = sym->GetCurSymbolTable()->LookupSymbol(r->GetID());
     if (!con)
         cerr << "Error in IntrOperand: symbol not defined- " << r->GetID() << endl;

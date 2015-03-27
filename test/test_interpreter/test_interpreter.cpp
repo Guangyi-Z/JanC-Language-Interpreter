@@ -104,7 +104,7 @@ TEST(test_interpreter, function_no_arg) {
     cout.rdbuf(ss.rdbuf());
 
     intr.Continue();
-    EXPECT_EQ("1\n5\n", ss.str());
+    EXPECT_EQ("1\n5\n2\n", ss.str());
     cout.rdbuf(buf);
 }
 
