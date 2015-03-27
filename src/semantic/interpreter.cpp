@@ -150,7 +150,7 @@ Constant* Interpreter::IntrOperand(Operand *o) {
             return UnpackVar(r);
         // func
         else if (fsym.LookupSymbol(r->GetID()))
-            return UnpackFunc(r);
+            return UnpackFunc((RefFunc*)r);
         else {
             cerr << "Error in IntrOperand: symbol not defined- " << r->GetID() << endl;
             exit(0);
@@ -159,13 +159,8 @@ Constant* Interpreter::IntrOperand(Operand *o) {
     return NULL;    /* never been here */
 }
 
-Constant* Interpreter::UnpackVar(Reference *r) {
-    Constant* con = sym.GetCurSymbolTable()->LookupSymbol(r->GetID());
-    // single var
-    if (r->IsEmptyParameter())
-        return con;
-    // array element
-    AST_Expression *e = r->GetParameters()[0];
+Constant* Interpreter::UnpackArray(RefArray *r) {
+    AST_Expression *e = r->GetIndex();
     Constant *cindex = IntrExpression(e);
     if (cindex->GetType() != CONST_INT) {
         cerr << "Error in UnpackVar: array index must be Int- " << cindex->GetType() << endl;
@@ -175,7 +170,15 @@ Constant* Interpreter::UnpackVar(Reference *r) {
     return ((Array*)cindex)->At(index);
 }
 
-Constant* Interpreter::UnpackFunc(Reference *r) {
+Constant* Interpreter::UnpackVar(Reference *r) {
+    Constant* con = sym.GetCurSymbolTable()->LookupSymbol(r->GetID());
+    if (r->GetType() == OPRD_REFARRAY)
+        return UnpackArray((RefArray*)r);
+    // single var
+    return con;
+}
+
+Constant* Interpreter::UnpackFunc(RefFunc *r) {
     if (!fsym.IsSymbolDefined(r->GetID())) {
         cerr << "Error in UnpackFunc: symbol " << r->GetID() << " not defined" << endl;
         exit(0);

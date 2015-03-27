@@ -48,6 +48,7 @@ Expression.
 3. ref pass in functions
 4. mixed type elements in Array
 5. unary operations
+6. abstract the id of Reference into Reference itself
 
 ####Difficult Points
 

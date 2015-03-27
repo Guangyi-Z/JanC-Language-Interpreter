@@ -17,7 +17,8 @@ public:
     void IntrBlock(AST_Block* block);
     Constant* IntrExpression(AST_Expression* e);
     Constant* UnpackVar(Reference *r);
-    Constant* UnpackFunc(Reference *r);
+    Constant* UnpackFunc(RefFunc *r);
+    Constant* UnpackArray(RefArray *r);
     Constant* IntrOperand(Operand *o);
     Constant* IntrArrayContent(AST_Array *array);
     Constant* DoBinaryOP(Constant* con1, Constant *con2, OP op);
