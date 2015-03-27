@@ -12,7 +12,11 @@ using std::vector;
 /*
  * Test Case
  */
-TEST(test_interpreter, exp_with_no_op) {
+
+/*******************
+ * Test Expression
+ */
+TEST(test_expression, exp_with_no_op) {
     InterpreterController intr("../test/test_interpreter/interpreter_test1.txt");
     stringstream ss;
     auto buf = cout.rdbuf();
@@ -24,7 +28,7 @@ TEST(test_interpreter, exp_with_no_op) {
     cout.rdbuf(buf);
 }
 
-TEST(test_interpreter, exp_with_no_ref) {
+TEST(test_expression, exp_with_no_ref) {
     InterpreterController intr("../test/test_interpreter/interpreter_test2.txt");
     stringstream ss;
     auto buf = cout.rdbuf();
@@ -36,29 +40,7 @@ TEST(test_interpreter, exp_with_no_ref) {
     cout.rdbuf(buf);
 }
 
-TEST(test_interpreter, var) {
-    InterpreterController intr("../test/test_interpreter/interpreter_test3.txt");
-    stringstream ss;
-    auto buf = cout.rdbuf();
-    cout.rdbuf(ss.rdbuf());
-
-    intr.Continue();
-    EXPECT_EQ("1\n2.5\n", ss.str());
-    cout.rdbuf(buf);
-}
-
-TEST(test_interpreter, array) {
-    InterpreterController intr("../test/test_interpreter/interpreter_test4.txt");
-    stringstream ss;
-    auto buf = cout.rdbuf();
-    cout.rdbuf(ss.rdbuf());
-
-    intr.Continue();
-    EXPECT_EQ("[1, 2, 3, 4, 5, ]\n[1.1, 2.2, 3.3, ]\n[true, 1, 2.5, \"hello world\", ]\n", ss.str());
-    cout.rdbuf(buf);
-}
-
-TEST(test_interpreter, assgiment) {
+TEST(test_expression, assgiment) {
     InterpreterController intr("../test/test_interpreter/interpreter_test5.txt");
 
     stringstream ss;
@@ -81,7 +63,35 @@ TEST(test_interpreter, exp_with_ref) {
     cout.rdbuf(buf);
 }
 
-TEST(test_interpreter, block) {
+/*******************
+ * Test Var
+ */
+TEST(test_var, var) {
+    InterpreterController intr("../test/test_interpreter/interpreter_test3.txt");
+    stringstream ss;
+    auto buf = cout.rdbuf();
+    cout.rdbuf(ss.rdbuf());
+
+    intr.Continue();
+    EXPECT_EQ("1\n2.5\n", ss.str());
+    cout.rdbuf(buf);
+}
+
+TEST(test_var, array) {
+    InterpreterController intr("../test/test_interpreter/interpreter_test4.txt");
+    stringstream ss;
+    auto buf = cout.rdbuf();
+    cout.rdbuf(ss.rdbuf());
+
+    intr.Continue();
+    EXPECT_EQ("[1, 2, 3, 4, 5, ]\n[1.1, 2.2, 3.3, ]\n[true, 1, 2.5, \"hello world\", ]\n", ss.str());
+    cout.rdbuf(buf);
+}
+
+/*******************
+ * Test Structure
+ */
+TEST(test_structure, block) {
     InterpreterController intr("../test/test_interpreter/interpreter_test7.txt");
     stringstream ss;
     auto buf = cout.rdbuf();
@@ -92,7 +102,21 @@ TEST(test_interpreter, block) {
     cout.rdbuf(buf);
 }
 
-TEST(test_interpreter, function_no_arg) {
+TEST(test_structure, ifs) {
+    InterpreterController intr("../test/test_interpreter/interpreter_test11.txt");
+    stringstream ss;
+    auto buf = cout.rdbuf();
+    cout.rdbuf(ss.rdbuf());
+
+    intr.Continue();
+    EXPECT_EQ("6\n8\n7\n", ss.str());
+    cout.rdbuf(buf);
+}
+
+/*******************
+ * Test Function
+ */
+TEST(test_function, function_no_arg) {
     InterpreterController intr("../test/test_interpreter/interpreter_test8.txt");
     stringstream ss;
     auto buf = cout.rdbuf();

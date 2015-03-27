@@ -12,19 +12,19 @@ enum OP {
     OP_MUL,    // *
     OP_DIV,    // /
     OP_MOD,    // %
-    OP_ASSIGN, // =
+    OP_ASSIGN, // = 5th
     OP_INC,    // ++
     OP_DEC,    // --
     /* logical */
     OP_AND, // &&
     OP_OR,  // ||
-    OP_NOT, // !
+    OP_NOT, // !    10th
     /* relational */
     OP_EQ,     // ==
     OP_NOT_EQ, // !=
     OP_GT,     // >
     OP_LT,     // <
-    OP_GT_EQ,  // >=
+    OP_GT_EQ,  // >=    15th
     OP_LT_EQ,  // <=
     /* helper */
     OP_NUMBER_OF_OP,
@@ -64,7 +64,7 @@ const OPEntry OP_Action_Table[2][OP_NUMBER_OF_OP] = {
         // 0th
         OPEntry('&' , OP_AND    , {}) , // &&
         OPEntry('|' , OP_OR     , {}) , // ||
-        OPEntry('=' , OP_ASSIGN , {}) , // ==
+        OPEntry('=' , OP_EQ , {}) , // ==
         OPEntry('=' , OP_NOT_EQ , {}) , // !=
         OPEntry('=' , OP_GT     , {}) , // >=
         // 5th

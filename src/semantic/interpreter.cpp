@@ -30,8 +30,11 @@ void Interpreter::IntrStatement (AST_Statement *st, NestedSymbolTable *sym, Func
     case ST_RETURN:
         *ret_val = IntrExpression(((AST_Return*)st)->e, sym, fsym, ret_val);
         break;
+    case ST_IF:
+        IntrIf((AST_If*)st, sym, fsym, ret_val);
+        break;
     default:
-        cout << "Error in IntrStatement: wrong type for default" << endl;
+        cerr << "Error in IntrStatement: wrong type for default" << endl;
         exit(0);
     };
 }
@@ -147,5 +150,23 @@ Constant* Interpreter::IntrExpression(AST_Expression* exp, NestedSymbolTable *sy
 Constant* Interpreter::IntrOperand(Operand *o, NestedSymbolTable *sym, FuncTable *fsym, Constant **ret_val) {
     OperandHandler *handler = OperandHandlerFactory::GetOperandHandler(o);
     return handler->IntrOperand(sym, fsym, ret_val);
+}
+
+void Interpreter::IntrIf(AST_If* ifs, NestedSymbolTable *sym, FuncTable *fsym, Constant **ret_val) {
+    int cnt = 0;
+    for (AST_Expression* cond : ifs->GetConds()) {
+        Constant *con = IntrExpression(cond, sym, fsym, ret_val);
+        if (con->GetType() != CONST_BOOL) {
+            cerr << "Error in IntrIf: cond must be bool expression" << endl;
+            exit(0);
+        }
+        if (((Bool*)con)->GetBool()) {
+            IntrStatement(ifs->GetStams()[cnt], sym, fsym, ret_val);
+            return;
+        }
+        cnt++;
+    }
+    /* else */
+    IntrStatement(ifs->GetElse(), sym, fsym, ret_val);
 }
 
