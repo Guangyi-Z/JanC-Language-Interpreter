@@ -183,7 +183,7 @@ Constant* Interpreter::UnpackFunc(Reference *r) {
     // sym.NewFuncSymbolTable();
     sym.NewSymbolTable();
     Constant *res = NULL;
-    AST_Func *func = fsym.LookupSymbol(r->GetID());
+    AST_Func *func = (AST_Func*)(fsym.LookupSymbol(r->GetID()));
     for (AST_Statement *st : func->block->statements) {
         if (st->GetType() != ST_RETURN) {
             IntrStatement(st);
@@ -199,43 +199,3 @@ Constant* Interpreter::UnpackFunc(Reference *r) {
     return res;
 }
 
-// void Interpreter::DoPrefixOP(Operand *o) {
-//     if (o->GetPrefix().empty())
-//         return;
-//     for (OP op : o->GetPrefix()) {
-//         switch(op) {
-//             case OP_ADD:
-//                 /* empty */
-//                 break;
-//             case OP_SUB:
-//                 o->ToNegative();
-//                 break;
-//             case OP_INC:
-//                 o->ToInc();
-//                 break;
-//             case OP_DEC:
-//                 o->ToDec();
-//                 break;
-//             case OP_NOT:
-//                 /* to do */
-//                 break;
-//             default: ;
-//         }
-//     }
-// }
-//
-// void Interpreter::DoSuffixOP(Operand *o) {
-//     if (o->GetSuffix().empty())
-//         return;
-//     for (OP op : o->GetSuffix()) {
-//         switch(op) {
-//             case OP_INC:
-//                 o->ToInc();
-//                 break;
-//             case OP_DEC:
-//                 o->ToDec();
-//                 break;
-//             default: ;
-//         }
-//     }
-// }

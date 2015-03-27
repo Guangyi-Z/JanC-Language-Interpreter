@@ -1,3 +1,3 @@
-set(INTERPRETER_SRC controller.cpp reader.cpp interpreter.cpp) 
+set(INTERPRETER_SRC controller.cpp interpreter.cpp) 
 add_library(interpreter ${INTERPRETER_SRC})
-target_link_libraries(interpreter parser)
+target_link_libraries(interpreter symbol parser)

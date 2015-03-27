@@ -2,7 +2,7 @@
 #define INTERPRETER_H
 #include <deque>
 #include "parser/parser.h"
-#include "symbol.h"
+#include "symbol/symbol.h"
 #include "arithmetic.h"
 using std::deque;
 using std::cerr;

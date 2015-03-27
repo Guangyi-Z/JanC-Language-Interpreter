@@ -2,27 +2,51 @@
 
 ###Features
 
+7. Basic Types: Int, Double, String, Array
 1. Arithmetics
+    * +, -, \*, /
+    * >, >=, <, <=, ==, !=
 2. Relational Logic
+    * &&, ||, !
 3. Expression & Assignment
 3. Type Inference
-7. Basic Types: Int, Double, String, Array
 4. Function: func
 5. if-elseif-else
 6. while
+8. Comment: ``\\``
 
 For functions, you are allowed to pass or return the reference to variables, array, and functions.
 ``return`` statement can only be used in the main block of the function.
 
 Built-in Operation on String
 
-Array
+Array usage.
+Besides, Array elements are not restricted to one specific type.
+You can mix up elements of several types in one Array.
 
 ```
 var arr[5] = {1,2,3};   // default as 0
 arr.len();  // 5
 arr[4] = 4;
 ```
+
+String
+``”`` is available by escape character.
+
+``var``
+Variables that have not been initialized is not allowed to used.
+
+Expression.
+``()`` can be added to enforce precedence, otherwise the expressions are evaluated by the default precedence of operations.
+
+
+###Features To Do
+
+1. Comment
+2. arbitrary return in functions
+3. ref pass in functions
+4. mixed type elements in Array
+5. unary operations
 
 ####Difficult Points
 
@@ -136,8 +160,3 @@ Subexp ::= Num [*/] Num
                  └─│  ST_Block   │  │ Statement*  │                                          
                    └─────────────┘  └─────────────┘                                          
 ```
-
-###Features To Do
-
-1. Comment
-2. Relational Logic
