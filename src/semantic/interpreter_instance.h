@@ -7,13 +7,16 @@ public:
     InterpreterInstance() {}
 
     void IntrStatement(AST_Statement *st) {
-        Interpreter::IntrStatement(st, &sym, &fsym, &ret_val);
+        Interpreter::IntrStatement(st, &sym, &fsym, &back);
     }
 private:
 
     NestedSymbolTable sym;
     FuncTable fsym;
-    Constant *ret_val = NULL;
+    /* when back is not NULL,
+     * the following statements wont be interpreted.
+     * This happens when return, break, continue. */
+    Constant *back = NULL;
 };
 
 #endif

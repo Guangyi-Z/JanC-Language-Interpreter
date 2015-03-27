@@ -146,6 +146,10 @@ TEST(test_lexer, operation) {
     // ==
     EXPECT_EQ(TOK_OP, lexer.GetNextToken());
     EXPECT_EQ(OP_EQ, lexer.GetCurOP());
+
+    // break, continue
+    EXPECT_EQ(TOK_CONTINUE, lexer.GetNextToken());
+    EXPECT_EQ(TOK_BREAK, lexer.GetNextToken());
 }
 
 TEST(test_lexer, putback) {

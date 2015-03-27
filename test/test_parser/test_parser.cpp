@@ -273,4 +273,9 @@ TEST(test_parser, while_statement) {
     EXPECT_EQ(ST_WHILE, st->GetType());
     sw = (AST_While*) st;
     EXPECT_EQ(ST_BLOCK, sw->GetBlock()->GetType());
+
+    st = parser.ParseStatement();
+    EXPECT_EQ(ST_WHILE, st->GetType());
+    sw = (AST_While*) st;
+    EXPECT_EQ(ST_BREAK, sw->GetBlock()->GetType());
 }

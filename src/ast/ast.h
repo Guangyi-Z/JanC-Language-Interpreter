@@ -17,7 +17,9 @@ enum ST {
     ST_EXP,
     ST_RETURN,
     ST_IF,
-    ST_WHILE
+    ST_WHILE,
+    ST_BREAK,
+    ST_CONTINUE
 };
 
 class AST_Statement;

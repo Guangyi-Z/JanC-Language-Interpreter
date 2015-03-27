@@ -113,6 +113,17 @@ TEST(test_structure, ifs) {
     cout.rdbuf(buf);
 }
 
+TEST(test_structure, while_statement) {
+    InterpreterController intr("../test/test_interpreter/interpreter_test12.txt");
+    stringstream ss;
+    auto buf = cout.rdbuf();
+    cout.rdbuf(ss.rdbuf());
+
+    intr.Continue();
+    EXPECT_EQ("1\n2\n3\n1\n2\n3\n1\n2\n3\n", ss.str());
+    cout.rdbuf(buf);
+}
+
 /*******************
  * Test Function
  */

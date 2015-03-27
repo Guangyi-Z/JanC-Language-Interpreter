@@ -357,11 +357,20 @@ AST_Statement* Parser::ParseStatement() {
         }
     case TOK_IF:
         return ParseIf();
+    case TOK_BREAK:
+        EatToken(TOK_BREAK);
+        EatToken(TOK_SEMI);
+        return new AST_Statement(ST_BREAK);
+    case TOK_CONTINUE:
+        EatToken(TOK_CONTINUE);
+        EatToken(TOK_SEMI);
+        return new AST_Statement(ST_CONTINUE);
     case TOK_WHILE:
         return ParseWhile();
     default:
         std::cerr << "Error: ParseStatement with TOK- " << t << std::endl;
         exit(0);
     }
+    std::cerr << "Error: ParseStatement empty loop" << std::endl;
     return NULL;    /* never been here */
 }

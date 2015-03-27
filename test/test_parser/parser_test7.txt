@@ -6,3 +6,5 @@ while(true) {
     x++;
     var y = x + 5;
 }
+while(true)
+    break;

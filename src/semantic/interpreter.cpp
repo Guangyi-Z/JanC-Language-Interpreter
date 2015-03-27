@@ -1,19 +1,26 @@
 #include "interpreter.h"
 
-/* Interpreter Start Point */
-void Interpreter::IntrStatement (AST_Statement *st, NestedSymbolTable *sym, FuncTable *fsym, Constant **ret_val) {
-    if (*ret_val != NULL)
-        return;
+/********************
+ * Static Variables
+ */
+Constant* Interpreter::cBreak = new Int(1);
+Constant* Interpreter::cContinue = new Int(1);
 
+
+/* Interpreter Start Point */
+void Interpreter::IntrStatement (AST_Statement *st, NestedSymbolTable *sym, FuncTable *fsym, Constant **back) {
+    if (*back != NULL)
+        return;
     if (!st)
         return;
+
     switch(st->type) {
     case ST_BLOCK:
-        IntrBlock((AST_Block*)st, sym, fsym, ret_val);
+        IntrBlock((AST_Block*)st, sym, fsym, back);
         break;
     case ST_EXP:
         {
-            Constant *con = IntrExpression((AST_Expression*)st, sym, fsym, ret_val);
+            Constant *con = IntrExpression((AST_Expression*)st, sym, fsym, back);
             if (con) {
                 con->Print();
                 cout << endl;
@@ -25,13 +32,22 @@ void Interpreter::IntrStatement (AST_Statement *st, NestedSymbolTable *sym, Func
         break;
     case ST_VAR:
     case ST_ARRAY:
-        IntrVar(st, sym, fsym, ret_val);
+        IntrVar(st, sym, fsym, back);
         break;
     case ST_RETURN:
-        *ret_val = IntrExpression(((AST_Return*)st)->e, sym, fsym, ret_val);
+        *back = IntrExpression(((AST_Return*)st)->e, sym, fsym, back);
         break;
     case ST_IF:
-        IntrIf((AST_If*)st, sym, fsym, ret_val);
+        IntrIf((AST_If*)st, sym, fsym, back);
+        break;
+    case ST_WHILE:
+        IntrWhile((AST_While*)st, sym, fsym, back);
+        break;
+    case ST_BREAK:
+        *back = cBreak;
+        break;
+    case ST_CONTINUE:
+        *back = cContinue;
         break;
     default:
         cerr << "Error in IntrStatement: wrong type for default" << endl;
@@ -39,30 +55,30 @@ void Interpreter::IntrStatement (AST_Statement *st, NestedSymbolTable *sym, Func
     };
 }
 
-void Interpreter::IntrBlock(AST_Block* block, NestedSymbolTable *sym, FuncTable *fsym, Constant **ret_val) {
+void Interpreter::IntrBlock(AST_Block* block, NestedSymbolTable *sym, FuncTable *fsym, Constant **back) {
     sym->NewSymbolTable();
     for (AST_Statement *st : block->statements) {
-        IntrStatement(st, sym, fsym, ret_val);
+        IntrStatement(st, sym, fsym, back);
     }
     sym->DelSymbolTable();
 }
 
-Constant* Interpreter::IntrArrayContent(AST_Array *array, NestedSymbolTable *sym, FuncTable *fsym, Constant **ret_val) {
+Constant* Interpreter::IntrArrayContent(AST_Array *array, NestedSymbolTable *sym, FuncTable *fsym, Constant **back) {
     if (array->ve.empty())
         return NULL;
 
     Array *arr = new Array(array->sz_array);
     for (AST_Expression* e : array->ve) {
-        Constant *_con = IntrExpression(e, sym, fsym, ret_val);
+        Constant *_con = IntrExpression(e, sym, fsym, back);
         arr->AddElement(_con);
     }
     return arr;
 }
 
-void Interpreter::IntrVar(AST_Statement *st, NestedSymbolTable *sym, FuncTable *fsym, Constant **ret_val) {
+void Interpreter::IntrVar(AST_Statement *st, NestedSymbolTable *sym, FuncTable *fsym, Constant **back) {
     if (st->GetType() == ST_ARRAY) {
         AST_Array *array = (AST_Array*) st;
-        Constant* val = IntrArrayContent(array, sym, fsym, ret_val);
+        Constant* val = IntrArrayContent(array, sym, fsym, back);
         if (sym->GetCurSymbolTable()->IsSymbolDefined(array->id)) {
             cerr << "Error in IntrVar: symbol " << array->id << " has been defined" << endl;
             exit(0);
@@ -77,7 +93,7 @@ void Interpreter::IntrVar(AST_Statement *st, NestedSymbolTable *sym, FuncTable *
         }
         Constant *val = NULL;
         if (var->val) {
-            val = IntrExpression(var->val, sym, fsym, ret_val);
+            val = IntrExpression(var->val, sym, fsym, back);
         }
         else {
             cerr << "Error in IntrVar: symbol " << var->id << " not initialized" << endl;
@@ -125,9 +141,9 @@ Constant* Interpreter::DoBinaryOP(Constant* con1, Constant *con2, OP op) {
     return NULL;
 }
 
-Constant* Interpreter::IntrExpression(AST_Expression* exp, NestedSymbolTable *sym, FuncTable *fsym, Constant **ret_val) {
+Constant* Interpreter::IntrExpression(AST_Expression* exp, NestedSymbolTable *sym, FuncTable *fsym, Constant **back) {
     if (exp->IsLeaf()) {
-        return IntrOperand(exp->o, sym, fsym, ret_val);
+        return IntrOperand(exp->o, sym, fsym, back);
     }
     // For assgiment
     if (exp->op == OP_ASSIGN) {
@@ -137,36 +153,56 @@ Constant* Interpreter::IntrExpression(AST_Expression* exp, NestedSymbolTable *sy
             exit(0);
         }
         Reference *r = (Reference*)(lv->o);
-        Constant* rv = IntrExpression(exp->e2, sym, fsym, ret_val);
+        Constant* rv = IntrExpression(exp->e2, sym, fsym, back);
         sym->GetCurSymbolTable()->ChangeSymbol(r->GetID(), rv);
         return rv;
     }
     // Normal recursive process
-    Constant* con1 = IntrExpression(exp->e1, sym, fsym, ret_val);
-    Constant* con2 = IntrExpression(exp->e2, sym, fsym, ret_val);
+    Constant* con1 = IntrExpression(exp->e1, sym, fsym, back);
+    Constant* con2 = IntrExpression(exp->e2, sym, fsym, back);
     return DoBinaryOP(con1, con2, exp->op);
 }
 
-Constant* Interpreter::IntrOperand(Operand *o, NestedSymbolTable *sym, FuncTable *fsym, Constant **ret_val) {
+Constant* Interpreter::IntrOperand(Operand *o, NestedSymbolTable *sym, FuncTable *fsym, Constant **back) {
     OperandHandler *handler = OperandHandlerFactory::GetOperandHandler(o);
-    return handler->IntrOperand(sym, fsym, ret_val);
+    return handler->IntrOperand(sym, fsym, back);
 }
 
-void Interpreter::IntrIf(AST_If* ifs, NestedSymbolTable *sym, FuncTable *fsym, Constant **ret_val) {
+void Interpreter::IntrIf(AST_If* ifs, NestedSymbolTable *sym, FuncTable *fsym, Constant **back) {
     int cnt = 0;
     for (AST_Expression* cond : ifs->GetConds()) {
-        Constant *con = IntrExpression(cond, sym, fsym, ret_val);
+        Constant *con = IntrExpression(cond, sym, fsym, back);
         if (con->GetType() != CONST_BOOL) {
             cerr << "Error in IntrIf: cond must be bool expression" << endl;
             exit(0);
         }
         if (((Bool*)con)->GetBool()) {
-            IntrStatement(ifs->GetStams()[cnt], sym, fsym, ret_val);
+            IntrStatement(ifs->GetStams()[cnt], sym, fsym, back);
             return;
         }
         cnt++;
     }
     /* else */
-    IntrStatement(ifs->GetElse(), sym, fsym, ret_val);
+    IntrStatement(ifs->GetElse(), sym, fsym, back);
+}
+
+void Interpreter::IntrWhile(AST_While* sw, NestedSymbolTable *sym, FuncTable *fsym, Constant **back) {
+    while(true) {
+        Constant *con = IntrExpression(sw->GetCond(), sym, fsym, back);
+        if (con->GetType() != CONST_BOOL) {
+            cerr << "Error in IntrWhile: cond must be bool expression" << endl;
+            exit(0);
+        }
+        if (((Bool*)con)->GetBool()) {
+            IntrStatement(sw->GetBlock(), sym, fsym, back);
+            if (*back == cBreak) {
+                *back = NULL;
+                break;
+            }
+            if (*back == cContinue)
+                *back = NULL;
+        }
+        else break;
+    }
 }
 

@@ -18,7 +18,8 @@ void InterpreterController::NextStatement() {
 }
 
 void InterpreterController::Continue() {
-    while(HasNextStatement())
+    while(HasNextStatement()) {
         NextStatement();
+    }
 }
 
