@@ -11,25 +11,22 @@ class Interpreter {
 public:
     Interpreter() {}
 
-    void IntrStatement(AST_Statement *st);
-    void IntrVar(AST_Statement *st);
-    void IntrFunc(AST_Func* func);
-    void IntrBlock(AST_Block* block);
-    Constant* IntrExpression(AST_Expression* e);
-    Constant* UnpackVar(Reference *r);
-    Constant* UnpackFunc(RefFunc *r);
-    Constant* UnpackArray(RefArray *r);
-    Constant* IntrOperand(Operand *o);
-    Constant* IntrArrayContent(AST_Array *array);
-    Constant* DoBinaryOP(Constant* con1, Constant *con2, OP op);
+    static void IntrStatement(AST_Statement *st, NestedSymbolTable *sym, FuncTable *fsym);
+    static void IntrVar(AST_Statement *st, NestedSymbolTable *sym, FuncTable *fsym);
+    static void IntrFunc(AST_Func* func, NestedSymbolTable *sym, FuncTable *fsym);
+    static void IntrBlock(AST_Block* block, NestedSymbolTable *sym, FuncTable *fsym);
+    static Constant* IntrExpression(AST_Expression* e, NestedSymbolTable *sym, FuncTable *fsym);
+    static Constant* UnpackVar(Reference *r, NestedSymbolTable *sym, FuncTable *fsym);
+    static Constant* UnpackFunc(RefFunc *r, NestedSymbolTable *sym, FuncTable *fsym);
+    static Constant* UnpackArray(RefArray *r, NestedSymbolTable *sym, FuncTable *fsym);
+    static Constant* IntrOperand(Operand *o, NestedSymbolTable *sym, FuncTable *fsym);
+    static Constant* IntrArrayContent(AST_Array *array, NestedSymbolTable *sym, FuncTable *fsym);
 
+    static Constant* DoBinaryOP(Constant* con1, Constant *con2, OP op);
     static void DoPrefixOP(Operand *o);
     static void DoSuffixOP(Operand *o);
-
 private:
-
-    NestedSymbolTable sym;
-    FuncTable fsym;
+    ;
 };
 
 #endif
