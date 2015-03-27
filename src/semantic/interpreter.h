@@ -3,6 +3,7 @@
 #include <deque>
 #include "ast/ast.h"
 #include "symbol/symbol.h"
+#include "operand_handler.h"
 using std::deque;
 using std::cerr;
 
@@ -26,5 +27,6 @@ public:
 private:
     Interpreter() {}
 };
+
 
 #endif
