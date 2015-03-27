@@ -3,8 +3,7 @@
 
 #include <map>
 #include "lexer/token.h"
-#include "operand.h"
-#include "ast.h"
+#include "ast/ast.h"
 
 class Parser {
 public:

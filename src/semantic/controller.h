@@ -1,6 +1,7 @@
 #ifndef CONTROLLER_H
 #define CONTROLLER_H
 #include "interpreter_instance.h"
+#include "parser/parser.h"
 
 class InterpreterController {
 public:

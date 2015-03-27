@@ -1,16 +1,14 @@
 #ifndef INTERPRETER_H
 #define INTERPRETER_H
 #include <deque>
-#include "parser/parser.h"
+#include "ast/ast.h"
 #include "symbol/symbol.h"
-#include "arithmetic.h"
 using std::deque;
 using std::cerr;
 
+/* static util class */
 class Interpreter {
 public:
-    Interpreter() {}
-
     static void IntrStatement(AST_Statement *st, NestedSymbolTable *sym, FuncTable *fsym);
     static void IntrVar(AST_Statement *st, NestedSymbolTable *sym, FuncTable *fsym);
     static void IntrFunc(AST_Func* func, NestedSymbolTable *sym, FuncTable *fsym);
@@ -26,7 +24,7 @@ public:
     static void DoPrefixOP(Operand *o);
     static void DoSuffixOP(Operand *o);
 private:
-    ;
+    Interpreter() {}
 };
 
 #endif
