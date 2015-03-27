@@ -10,6 +10,8 @@ class AST_Var;
 
 enum OPRD_T {
     OPRD_LITERAL,
+    OPRD_REFARRAY,
+    OPRD_REFFUNC,
     OPRD_REF
 };
 
@@ -19,12 +21,10 @@ public:
 
     OPRD_T GetType()               { return type;}
 
-    void AddPrefixOP(OP op)        { prefix.push_back(op);}
-    void AddSuffixOP(OP op)        { suffix.push_back(op);}
-    void SetPrefixOP(vector<OP> v) { prefix = v;}
-    void SetSuffixOP(vector<OP> v) { suffix = v;}
-    vector<OP> GetPrefix()         { return prefix;}
-    vector<OP> GetSuffix()         { return suffix;}
+    void AddPrefixOP(OP op)  { prefix.push_back(op);}
+    void AddSuffixOP(OP op)  { suffix.push_back(op);}
+    vector<OP> GetPrefixOP() { return prefix;}
+    vector<OP> GetSuffixOP() { return suffix;}
 private:
     OPRD_T type;
     std::vector<OP> prefix, suffix;
@@ -45,11 +45,31 @@ private:
 class Reference : public Operand {
 public:
     Reference (string _id) : Operand(OPRD_REF) { id = _id;}
+    Reference (OPRD_T _t, string _id) : Operand(_t) { id = _id;}
+
+    string GetID()                          { return id;}
+private:
+    string id;
+};
+
+class RefArray : public Reference {
+public:
+    RefArray (string _id) : Reference(OPRD_REFARRAY, _id) {}
+
+    void SetIndex(AST_Expression* e) { eindex = e;}
+    AST_Expression* GetIndex()       { return eindex;}
+private:
+    string id;
+    AST_Expression* eindex;
+};
+
+class RefFunc : public Reference {
+public:
+    RefFunc (string _id) : Reference(OPRD_REFFUNC, _id) {}
 
     void AddParameter(AST_Expression *e)    { vp.push_back(e);}
     bool IsEmptyParameter()                 { return vp.empty();}
     int GetNumOfParameter()                 { return vp.size();}
-    string GetID()                          { return id;}
     vector<AST_Expression*> GetParameters() { return vp;}
 private:
     string id;

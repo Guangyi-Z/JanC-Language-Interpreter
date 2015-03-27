@@ -35,9 +35,9 @@ void PrintASTExp(AST_Expression *exp);
 void PrintASTExpOperand(Operand *o);
 
 void PrintASTExpOperand(Operand *o) {
-    if (!o->GetPrefix().empty() || !o->GetSuffix().empty()) {
+    if (!o->GetPrefixOP().empty() || !o->GetSuffixOP().empty()) {
         cout << "(";
-        for (OP op : o->GetPrefix()) {
+        for (OP op : o->GetPrefixOP()) {
             switch(op) {
                 case OP_ADD:
                     cout << "+";
@@ -77,8 +77,8 @@ void PrintASTExpOperand(Operand *o) {
                 break;
         }
     }
-    if (!o->GetPrefix().empty() || !o->GetSuffix().empty()) {
-        for (OP op : o->GetSuffix()) {
+    if (!o->GetPrefixOP().empty() || !o->GetSuffixOP().empty()) {
+        for (OP op : o->GetSuffixOP()) {
             switch(op) {
                 case OP_INC:
                     cout << "++";

@@ -15,7 +15,8 @@
 6. while
 8. Comment: ``\\``
 
-For functions, you are allowed to pass or return the reference to variables, array, and functions.
+For functions, you are allowed to pass constants or references to variables, arrays, and functions.
+While only references to arrays and functions are not supported in terms of the return type of functions so far.
 ``return`` statement can only be used in the main block of the function.
 
 Built-in Operation on String
@@ -55,6 +56,8 @@ Expression.
     * Prefix & Suffix OP
     * Direct Ref to functions or arrays
 3. Symbol Table Design
+4. decouple IntrStatment and IntrExpression
+5. split SymbolTable with Interpreter?
 
 ###Grammar
 

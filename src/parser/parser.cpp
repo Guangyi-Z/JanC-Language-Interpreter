@@ -66,33 +66,39 @@ vector<OP> Parser::FindSuffixOP() {
     return vo;
 }
 
+Reference* Parser::FindReferenceFunc(string name) {
+    EatToken(TOK_PAREN_LEFT);
+    RefFunc *r = new RefFunc(name);
+    while (!lexer.IsNextTokenEquals(TOK_PAREN_RIGHT)) {
+        r->AddParameter(ParseExpression());
+        if (lexer.IsNextTokenEquals(TOK_COMMA))
+            EatToken(TOK_COMMA);
+    }
+    EatToken(TOK_PAREN_RIGHT);
+    return r;
+}
+
+Reference* Parser::FindReferenceArray(string name) {
+    EatToken(TOK_BRACE_LEFT);
+    RefArray *r = new RefArray(name);
+    r->SetIndex(ParseExpression());
+    EatToken(TOK_BRACE_RIGHT);
+    return r;
+}
+
 Reference* Parser::FindReference() {
     string name = lexer.GetCurLexem();
     EatToken(TOK_ID);
-    Reference *r = new Reference(name);
-    // check for parameters
     switch(lexer.GetCurToken()) {
         case TOK_PAREN_LEFT:
-            // func parameters
-            EatToken(TOK_PAREN_LEFT);
-            while (!lexer.IsNextTokenEquals(TOK_PAREN_RIGHT)) {
-                AST_Expression *pa = ParseExpression();
-                r->AddParameter(pa);
-                if (lexer.IsNextTokenEquals(TOK_COMMA))
-                    EatToken(TOK_COMMA);
-            }
-            EatToken(TOK_PAREN_RIGHT);
-            break;
+            return FindReferenceFunc(name);
         case TOK_BRACE_LEFT:
-            // array indexing
-            EatToken(TOK_BRACE_LEFT);
-            r->AddParameter(ParseExpression());
-            EatToken(TOK_BRACE_RIGHT);
-            break;
-        default: ;
+            return FindReferenceArray(name);
+        default:
             // var or direct reference to func and array
+            return new Reference(name);
     }
-    return r;
+    return NULL;
 }
 
 Literal* Parser::FindLiteral() {
@@ -149,8 +155,10 @@ AST_Expression* Parser::GetNextExpression() {
     // get suffix operators
     vector<OP> suffix = FindSuffixOP();
     // fill operand
-    o->SetPrefixOP(prefix);
-    o->SetSuffixOP(suffix);
+    for (OP op : prefix)
+        o->AddPrefixOP(op);
+    for (OP op : suffix)
+        o->AddSuffixOP(op);
     return new AST_Expression(o);
 }
 

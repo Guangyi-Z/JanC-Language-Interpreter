@@ -41,6 +41,8 @@ private:
     vector<OP> FindSuffixOP();
     Literal* FindLiteral();
     Reference* FindReference();
+    Reference* FindReferenceFunc(string name);
+    Reference* FindReferenceArray(string name);
 
     /* Util */
     bool EatToken(TOKEN t);
