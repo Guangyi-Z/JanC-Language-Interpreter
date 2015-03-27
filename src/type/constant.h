@@ -74,7 +74,7 @@ public:
     Bool* Not()         { return new Bool(!this->GetBool());}
 
     /* Printer */
-    void Print() { cout << b;}
+    void Print() { cout << (b?"true":"false");}
 private:
     bool b;
 };

@@ -120,6 +120,10 @@ Literal* Parser::FindLiteral() {
             con = new Double(std::stod(lexer.GetCurLexem()));
             EatToken(TOK_DOUBLE);
             break;
+        case TOK_STRING:
+            con = new String(lexer.GetCurLexem());
+            EatToken(TOK_STRING);
+            break;
         default: /* never been here */;
     }
     return new Literal(con);
@@ -143,6 +147,7 @@ AST_Expression* Parser::GetNextExpression() {
         case TOK_FALSE:
         case TOK_INT:
         case TOK_DOUBLE:
+        case TOK_STRING:
             o = FindLiteral();
             break;
         case TOK_ID:
@@ -216,8 +221,7 @@ AST_Array* Parser::ParseArray(string name) {
     AST_Array *res = new AST_Array(name, sz_array);
     EatToken(TOK_INT);
     EatToken(TOK_BRACE_RIGHT);
-
-    // initialization
+    /* initialization */
     if (lexer.IsNextOPEquals(OP_ASSIGN)) {
         EatToken(TOK_OP);
         EatToken(TOK_CURLY_BRACE_LEFT);

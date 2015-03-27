@@ -157,7 +157,7 @@ public:
     Arithmetic* AddString(String* o2);
 
     /* Printer */
-    void Print() { cout << s;}
+    void Print() { cout << "\"" << s << "\"";}
 private:
     string s;
 };

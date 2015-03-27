@@ -54,12 +54,7 @@ TEST(test_interpreter, array) {
     cout.rdbuf(ss.rdbuf());
 
     intr.Continue();
-    // var arr_c[3] = {true, 1,2.5,"hello world"};
-    // arr_c;
-    // intr.NextStatement();
-    // intr.NextStatement();
-    // EXPECT_EQ("[1, 2, 3, 4, 5, ]\n[1.1, 2.2, 3.3, ]\n[true, 1, 2.5, \"hello world\", ]", ss.str());
-    EXPECT_EQ("[1, 2, 3, 4, 5, ]\n[1.1, 2.2, 3.3, ]\n", ss.str());
+    EXPECT_EQ("[1, 2, 3, 4, 5, ]\n[1.1, 2.2, 3.3, ]\n[true, 1, 2.5, \"hello world\", ]\n", ss.str());
     cout.rdbuf(buf);
 }
 

@@ -17,7 +17,6 @@
 
 For functions, you are allowed to pass constants or references to variables, arrays, and functions.
 While only references to arrays and functions are not supported in terms of the return type of functions so far.
-``return`` statement can only be used in the main block of the function.
 
 Built-in Operation on String
 
@@ -44,11 +43,14 @@ Expression.
 ###Features To Do
 
 1. Comment
-2. arbitrary return in functions
 3. ref pass in functions
+2. array size and default initialization
+3. array len syntax
 4. mixed type elements in Array
 5. unary operations
-6. abstract the id of Reference into Reference itself
+6. logic
+6. string
+6. abstract the id of Reference into Reference itself, return ref type
 
 ####Difficult Points
 
