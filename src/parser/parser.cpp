@@ -221,20 +221,33 @@ AST_Var* Parser::ParseSingleVar(string name) {
 
 AST_Array* Parser::ParseArray(string name) {
     EatToken(TOK_BRACE_LEFT);
-    const int sz_array = std::stoi(lexer.GetCurLexem());
-    AST_Array *res = new AST_Array(name, sz_array);
-    EatToken(TOK_INT);
+    int sz_array = -1;
+    bool is_sz_set = false;
+    if (lexer.IsNextTokenEquals(TOK_INT)) {
+        is_sz_set = true;
+        sz_array = std::stoi(lexer.GetCurLexem());
+        EatToken(TOK_INT);
+    }
     EatToken(TOK_BRACE_RIGHT);
     /* initialization */
+    vector<AST_Expression*> els;
     if (lexer.IsNextOPEquals(OP_ASSIGN)) {
         EatToken(TOK_OP);
         EatToken(TOK_CURLY_BRACE_LEFT);
         while(! lexer.IsNextTokenEquals(TOK_CURLY_BRACE_RIGHT)) {
-            res->AddElement(ParseExpression());
+            els.push_back(ParseExpression());
             if (lexer.IsNextTokenEquals(TOK_COMMA))
                 EatToken(TOK_COMMA);
         }
         EatToken(TOK_CURLY_BRACE_RIGHT);
+    }
+    AST_Array *res;
+    if (is_sz_set)
+        res = new AST_Array(name, sz_array);
+    else
+        res = new AST_Array(name, els.size());
+    for (AST_Expression* el : els) {
+        res->AddElement(el);
     }
     EatToken(TOK_SEMI);
     return res;

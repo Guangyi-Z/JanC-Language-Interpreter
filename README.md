@@ -44,7 +44,6 @@ Expression.
 
 1. Comment
 3. ref pass in functions
-4. array [] sz inference
 6. abstract the id of Reference into Reference itself, return ref type
 
 ####Difficult Points

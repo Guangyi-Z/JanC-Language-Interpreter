@@ -134,7 +134,7 @@ TEST(test_var, array_len) {
     cout.rdbuf(ss.rdbuf());
 
     intr.Continue();
-    EXPECT_EQ("5\n", ss.str());
+    EXPECT_EQ("5\n4\n", ss.str());
     cout.rdbuf(buf);
 }
 
