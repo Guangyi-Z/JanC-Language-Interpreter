@@ -46,9 +46,6 @@ Expression.
 3. ref pass in functions
 2. array size and default initialization
 3. array len syntax
-5. unary operations
-6. logic
-6. string
 6. abstract the id of Reference into Reference itself, return ref type
 
 ####Difficult Points

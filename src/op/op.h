@@ -80,90 +80,62 @@ const OPEntry OP_Action_Table[2][OP_NUMBER_OF_OP] = {
  */
 // std::map<OP, int> mOP_Precedence = {
 // const std::unordered_map<OP, int> mOP = {
-const std::pair<OP, int> OP_Precedence[] {
-    {OP_INC, 9},   // ++
-    {OP_DEC, 9},   // --
-    {OP_NOT, 9},   // !
-
-    {OP_MUL, 8},   // *
-    {OP_DIV, 8},   // /
-    {OP_MOD, 8},   // %
-
-    {OP_ADD, 7},   // +
-    {OP_SUB, 7},   // -
-
-    {OP_EQ,     6},// ==
-    {OP_NOT_EQ, 6},// !=
-    {OP_GT,     6},// >
-    {OP_LT,     6},// <
-    {OP_GT_EQ,  6},// >=
-    {OP_LT_EQ,  6},// <=
-
-    {OP_AND, 5},   // &&
-    {OP_OR,  4},   // ||
-
-    {OP_ASSIGN, 3} // =
-};
+// const std::pair<OP, int> OP_Precedence[] {
+//     {OP_INC, 9},   // ++
+//     {OP_DEC, 9},   // --
+//     {OP_NOT, 9},   // !
+//
+//     {OP_MUL, 8},   // *
+//     {OP_DIV, 8},   // /
+//     {OP_MOD, 8},   // %
+//
+//     {OP_ADD, 7},   // +
+//     {OP_SUB, 7},   // -
+//
+//     {OP_EQ,     6},// ==
+//     {OP_NOT_EQ, 6},// !=
+//     {OP_GT,     6},// >
+//     {OP_LT,     6},// <
+//     {OP_GT_EQ,  6},// >=
+//     {OP_LT_EQ,  6},// <=
+//
+//     {OP_AND, 5},   // &&
+//     {OP_OR,  4},   // ||
+//
+//     {OP_ASSIGN, 3} // =
+// };
 
 class OpProperty {
 public:
-    OpProperty() {
-        for (auto op : OP_Precedence) {
-            mOP_Precedence.insert(op);
-        }
-    }
     /* return -1 if non-exist */
-    int GetOPPrecedence(OP op) {
+    static int GetOPPrecedence(OP op) {
         if (mOP_Precedence.find(op) == mOP_Precedence.end())
             return OP_NOT_EXIST;
         else return mOP_Precedence[op];
     }
-    bool IsPrefixOP(OP op) {
+    static bool IsPrefixOP(OP op) {
         return Prefix_OP_Set.find(op) != Prefix_OP_Set.end();
     }
-    bool IsSuffixOP(OP op) {
+    static bool IsPrefixAssignableOP(OP op) {
+        return Prefix_Assignable_OP_Set.find(op) != Prefix_Assignable_OP_Set.end();
+    }
+    static bool IsSuffixOP(OP op) {
         return Suffix_OP_Set.find(op) != Suffix_OP_Set.end();
     }
-    bool IsBinaryOP(OP op) {
+    static bool IsBinaryOP(OP op) {
         return Binary_OP_Set.find(op) != Binary_OP_Set.end();
     }
 
     static const int OP_NOT_EXIST = -1;
 
 private:
-    std::map<OP, int> mOP_Precedence;
-    const std::set<OP> Prefix_OP_Set = {
-        OP_ADD,
-        OP_SUB,
-        OP_INC,
-        OP_DEC,
-        OP_NOT
-    };
+    OpProperty() {}
+    static std::map<OP, int> mOP_Precedence;
+    static const std::set<OP> Prefix_OP_Set;
+    static const std::set<OP> Prefix_Assignable_OP_Set;
     /* Suffix_op_set and Binary_op_set must be disjoint set */
-    const std::set<OP> Suffix_OP_Set = {
-        OP_INC,
-        OP_DEC
-    };
-    const std::set<OP> Binary_OP_Set = {
-        OP_ADD,    // +
-        OP_SUB,    // -
-        OP_MUL,    // *
-        OP_DIV,    // /
-        OP_MOD,    // %
-        OP_ASSIGN, // =
-
-        /* logical */
-        OP_AND, // &&
-        OP_OR,  // ||
-
-        /* relational */
-        OP_EQ,     // ==
-        OP_NOT_EQ, // !=
-        OP_GT,     // >
-        OP_LT,     // <
-        OP_GT_EQ,  // >=
-        OP_LT_EQ,  // <=
-    };
+    static const std::set<OP> Suffix_OP_Set;
+    static const std::set<OP> Binary_OP_Set;
 };
 
 

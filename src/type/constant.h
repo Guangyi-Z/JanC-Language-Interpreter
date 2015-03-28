@@ -1,5 +1,6 @@
 #ifndef CONSTANT
 #define CONSTANT
+#include "op/op.h"
 #include <iostream>
 #include <iomanip>
 #include <string>
@@ -32,9 +33,27 @@ public:
     /* getter */
     CONST_T GetType()               { return type;}
 
-    virtual Constant* ToNegative() { cerr << "Error: incorrect op for type- " << GetType() << endl; return NULL;}
-    virtual Constant* ToInc()      { cerr << "Error: incorrect op for type- " << GetType() << endl; return NULL;}
-    virtual Constant* ToDec()      { cerr << "Error: incorrect op for type- " << GetType() << endl; return NULL;}
+    Constant* Transform(OP op) {
+        switch(op) {
+            case OP_INC:
+                return ToInc();
+            case OP_DEC:
+                return ToDec();
+            case OP_ADD:
+                return this;
+            case OP_SUB:
+                return ToNeg();
+            case OP_NOT:
+                return ToNot();
+            default:
+                cerr << "Error in Transform: not allowed unary OP- " << op << endl;
+        }
+        return NULL;
+    }
+    virtual Constant* ToNeg() = 0;
+    virtual Constant* ToNot() = 0;
+    virtual Constant* ToInc() = 0;
+    virtual Constant* ToDec() = 0;
 
     /* Printer */
     virtual void Print() = 0;
@@ -73,6 +92,11 @@ public:
     Bool* Or(Bool* o2)  { return new Bool(this->GetBool() || o2->GetBool());}
     Bool* Not()         { return new Bool(!this->GetBool());}
 
+    Constant* ToNot() { return new Bool(!b);}
+    Constant* ToNeg() { cerr << "Error: incorrect op-ToNeg() for Bool" << endl; return NULL;}
+    Constant* ToInc() { cerr << "Error: incorrect op-ToInc() for Bool" << endl; return NULL;}
+    Constant* ToDec() { cerr << "Error: incorrect op-ToDec() for Bool" << endl; return NULL;}
+
     /* Printer */
     void Print() { cout << (b?"true":"false");}
 private:
@@ -85,6 +109,12 @@ public:
 
     void AddElement(Constant* _c) { vc.push_back(_c);}
     Constant* At(int index)       { return vc[index];}
+    void SetElement(int index, Constant* _c) { vc[index] = _c;}
+
+    Constant* ToNot() { cerr << "Error: incorrect op-ToNot() for Array" << endl; return NULL;}
+    Constant* ToNeg() { cerr << "Error: incorrect op-ToNeg() for Array" << endl; return NULL;}
+    Constant* ToInc() { cerr << "Error: incorrect op-ToInc() for Array" << endl; return NULL;}
+    Constant* ToDec() { cerr << "Error: incorrect op-ToDec() for Array" << endl; return NULL;}
 
     /* Printer */
     void Print() {

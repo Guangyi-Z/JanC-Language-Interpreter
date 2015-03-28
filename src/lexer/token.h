@@ -9,7 +9,7 @@
 #include <cctype>
 #include <unordered_map>
 #include <deque>
-#include "op.h"
+#include "op/op.h"
 
 enum TOKEN {
     /* value */

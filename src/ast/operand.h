@@ -1,7 +1,7 @@
 #ifndef OPERAND_H
 #define OPERAND_H
 
-#include "lexer/op.h"
+#include "op/op.h"
 #include "type/arithmetic.h"
 
 class AST_Expression;
@@ -25,7 +25,11 @@ public:
     void AddSuffixOP(OP op)  { suffix.push_back(op);}
     vector<OP> GetPrefixOP() { return prefix;}
     vector<OP> GetSuffixOP() { return suffix;}
+    Constant* DoPrefixAssignableOP(Constant *corder);
+    Constant* DoPrefixUnassignableOP(Constant *corder);
+    Constant* DoSuffixAssignableOP(Constant* corder);
 private:
+
     OPRD_T type;
     std::vector<OP> prefix, suffix;
 };

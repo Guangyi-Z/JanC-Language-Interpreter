@@ -7,6 +7,8 @@ using std::endl;
  * Parsing Util
  *******************************************/
 bool Parser::EatToken(TOKEN t) {
+    // debug
+    // cerr << "Eat: " << lexer.GetCurLexem() << endl;
     if (t != lexer.GetCurToken()) {
         std::cerr << "Error: EatToken(" << t << "), but actually " << lexer.GetCurToken() << std::endl;
         return false;
@@ -34,7 +36,7 @@ vector<OP> Parser::FindPrefixOP() {
     vector<OP> vo;
     while (lexer.GetCurToken() == TOK_OP) {
         OP op = lexer.GetCurOP();
-        if (pp.IsPrefixOP(op))
+        if (OpProperty::IsPrefixOP(op))
             vo.push_back(op);
         else {
             std::cerr << "Error in FindPrefixOP: prefix OP " << op << std::endl;
@@ -48,13 +50,15 @@ vector<OP> Parser::FindPrefixOP() {
 vector<OP> Parser::FindSuffixOP() {
     vector<OP> vo;
     while (lexer.IsNextTokenEquals(TOK_OP) &&
-            pp.IsSuffixOP(lexer.GetCurOP())
+            OpProperty::IsSuffixOP(lexer.GetCurOP())
             ) {
         const TOKEN t_nxt = lexer.LookaheadOneToken();
         if (t_nxt == TOK_OP || IsTheEndOfExp(t_nxt)) {
             vo.push_back(lexer.GetCurOP());
-            if (IsTheEndOfExp(t_nxt))
+            if (IsTheEndOfExp(t_nxt)) {
+                EatToken(TOK_OP);
                 break;
+            }
         }
         else {
             lexer.RewindOneToken();
@@ -170,7 +174,7 @@ AST_Expression* Parser::GetNextExpression() {
 OP Parser::GetNextOP() {
     if (lexer.GetCurToken() != TOK_OP)
         return OP_NONE;
-    if (OpProperty::OP_NOT_EXIST == pp.GetOPPrecedence(lexer.GetCurOP()))
+    if (OpProperty::OP_NOT_EXIST == OpProperty::GetOPPrecedence(lexer.GetCurOP()))
         return OP_NONE;
 
     OP op = lexer.GetCurOP();
@@ -183,8 +187,8 @@ AST_Expression* Parser::ParseExpressionHelper(AST_Expression *e1, OP op) {
     const OP op_nxt = GetNextOP();
     if (op_nxt == OP_NONE)
         return new AST_Expression(e1, op, e2);
-    const int prio_op = pp.GetOPPrecedence(op),
-              prio_op_nxt = pp.GetOPPrecedence(op_nxt);
+    const int prio_op = OpProperty::GetOPPrecedence(op),
+              prio_op_nxt = OpProperty::GetOPPrecedence(op_nxt);
     if (prio_op >= prio_op_nxt)
         return ParseExpressionHelper(new AST_Expression(e1, op, e2), op_nxt);
     else

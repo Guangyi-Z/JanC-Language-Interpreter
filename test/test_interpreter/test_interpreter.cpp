@@ -86,6 +86,18 @@ TEST(test_expression, logic) {
     cout.rdbuf(buf);
 }
 
+TEST(test_expression, unary_op) {
+    InterpreterController intr("../test/test_interpreter/interpreter_test15.txt");
+
+    stringstream ss;
+    auto buf = cout.rdbuf();
+    cout.rdbuf(ss.rdbuf());
+
+    intr.Continue();
+    EXPECT_EQ("2\n2\n-3\n3\nfalse\n", ss.str());
+    cout.rdbuf(buf);
+}
+
 /*******************
  * Test Var
  */

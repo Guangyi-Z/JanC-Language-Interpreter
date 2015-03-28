@@ -15,9 +15,10 @@ public:
     void SetInt(int v) { i = v;}
 
     /* virtual methods */
-    Constant* ToNegative() { return new Int(-i);}
-    Constant* ToInc()      { return new Int(i+1);}
-    Constant* ToDec()      { return new Int(i-1);}
+    Constant* ToNot() { cerr << "Error: incorrect op-ToNot() for Int" << endl; return NULL;}
+    Constant* ToNeg() { return new Int(-i);}
+    Constant* ToInc() { return new Int(i+1);}
+    Constant* ToDec() { return new Int(i-1);}
 
     Arithmetic* Add(Arithmetic* o2) { return o2->GetType() == CONST_INT? AddInt((Int*)o2) : AddDouble((Double*)o2);}
     Arithmetic* Sub(Arithmetic* o2) { return o2->GetType() == CONST_INT? SubInt((Int*)o2) : SubDouble((Double*)o2);}
@@ -69,9 +70,10 @@ public:
     void SetDouble(double v) { d = v;}
 
     /* virtual methods */
-    Constant* ToNegative() { return new Double(-d);}
-    Constant* ToInc()      { return new Double(d+1);}
-    Constant* ToDec()      { return new Double(d-1);}
+    Constant* ToNot() { cerr << "Error: incorrect op-ToNot() for Double" << endl; return NULL;}
+    Constant* ToNeg() { return new Double(-d);}
+    Constant* ToInc() { cerr << "Error: incorrect op-ToInc() for Double" << endl; return NULL;}
+    Constant* ToDec() { cerr << "Error: incorrect op-ToDec() for Double" << endl; return NULL;}
 
     Arithmetic* Add(Arithmetic* o2) { return o2->GetType() == CONST_INT? AddInt((Int*)o2) : AddDouble((Double*)o2);}
     Arithmetic* Sub(Arithmetic* o2) { return o2->GetType() == CONST_INT? SubInt((Int*)o2) : SubDouble((Double*)o2);}
@@ -124,9 +126,10 @@ public:
     void SetString(string v) { s = v;}
 
     /* virtual methods */
-    Constant* ToNegative() { cerr << "Error: incorrect op on type String" << endl; return NULL;}
-    Constant* ToInc()      { cerr << "Error: incorrect op on type String" << endl; return NULL;}
-    Constant* ToDec()      { cerr << "Error: incorrect op on type String" << endl; return NULL;}
+    Constant* ToNot() { cerr << "Error: incorrect op-ToNot() for String" << endl; return NULL;}
+    Constant* ToNeg() { cerr << "Error: incorrect op-ToNeg() for String" << endl; return NULL;}
+    Constant* ToInc() { cerr << "Error: incorrect op-ToInc() for String" << endl; return NULL;}
+    Constant* ToDec() { cerr << "Error: incorrect op-ToDec() for String" << endl; return NULL;}
 
     Arithmetic* Add(Arithmetic* o2) {
         switch(o2->GetType()) {

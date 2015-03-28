@@ -24,7 +24,12 @@ OperandHandler* OperandHandlerFactory::GetOperandHandler(Operand *o) {
  */
 
 Constant* LiteralHandler::IntrOperand(NestedSymbolTable *sym, FuncTable *fsym, Constant **ret_val) {
-    return l->GetConst();
+    Constant *res = l->DoPrefixAssignableOP(l->GetConst());
+    /* Literal type has no suffix unary OP,
+     * if has, let error happens. */
+    l->DoSuffixAssignableOP(res);
+    res = l->DoPrefixUnassignableOP(l->GetConst());
+    return res;
 }
 
 Constant* RefArrayHandler::IntrOperand(NestedSymbolTable *sym, FuncTable *fsym, Constant **ret_val) {
@@ -35,7 +40,12 @@ Constant* RefArrayHandler::IntrOperand(NestedSymbolTable *sym, FuncTable *fsym, 
         exit(0);
     }
     int index = ((Int*)cindex)->GetInt();
-    return ((Array*)cindex)->At(index);
+    Constant *res = ((Array*)cindex)->At(index);
+    /* deal with unary OP */
+    res = r->DoPrefixAssignableOP(res);
+    ((Array*)cindex)->SetElement(index, r->DoSuffixAssignableOP(res));
+    res = r->DoPrefixUnassignableOP(res);
+    return res;
 }
 
 Constant* RefFuncHandler::IntrOperand(NestedSymbolTable *sym, FuncTable *fsym, Constant **ret_val) {
@@ -51,6 +61,11 @@ Constant* RefFuncHandler::IntrOperand(NestedSymbolTable *sym, FuncTable *fsym, C
     sym->DelFuncSymbolTable();
     Constant *res = *ret_val;
     *ret_val = NULL;
+    /* Function return type has no unary OP,
+     * if has, let error happens. */
+    res = r->DoPrefixAssignableOP(res);
+    r->DoSuffixAssignableOP(res);
+    res = r->DoPrefixUnassignableOP(res);
     return res;
 }
 
@@ -58,7 +73,14 @@ Constant* ReferenceHandler::IntrOperand(NestedSymbolTable *sym, FuncTable *fsym,
     Constant* con = sym->GetCurSymbolTable()->LookupSymbol(r->GetID());
     if (!con)
         cerr << "Error in IntrOperand: symbol not defined- " << r->GetID() << endl;
-    return con;
+    /* single var */
+    /* deal with unary OP */
+    Constant *res = con;
+    res = r->DoPrefixAssignableOP(res);
+    sym->GetCurSymbolTable()->ChangeSymbol(r->GetID(), r->DoSuffixAssignableOP(res));
+    res = r->DoPrefixUnassignableOP(res);
+    return res;
+
     /* todo */
     // Ref to array or func
 }

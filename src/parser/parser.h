@@ -47,7 +47,6 @@ private:
     bool EatToken(TOKEN t);
 
     Lexer lexer;
-    OpProperty pp;
 };
 
 #endif

@@ -60,22 +60,11 @@ void PrintASTExpOperand(Operand *o) {
     }
     if (o->GetType() == OPRD_LITERAL) {
         Literal *l = (Literal*) o;
-        switch(l->GetLiteralType()) {
-            case CONST_INT:
-                {
-                    Int* i = (Int*) l->GetConst();
-                    cout << i->GetInt();
-                }
-                break;
-            case CONST_DOUBLE:
-                {
-                    Double* d = (Double*) l->GetConst();
-                    cout << d->GetDouble();
-                }
-                break;
-            default:
-                break;
-        }
+        l->GetConst()->Print();
+    }
+    else {
+        Reference* r = (Reference*)o;
+        cout << r->GetID();
     }
     if (!o->GetPrefixOP().empty() || !o->GetSuffixOP().empty()) {
         for (OP op : o->GetSuffixOP()) {
@@ -231,6 +220,32 @@ TEST(test_parser, expression_with_unary_op) {
     PrintASTExp((AST_Expression*) st);
     cout << endl;
     // ++1------2++;
+    st = parser.ParseStatement();
+    PrintASTExp((AST_Expression*) st);
+    cout << endl;
+
+    s += "(--x)\n"
+         "(x++)\n"
+         "(-x)\n"
+         "(+x)\n"
+         "(!true)\n";
+    // --x;
+    st = parser.ParseStatement();
+    PrintASTExp((AST_Expression*) st);
+    cout << endl;
+    // x++;
+    st = parser.ParseStatement();
+    PrintASTExp((AST_Expression*) st);
+    cout << endl;
+    // -x;
+    st = parser.ParseStatement();
+    PrintASTExp((AST_Expression*) st);
+    cout << endl;
+    // +x;
+    st = parser.ParseStatement();
+    PrintASTExp((AST_Expression*) st);
+    cout << endl;
+    // !true;
     st = parser.ParseStatement();
     PrintASTExp((AST_Expression*) st);
     cout << endl;

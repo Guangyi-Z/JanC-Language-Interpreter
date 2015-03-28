@@ -18,8 +18,7 @@ public:
 
     virtual Constant* IntrOperand(NestedSymbolTable *sym, FuncTable *fsym, Constant **ret_val) = 0;
 private:
-    virtual void DoPrefixOP() = 0;
-    virtual void DoSuffixOP() = 0;
+    ;
 };
 
 class LiteralHandler : public OperandHandler {
@@ -28,8 +27,6 @@ public:
 
     Constant* IntrOperand(NestedSymbolTable *sym, FuncTable *fsym, Constant **ret_val);
 private:
-    void DoPrefixOP() {}
-    void DoSuffixOP() {}
 
     Literal *l;
 };
@@ -40,8 +37,6 @@ public:
 
     Constant* IntrOperand(NestedSymbolTable *sym, FuncTable *fsym, Constant **ret_val);
 private:
-    void DoPrefixOP() {}
-    void DoSuffixOP() {}
 
     RefArray *r;
 };
@@ -52,8 +47,6 @@ public:
 
     Constant* IntrOperand(NestedSymbolTable *sym, FuncTable *fsym, Constant **ret_val);
 private:
-    void DoPrefixOP() {}
-    void DoSuffixOP() {}
 
     RefFunc *r;
 };
@@ -64,50 +57,8 @@ public:
 
     Constant* IntrOperand(NestedSymbolTable *sym, FuncTable *fsym, Constant **ret_val);
 private:
-    void DoPrefixOP() {}
-    void DoSuffixOP() {}
 
     Reference *r;
 };
 
-// void Interpreter::DoPrefixOP(Operand *o) {
-//     if (o->GetPrefix().empty())
-//         return;
-//     for (OP op : o->GetPrefix()) {
-//         switch(op) {
-//             case OP_ADD:
-//                 /* empty */
-//                 break;
-//             case OP_SUB:
-//                 o->ToNegative();
-//                 break;
-//             case OP_INC:
-//                 o->ToInc();
-//                 break;
-//             case OP_DEC:
-//                 o->ToDec();
-//                 break;
-//             case OP_NOT:
-//                 /* to do */
-//                 break;
-//             default: ;
-//         }
-//     }
-// }
-//
-// void Interpreter::DoSuffixOP(Operand *o) {
-//     if (o->GetSuffix().empty())
-//         return;
-//     for (OP op : o->GetSuffix()) {
-//         switch(op) {
-//             case OP_INC:
-//                 o->ToInc();
-//                 break;
-//             case OP_DEC:
-//                 o->ToDec();
-//                 break;
-//             default: ;
-//         }
-//     }
-// }
 #endif

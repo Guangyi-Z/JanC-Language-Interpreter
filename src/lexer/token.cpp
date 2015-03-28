@@ -151,8 +151,7 @@ TOKEN Lexer::GetNextToken() {
                     goto bad_syntax;
             }
             break;
-        default:
-            break;
+        default: break;
         }
         lexem_buf[ibuf++] = cur;
         cur = Next();
@@ -196,7 +195,8 @@ TOKEN Lexer::LookaheadOneToken() {
     char cur_bak = cur;
     string lexem_bak(lexem_buf);
     OPEntry ope_bak = ope;
-    TOKEN t = GetNextToken();
+    TOKEN t_bak = t;
+    TOKEN res = GetNextToken();
 
     is_looking_ahead = false;
     cur = cur_bak;
@@ -205,11 +205,12 @@ TOKEN Lexer::LookaheadOneToken() {
         lexem_buf[ib++] = _c;
     lexem_buf[ib] = '\0';
     ope = ope_bak;
+    t = t_bak;
     while(!qin2.empty()) {
         qin.push_front(qin2.back());
         qin2.pop_back();
     }
-    return t;
+    return res;
 }
 
 /*
