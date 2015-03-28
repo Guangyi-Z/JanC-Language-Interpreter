@@ -40,10 +40,11 @@ Constant* RefArrayHandler::IntrOperand(NestedSymbolTable *sym, FuncTable *fsym, 
         exit(0);
     }
     int index = ((Int*)cindex)->GetInt();
-    Constant *res = ((Array*)cindex)->At(index);
+    Array *arr = (Array*)(sym->GetCurSymbolTable()->LookupSymbol(r->GetID()));
+    Constant *res = arr->At(index);
     /* deal with unary OP */
     res = r->DoPrefixAssignableOP(res);
-    ((Array*)cindex)->SetElement(index, r->DoSuffixAssignableOP(res));
+    arr->SetElement(index, r->DoSuffixAssignableOP(res));
     res = r->DoPrefixUnassignableOP(res);
     return res;
 }
@@ -78,7 +79,8 @@ void RefFuncHandler::BindFuncArgs(NestedSymbolTable *sym, FuncTable *fsym, Const
     }
     int cnt = 0;
     for (string name : names) {
-        sym->GetCurSymbolTable()->AddSymbol(name, Interpreter::IntrExpression(paras[cnt++], sym, fsym, back));
+        Constant* con = Interpreter::IntrExpression(paras[cnt++], sym, fsym, back);
+        sym->GetCurSymbolTable()->AddSymbol(name, con);
     }
 }
 

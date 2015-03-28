@@ -18,7 +18,7 @@ set(LIB_ROOT ./lib)
 include_directories(./src)
 add_subdirectory(src)
 add_executable(run src/main.cpp)
-target_link_libraries(run)
+target_link_libraries(run interpreter)
 
 ####################
 # Setup googletest #
