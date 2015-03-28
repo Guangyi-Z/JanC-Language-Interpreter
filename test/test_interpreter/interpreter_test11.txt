@@ -1,12 +1,18 @@
 var x = 5;
+
 if (true)
     x = 6;
+print(x);
+
 if (x == 5)
     x = 7;
 else x = 8;
+print(x);
+
 if (x == 5)
     x = 5;
 else if (x == 6)
     x = 6;
 else 
     x = 7;
+print(x);

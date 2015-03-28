@@ -1,13 +1,16 @@
 var x = 1;
-x;
+print(x);
 var y = 2.5;
-y;
+print(y);
 {
     var y = 1.5;
-    y;
+    print(y);
     {
         x = y;
+        print(x);
     }
 }
 x;
+print(x);
 y;
+print(y);

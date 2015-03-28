@@ -49,6 +49,7 @@ Constant* RefArrayHandler::IntrOperand(NestedSymbolTable *sym, FuncTable *fsym, 
     return res;
 }
 
+Constant* RefFuncHandler::illegal_ret_built = new Int(1);
 Constant* RefFuncHandler::IntrBuiltinFunc(NestedSymbolTable *sym, FuncTable *fsym, Constant **back) {
     if (r->GetID() == "len") {
         vector<AST_Expression*> vp = r->GetParameters();
@@ -64,7 +65,20 @@ Constant* RefFuncHandler::IntrBuiltinFunc(NestedSymbolTable *sym, FuncTable *fsy
         Array* arr = (Array*) carr;
         return new Int(arr->GetSize());
     }
-    return NULL;
+    if (r->GetID() == "print") {
+        bool is_first = true;
+        for (AST_Expression* para: r->GetParameters()) {
+            if (!is_first)
+                cout << " ";
+            else
+                is_first = false;
+            Constant *con = Interpreter::IntrExpression(para, sym, fsym, back);
+            con->Print();
+        }
+        cout << endl;
+        return NULL;
+    }
+    return illegal_ret_built;
 }
 
 void RefFuncHandler::BindFuncArgs(NestedSymbolTable *sym, FuncTable *fsym, Constant **back) {
@@ -91,7 +105,7 @@ void RefFuncHandler::UnbindFuncArgs(NestedSymbolTable *sym, FuncTable *fsym, Con
 Constant* RefFuncHandler::IntrOperand(NestedSymbolTable *sym, FuncTable *fsym, Constant **back) {
     /* Built-in Functions */
     Constant *res_builtin = IntrBuiltinFunc(sym, fsym, back);
-    if (res_builtin)
+    if (illegal_ret_built != res_builtin)
         return res_builtin;
 
     /* User-defined Functions */

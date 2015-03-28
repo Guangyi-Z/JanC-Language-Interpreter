@@ -1,16 +1,16 @@
 func simple() {
     return 1;
 }
-simple();
+print(simple());
 func simple2() {
     var x = 5;
     return x;
 }
-simple2();
+print(simple2());
 func simple3() {
     {
     return 2;
     }
     return 3;
 }
-simple3();
+print(simple3());

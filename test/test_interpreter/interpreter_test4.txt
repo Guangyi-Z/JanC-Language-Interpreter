@@ -1,8 +1,9 @@
 var arr_a[5] = {1,2,3,4,5};
-arr_a;
+print(arr_a);
 var arr_b[5] = {1.1,2.2,3.3};
-arr_b;
+print(arr_b);
 arr_b[3] = 4.4;
-arr_b;
+print(arr_b[3]);
+print(arr_b);
 var arr_c[4] = {true, 1,2.5,"hello world"};
-arr_c;
+print(arr_c);

@@ -17,4 +17,4 @@ func bubble_sort(arr) {
 
 var ls[] = {5,2,5,3,7,1,10};
 bubble_sort(ls);
-ls;
+print(ls);

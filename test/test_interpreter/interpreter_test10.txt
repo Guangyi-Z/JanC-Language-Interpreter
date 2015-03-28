@@ -1,5 +1,6 @@
 var arr[5] = {1,2,3};
-arr;
-arr.len();
+print(arr);
+print(arr.len());
 arr[4] = 4;
-arr;
+print(arr[4]);
+print(arr);

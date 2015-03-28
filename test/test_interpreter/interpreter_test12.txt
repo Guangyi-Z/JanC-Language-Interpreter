@@ -1,6 +1,7 @@
 var cnt = 0;
 while(cnt < 3) {
     cnt = cnt+1;
+    print(cnt);
 }
 
 while(true)
@@ -9,6 +10,7 @@ while(true)
 var cnt2 = 0;
 while(true) {
     cnt2 = cnt2 + 1;
+    print(cnt2);
     if (cnt2 == 3)
         break;
 }
@@ -16,6 +18,7 @@ while(true) {
 var cnt3 = 0;
 while(true) {
     cnt3 = cnt3 + 1;
+    print(cnt3);
     if (cnt3 < 3)
         continue;
     break;

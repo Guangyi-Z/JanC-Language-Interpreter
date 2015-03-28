@@ -1,12 +1,14 @@
-"hello";
+print("hello");
 
 var s = "hello";
-s;
+print(s);
 
 s = s + " world";
+print(s);
+
 var s2 = " world";
 var s3 = s + s2;
-s3;
+print(s3);
 
 if (s > s2)
-    "s2";
+    print("s2");

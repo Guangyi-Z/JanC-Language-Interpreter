@@ -50,6 +50,7 @@ private:
     Constant* IntrBuiltinFunc(NestedSymbolTable *sym, FuncTable *fsym, Constant **back);
     void BindFuncArgs(NestedSymbolTable *sym, FuncTable *fsym, Constant **back);
     void UnbindFuncArgs(NestedSymbolTable *sym, FuncTable *fsym, Constant **back);
+    static Constant *illegal_ret_built;
 
     RefFunc *r;
 };

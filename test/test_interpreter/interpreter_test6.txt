@@ -1,8 +1,8 @@
 var a = 1;
 var b = 2.5;
-1+a;
-b*a;
-b/a;
-b-a;
-3+a+b;
+print(1+a);
+print(b*a);
+print(b/a);
+print(b-a);
+print(3+a+b);
 

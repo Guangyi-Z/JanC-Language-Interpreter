@@ -22,8 +22,8 @@ void Interpreter::IntrStatement (AST_Statement *st, NestedSymbolTable *sym, Func
         {
             Constant *con = IntrExpression((AST_Expression*)st, sym, fsym, back);
             if (con) {
-                con->Print();
-                cout << endl;
+                // con->Print();
+                // cout << endl;
             }
         }
         break;

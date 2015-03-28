@@ -1,4 +1,4 @@
 var a = 1;
-a;
+print(a);
 var b = 2.5;
-b;
+print(b);

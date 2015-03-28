@@ -1,7 +1,9 @@
 var a = 1;
-a;
+print(a);
 var b = 2.5;
-b;
+print(b);
 a = 2;
+print(a);
 b = 3.5;
+print(b);
 

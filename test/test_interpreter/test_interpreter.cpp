@@ -200,6 +200,17 @@ TEST(test_function, function_with_arg) {
     cout.rdbuf(buf);
 }
 
+TEST(test_function, builtin_print) {
+    InterpreterController intr("../test/test_interpreter/interpreter_test18.txt");
+    stringstream ss;
+    auto buf = cout.rdbuf();
+    cout.rdbuf(ss.rdbuf());
+
+    intr.Continue();
+    EXPECT_EQ("1 2 3 4 5.5 \"hahaha\"\n", ss.str());
+    cout.rdbuf(buf);
+}
+
 // TEST(test_symbol_table, function_recursion) {
 //     InterpreterController intr("../test/test_interpreter/interpreter_test7.txt");
 //     stringstream ss;

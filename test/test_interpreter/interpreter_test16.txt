@@ -1,5 +1,5 @@
 var arr[5] = {1, 2, 3};
-len(arr);
+print(len(arr));
 var arr2[] = {1, 2, 3, 4};
-len(arr2);
+print(len(arr2));
 
