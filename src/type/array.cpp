@@ -18,6 +18,10 @@ void Array::SetElement(int index, Constant* _c) {
     vc[index] = _c;
 }
 
+int Array::Size() {
+    return sz_array;
+}
+
 /* Printer */
 void Array::Print() {
     cout << "[";

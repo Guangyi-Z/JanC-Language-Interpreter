@@ -112,6 +112,7 @@ public:
 
     Constant* At(int index);
     void SetElement(int index, Constant* _c);
+    int Size();
 
     Constant* ToNot() { cerr << "Error: incorrect op-ToNot() for Array" << endl; return NULL;}
     Constant* ToNeg() { cerr << "Error: incorrect op-ToNeg() for Array" << endl; return NULL;}

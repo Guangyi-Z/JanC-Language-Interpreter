@@ -87,9 +87,11 @@ public:
     void AddArgument(string arg) {
         vp.push_back(arg);
     }
+    vector<string> GetFormalParameters() { return vp;}
     void AddFunctionBody(AST_Block *_b) {
         block = _b;
     }
+    AST_Block* GetFunctionBody() { return block;}
 
     std::string id;
     std::vector<string> vp;

@@ -23,7 +23,7 @@ OperandHandler* OperandHandlerFactory::GetOperandHandler(Operand *o) {
  * OperandHandler
  */
 
-Constant* LiteralHandler::IntrOperand(NestedSymbolTable *sym, FuncTable *fsym, Constant **ret_val) {
+Constant* LiteralHandler::IntrOperand(NestedSymbolTable *sym, FuncTable *fsym, Constant **back) {
     Constant *res = l->DoPrefixAssignableOP(l->GetConst());
     /* Literal type has no suffix unary OP,
      * if has, let error happens. */
@@ -32,9 +32,9 @@ Constant* LiteralHandler::IntrOperand(NestedSymbolTable *sym, FuncTable *fsym, C
     return res;
 }
 
-Constant* RefArrayHandler::IntrOperand(NestedSymbolTable *sym, FuncTable *fsym, Constant **ret_val) {
+Constant* RefArrayHandler::IntrOperand(NestedSymbolTable *sym, FuncTable *fsym, Constant **back) {
     AST_Expression *e = r->GetIndex();
-    Constant *cindex = Interpreter::IntrExpression(e, sym, fsym, ret_val);
+    Constant *cindex = Interpreter::IntrExpression(e, sym, fsym, back);
     if (cindex->GetType() != CONST_INT) {
         cerr << "Error in UnpackVar: array index must be Int- " << cindex->GetType() << endl;
         exit(0);
@@ -48,19 +48,53 @@ Constant* RefArrayHandler::IntrOperand(NestedSymbolTable *sym, FuncTable *fsym, 
     return res;
 }
 
-Constant* RefFuncHandler::IntrOperand(NestedSymbolTable *sym, FuncTable *fsym, Constant **ret_val) {
+// Constant* RefFuncHandler::IntrBuiltinFunc(NestedSymbolTable *sym, FuncTable *fsym, Constant **back) {
+//     if (r->GetID() == "len") {
+//         ;
+//     }
+//     return NULL;
+// }
+
+void RefFuncHandler::BindFuncArgs(NestedSymbolTable *sym, FuncTable *fsym, Constant **back) {
+    sym->NewFuncSymbolTable();
+
+    AST_Func *func = (AST_Func*)(fsym->LookupSymbol(r->GetID()));
+    vector<AST_Expression*> paras = r->GetParameters();
+    vector<string> names = func->GetFormalParameters();
+    if (paras.size() != names.size()) {
+        cerr << "Error in BindFuncArgs: incorrect number of args" << endl;
+        exit(0);
+    }
+    int cnt = 0;
+    for (string name : names) {
+        sym->GetCurSymbolTable()->AddSymbol(name, Interpreter::IntrExpression(paras[cnt++], sym, fsym, back));
+    }
+}
+
+void RefFuncHandler::UnbindFuncArgs(NestedSymbolTable *sym, FuncTable *fsym, Constant **back) {
+    sym->DelFuncSymbolTable();
+}
+
+Constant* RefFuncHandler::IntrOperand(NestedSymbolTable *sym, FuncTable *fsym, Constant **back) {
+    BindFuncArgs(sym, fsym, back);
+    /* Built-in Functions */
+    // Constant res_builtin = IntrBuiltinFunc(sym, fsym, back);
+    // if (res_builtin) {
+    //     UnbindFuncArgs(sym, fsym, back);
+    //     return res_builtin;
+    // }
+    /* User-defined Functions */
     if (!fsym->IsSymbolDefined(r->GetID())) {
         cerr << "Error in IntrOperand: symbol " << r->GetID() << " not defined" << endl;
         exit(0);
     }
-    sym->NewFuncSymbolTable();
     AST_Func *func = (AST_Func*)(fsym->LookupSymbol(r->GetID()));
     for (AST_Statement *st : func->block->statements) {
-        Interpreter::IntrStatement(st, sym, fsym, ret_val);
+        Interpreter::IntrStatement(st, sym, fsym, back);
     }
-    sym->DelFuncSymbolTable();
-    Constant *res = *ret_val;
-    *ret_val = NULL;
+    UnbindFuncArgs(sym, fsym, back);
+    Constant *res = *back;
+    *back = NULL;
     /* Function return type has no unary OP,
      * if has, let error happens. */
     res = r->DoPrefixAssignableOP(res);
@@ -69,7 +103,7 @@ Constant* RefFuncHandler::IntrOperand(NestedSymbolTable *sym, FuncTable *fsym, C
     return res;
 }
 
-Constant* ReferenceHandler::IntrOperand(NestedSymbolTable *sym, FuncTable *fsym, Constant **ret_val) {
+Constant* ReferenceHandler::IntrOperand(NestedSymbolTable *sym, FuncTable *fsym, Constant **back) {
     Constant* con = sym->GetCurSymbolTable()->LookupSymbol(r->GetID());
     if (!con)
         cerr << "Error in IntrOperand: symbol not defined- " << r->GetID() << endl;

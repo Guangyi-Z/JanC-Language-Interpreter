@@ -188,6 +188,18 @@ TEST(test_function, function_no_arg) {
     cout.rdbuf(buf);
 }
 
+TEST(test_function, function_with_arg) {
+    InterpreterController intr("../test/test_interpreter/interpreter_test17.txt");
+    stringstream ss;
+    auto buf = cout.rdbuf();
+    cout.rdbuf(ss.rdbuf());
+
+    intr.Continue();
+    string stest = "3\n5.7\n\"hello world\"\n";
+    EXPECT_EQ(stest, ss.str());
+    cout.rdbuf(buf);
+}
+
 // TEST(test_symbol_table, function_recursion) {
 //     InterpreterController intr("../test/test_interpreter/interpreter_test7.txt");
 //     stringstream ss;
