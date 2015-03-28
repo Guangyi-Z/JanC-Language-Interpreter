@@ -18,7 +18,7 @@ void Array::SetElement(int index, Constant* _c) {
     vc[index] = _c;
 }
 
-int Array::Size() {
+int Array::GetSize() {
     return sz_array;
 }
 

@@ -48,12 +48,23 @@ Constant* RefArrayHandler::IntrOperand(NestedSymbolTable *sym, FuncTable *fsym, 
     return res;
 }
 
-// Constant* RefFuncHandler::IntrBuiltinFunc(NestedSymbolTable *sym, FuncTable *fsym, Constant **back) {
-//     if (r->GetID() == "len") {
-//         ;
-//     }
-//     return NULL;
-// }
+Constant* RefFuncHandler::IntrBuiltinFunc(NestedSymbolTable *sym, FuncTable *fsym, Constant **back) {
+    if (r->GetID() == "len") {
+        vector<AST_Expression*> vp = r->GetParameters();
+        if (vp.size() != 1) {
+            cerr << "Error in IntrBuiltinFunc::len: incorrect args number" << endl;
+            exit(0);
+        }
+        Constant *carr = Interpreter::IntrExpression(vp[0], sym, fsym, back);
+        if (carr->GetType() != CONST_ARRAY) {
+            cerr << "Error in IntrBuiltinFunc::len: array symbol not defined- " << r->GetID() << endl;
+            exit(0);
+        }
+        Array* arr = (Array*) carr;
+        return new Int(arr->GetSize());
+    }
+    return NULL;
+}
 
 void RefFuncHandler::BindFuncArgs(NestedSymbolTable *sym, FuncTable *fsym, Constant **back) {
     sym->NewFuncSymbolTable();
@@ -76,14 +87,13 @@ void RefFuncHandler::UnbindFuncArgs(NestedSymbolTable *sym, FuncTable *fsym, Con
 }
 
 Constant* RefFuncHandler::IntrOperand(NestedSymbolTable *sym, FuncTable *fsym, Constant **back) {
-    BindFuncArgs(sym, fsym, back);
     /* Built-in Functions */
-    // Constant res_builtin = IntrBuiltinFunc(sym, fsym, back);
-    // if (res_builtin) {
-    //     UnbindFuncArgs(sym, fsym, back);
-    //     return res_builtin;
-    // }
+    Constant *res_builtin = IntrBuiltinFunc(sym, fsym, back);
+    if (res_builtin)
+        return res_builtin;
+
     /* User-defined Functions */
+    BindFuncArgs(sym, fsym, back);
     if (!fsym->IsSymbolDefined(r->GetID())) {
         cerr << "Error in IntrOperand: symbol " << r->GetID() << " not defined" << endl;
         exit(0);
@@ -107,13 +117,19 @@ Constant* ReferenceHandler::IntrOperand(NestedSymbolTable *sym, FuncTable *fsym,
     Constant* con = sym->GetCurSymbolTable()->LookupSymbol(r->GetID());
     if (!con)
         cerr << "Error in IntrOperand: symbol not defined- " << r->GetID() << endl;
-    /* single var */
-    /* deal with unary OP */
-    Constant *res = con;
-    res = r->DoPrefixAssignableOP(res);
-    sym->GetCurSymbolTable()->ChangeSymbol(r->GetID(), r->DoSuffixAssignableOP(res));
-    res = r->DoPrefixUnassignableOP(res);
-    return res;
+    if (con->GetType() == CONST_ARRAY) {
+        /* array ref */
+        return con;
+    }
+    else {
+        /* single var */
+        /* deal with unary OP */
+        Constant *res = con;
+        res = r->DoPrefixAssignableOP(res);
+        sym->GetCurSymbolTable()->ChangeSymbol(r->GetID(), r->DoSuffixAssignableOP(res));
+        res = r->DoPrefixUnassignableOP(res);
+        return res;
+    }
 
     /* todo */
     // Ref to array or func
