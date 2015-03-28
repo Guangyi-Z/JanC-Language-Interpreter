@@ -24,6 +24,9 @@ class Constant;
 class Arithmetic;
 class Array;
 class Bool;
+class Int;
+class Double;
+class String;
 
 class Constant {
 public:
@@ -105,11 +108,10 @@ private:
 
 class Array : public Constant {
 public:
-    Array(int _sz) : Constant(CONST_ARRAY) { sz_array = _sz;}
+    Array(int _sz);
 
-    void AddElement(Constant* _c) { vc.push_back(_c);}
-    Constant* At(int index)       { return vc[index];}
-    void SetElement(int index, Constant* _c) { vc[index] = _c;}
+    Constant* At(int index);
+    void SetElement(int index, Constant* _c);
 
     Constant* ToNot() { cerr << "Error: incorrect op-ToNot() for Array" << endl; return NULL;}
     Constant* ToNeg() { cerr << "Error: incorrect op-ToNeg() for Array" << endl; return NULL;}
@@ -117,14 +119,7 @@ public:
     Constant* ToDec() { cerr << "Error: incorrect op-ToDec() for Array" << endl; return NULL;}
 
     /* Printer */
-    void Print() {
-        cout << "[";
-        for (Constant *c : vc) {
-            c->Print();
-            cout << ", ";
-        }
-        cout << "]";
-    }
+    void Print();
 private:
     vector<Constant*> vc;
     int sz_array;

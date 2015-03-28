@@ -119,9 +119,24 @@ TEST(test_var, array) {
     cout.rdbuf(ss.rdbuf());
 
     intr.Continue();
-    EXPECT_EQ("[1, 2, 3, 4, 5, ]\n[1.1, 2.2, 3.3, ]\n[true, 1, 2.5, \"hello world\", ]\n", ss.str());
+    EXPECT_EQ("[1, 2, 3, 4, 5, ]\n"
+              "[1.1, 2.2, 3.3, 0, 0, ]\n"
+              "4.4\n"
+              "[1.1, 2.2, 3.3, 4.4, 0, ]\n"
+              "[true, 1, 2.5, \"hello world\", ]\n", ss.str());
     cout.rdbuf(buf);
 }
+
+// TEST(test_var, array_len) {
+//     InterpreterController intr("../test/test_interpreter/interpreter_test16.txt");
+//     stringstream ss;
+//     auto buf = cout.rdbuf();
+//     cout.rdbuf(ss.rdbuf());
+//
+//     intr.Continue();
+//     EXPECT_EQ("[1, 2, 3, 4, 5, ]\n[1.1, 2.2, 3.3, ]\n[true, 1, 2.5, \"hello world\", ]\n", ss.str());
+//     cout.rdbuf(buf);
+// }
 
 /*******************
  * Test Structure

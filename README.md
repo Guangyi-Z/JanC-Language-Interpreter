@@ -25,7 +25,7 @@ Besides, Array elements are not restricted to one specific type.
 You can mix up elements of several types in one Array.
 
 ```
-var arr[5] = {1,2,3};   // default as 0
+var arr[5] = {1,2,3};   // default as 0, i.e. [1,2,3,0,0]
 arr.len();  // 5
 arr[4] = 4;
 ```

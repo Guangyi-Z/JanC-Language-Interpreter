@@ -68,9 +68,10 @@ Constant* Interpreter::IntrArrayContent(AST_Array *array, NestedSymbolTable *sym
         return NULL;
 
     Array *arr = new Array(array->sz_array);
+    int index = 0;
     for (AST_Expression* e : array->ve) {
         Constant *_con = IntrExpression(e, sym, fsym, back);
-        arr->AddElement(_con);
+        arr->SetElement(index++, _con);
     }
     return arr;
 }
@@ -141,22 +142,52 @@ Constant* Interpreter::DoBinaryOP(Constant* con1, Constant *con2, OP op) {
     return NULL;
 }
 
+Constant* Interpreter::IntrAssignment(AST_Expression* exp, NestedSymbolTable *sym, FuncTable *fsym, Constant **back) {
+    AST_Expression *lv = exp->e1;
+    if (!lv->IsLeaf())
+        goto unassignable;
+    {
+    Operand *o = exp->e1->o;
+    Constant* rv = IntrExpression(exp->e2, sym, fsym, back);
+    switch(o->GetType()) {
+    case OPRD_REF:
+        {
+            Reference *r = (Reference*)(o);
+            if (fsym->IsSymbolDefined(r->GetID()))
+                goto unassignable;
+            sym->GetCurSymbolTable()->ChangeSymbol(r->GetID(), rv);
+        }
+        break;
+    case OPRD_REFARRAY:
+        {
+            RefArray *r = (RefArray*)(o);
+            Constant *cindex = IntrExpression(r->GetIndex(), sym, fsym, back);
+            if (cindex->GetType() != CONST_INT) {
+                cerr << "Error in IntrAssignment: array index must be Int type" << endl;
+                exit(0);
+            }
+            int index = ((Int*)cindex)->GetInt();
+            Array* arr = (Array*)(sym->GetCurSymbolTable()->LookupSymbol(r->GetID()));
+            arr->SetElement(index, rv);
+        }
+        break;
+    default:
+        goto unassignable;
+    }
+    return rv;
+    }
+unassignable:
+    cerr << "Error in IntrAssignment: l-value must be assignable" << endl;
+    exit(0);
+}
+
 Constant* Interpreter::IntrExpression(AST_Expression* exp, NestedSymbolTable *sym, FuncTable *fsym, Constant **back) {
     if (exp->IsLeaf()) {
         return IntrOperand(exp->o, sym, fsym, back);
     }
     // For assgiment
-    if (exp->op == OP_ASSIGN) {
-        AST_Expression *lv = exp->e1;
-        if (!lv->IsLeaf() || lv->o->GetType() != OPRD_REF) {
-            cerr << "Error in IntrExpression: l-value must be assignable" << endl;
-            exit(0);
-        }
-        Reference *r = (Reference*)(lv->o);
-        Constant* rv = IntrExpression(exp->e2, sym, fsym, back);
-        sym->GetCurSymbolTable()->ChangeSymbol(r->GetID(), rv);
-        return rv;
-    }
+    if (exp->op == OP_ASSIGN)
+        return IntrAssignment(exp, sym, fsym, back);
     // Normal recursive process
     Constant* con1 = IntrExpression(exp->e1, sym, fsym, back);
     Constant* con2 = IntrExpression(exp->e2, sym, fsym, back);

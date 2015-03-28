@@ -16,6 +16,7 @@ public:
     static void IntrBlock(AST_Block* block, NestedSymbolTable *sym, FuncTable *fsym, Constant **back);
     static void IntrIf(AST_If* ifs, NestedSymbolTable *sym, FuncTable *fsym, Constant **back);
     static void IntrWhile(AST_While* sw, NestedSymbolTable *sym, FuncTable *fsym, Constant **back);
+    static Constant* IntrAssignment(AST_Expression* exp, NestedSymbolTable *sym, FuncTable *fsym, Constant **back);
     static Constant* IntrExpression(AST_Expression* e, NestedSymbolTable *sym, FuncTable *fsym, Constant **back);
     static Constant* IntrOperand(Operand *o, NestedSymbolTable *sym, FuncTable *fsym, Constant **back);
     static Constant* IntrArrayContent(AST_Array *array, NestedSymbolTable *sym, FuncTable *fsym, Constant **back);
