@@ -343,6 +343,7 @@ AST_Statement* Parser::ParseStatement() {
     case TOK_ID:
     case TOK_PAREN_LEFT:
     case TOK_OP:
+    case TOK_STRING:
         {
             AST_Expression* e = ParseExpression();
             EatToken(TOK_SEMI);
