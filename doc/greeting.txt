@@ -1,0 +1,5 @@
+Welcome to JanC Interpreter!
+
+Usage:
+1. load FILENAME.janc
+2. quit
