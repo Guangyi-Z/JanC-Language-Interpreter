@@ -70,7 +70,19 @@ TEST(test_interpreter, string_exp) {
     cout.rdbuf(ss.rdbuf());
 
     intr.Continue();
-    EXPECT_EQ("\"hello\"\n\"hello\"\n\"hello world\"\n\"hello world world\"\n", ss.str());
+    EXPECT_EQ("\"hello\"\n\"hello\"\n\"hello world\"\n\"hello world world\"\n\"s2\"\n", ss.str());
+    cout.rdbuf(buf);
+}
+
+TEST(test_expression, logic) {
+    InterpreterController intr("../test/test_interpreter/interpreter_test14.txt");
+
+    stringstream ss;
+    auto buf = cout.rdbuf();
+    cout.rdbuf(ss.rdbuf());
+
+    intr.Continue();
+    EXPECT_EQ("1\n3\n", ss.str());
     cout.rdbuf(buf);
 }
 

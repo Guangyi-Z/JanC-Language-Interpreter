@@ -7,3 +7,6 @@ s = s + " world";
 var s2 = " world";
 var s3 = s + s2;
 s3;
+
+if (s > s2)
+    "s2";
