@@ -62,15 +62,15 @@ const OPEntry OP_Action_Table[2][OP_NUMBER_OF_OP] = {
     },
     {
         // 0th
-        OPEntry('&' , OP_AND    , {}) , // &&
-        OPEntry('|' , OP_OR     , {}) , // ||
-        OPEntry('=' , OP_EQ , {}) , // ==
-        OPEntry('=' , OP_NOT_EQ , {}) , // !=
-        OPEntry('=' , OP_GT     , {}) , // >=
+        OPEntry('&' , OP_AND    , { }) , // &&
+        OPEntry('|' , OP_OR     , { }) , // ||
+        OPEntry('=' , OP_EQ     , { }) , // ==
+        OPEntry('=' , OP_NOT_EQ , { }) , // !=
+        OPEntry('=' , OP_GT_EQ  , { }) , // >=
         // 5th
-        OPEntry('=' , OP_LT  , {})    , // <=
-        OPEntry('+' , OP_INC , {})    , // ++
-        OPEntry('-' , OP_DEC , {})      // --
+        OPEntry('=' , OP_LT_EQ , {})   , // <=
+        OPEntry('+' , OP_INC   , {})   , // ++
+        OPEntry('-' , OP_DEC   , {})     // --
     }
 };
 

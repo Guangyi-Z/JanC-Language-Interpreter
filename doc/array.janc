@@ -1,0 +1,4 @@
+var arr[5] = {1,2,3};
+print("len:", len(arr), arr);
+arr[4] = 4;
+print(arr[4]);

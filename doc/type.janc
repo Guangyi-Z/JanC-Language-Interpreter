@@ -1,0 +1,29 @@
+var b = true;
+if (b)
+    b = false;
+print(b);
+print(!b);
+
+var num = 4;
+print(++num);
+print(num++);
+print(num);
+num = num / 2;
+print(+num);
+print(-num);
+
+num = 2.5;
+print(num+1);
+
+var str = "hello";
+print(str, "world");
+str = str + " world";
+print(str);
+var secp = "\"\"\"";
+print (secp);
+
+var arr[] = {true, 1, 2.5, "string"};
+print("len:", len(arr));
+print(arr);
+arr[0] = false;
+print(arr[0]);

@@ -1,0 +1,9 @@
+var cnt = 0;
+while(true) {
+    cnt++;
+    if (cnt <= 3) {
+        print(cnt);
+        continue;
+    }
+    break;
+}

@@ -1,0 +1,7 @@
+func add (x, y) {
+    return x+y;
+}
+
+print(add(1, 1));
+print(add(1, 2.5));
+print(add("hello", " world"));
