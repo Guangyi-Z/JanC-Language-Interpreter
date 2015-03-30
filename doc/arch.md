@@ -1,24 +1,5 @@
 ##Architecture
 
-###Grammar
-
-```
-Program     :: = Statement*
-Statement   :: = ST_Block | ST_Var; | ST_Expression; | ST_Func | ST_If | ST_While | ST_Return; | ST_Continue; | ST_Break;
-ST_Block    :: = "{" Statement* "}"
-ST_Var      :: = var ID ("["Int”]”)? (= Constant)? ;
-ST_Func     :: = func ID “(“ (ID,)* “)” ST_Block
-ST_If       :: = if “(“ST_Expression”)” Statement (elseif (ST_Expression) Statement)* (else Statement)?
-ST_While    :: = while “(“ST_Expression”)” Statement
-ST_Return   :: = return ST_Expression
-ST_Continue :: = continue
-ST_Break    :: = break
-ID          :: = String
-Constant    :: = Basic | Array
-Array       :: = "{" (Basic,)? "}"
-Basic       :: = String | Int | Double | Bool
-```
-
 ###System Architecture
 
 ####Modules Dependency
